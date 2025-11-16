@@ -52,9 +52,9 @@ export const Hero = () => {
             </h1>
 
             <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-              Drop your career page. We'll tell you exactly why nobody's
-              applying — or if you're actually offering market rate for a
-              unicorn engineer.
+              Drop your career page. We&apos;ll tell you exactly why
+              nobody&apos;s applying — or if you&apos;re actually offering
+              market rate for a unicorn engineer.
             </p>
 
             {/* Career Page Input Section */}
@@ -95,7 +95,7 @@ export const Hero = () => {
             </div>
 
             <p className="text-sm text-gray-500 mb-6">
-              No pressure. It's only your hiring budget on the line.
+              No pressure. It&apos;s only your hiring budget on the line.
             </p>
 
             <div className="flex flex-wrap items-center justify-center gap-8 text-base text-gray-600 mt-8">
