@@ -1,129 +1,120 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Play } from "lucide-react";
+import { Link2, Zap, Target, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
 
-export default function Hero() {
+export const Hero = () => {
+  const [careerPageUrl, setCareerPageUrl] = useState("");
+
+  const handleAnalyze = () => {
+    if (careerPageUrl.trim()) {
+      // Handle the career page URL analysis
+      console.log("Analyzing career page:", careerPageUrl);
+      // You can add your logic here to process the URL
+    }
+  };
+
   return (
-    <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-white">
+    <section className="relative min-h-screen flex items-center pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-white mb-8">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-200/30 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="section-container relative z-10">
+      <div className="section-container relative z-10 w-full">
         <div className="text-center max-w-5xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center space-x-2 bg-primary-50 text-primary-700 px-4 py-2 rounded-full mb-6 border border-primary-100">
-              <span className="w-2 h-2 bg-primary-500 rounded-full animate-pulse"></span>
-              <span className="text-sm font-semibold">
-                Your Hiring Process Probably Sucks
+            <div className="inline-flex items-center space-x-2 bg-red-50 text-red-700 px-4 py-2 rounded-full mb-4 border border-red-200">
+              <span className="text-sm font-bold">
+                🚨 YOUR JOB POSTING PROBABLY SUCKS
               </span>
             </div>
 
-            <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold mb-6 leading-tight">
-              <span className="gradient-text">Instant Hiring</span>
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
+              <span className="gradient-text">
+                Instant Hiring Reality Check.
+              </span>
               <br />
-              Reality Check.
-              <br />
-              <span className="text-3xl md:text-4xl lg:text-5xl">
+              <span className="text-2xl md:text-3xl lg:text-4xl text-gray-900">
                 Before You Waste 2 Months.
+              </span>
+              <br />
+              <span className="text-xl md:text-2xl lg:text-3xl text-gray-600">
+                (And Your Hiring Budget)
               </span>
             </h1>
 
-            <p className="text-xl md:text-2xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Get feasibility score, salary benchmarks, competition analysis,
-              red flags and recommendations — in seconds.
+            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+              Drop your career page. We&apos;ll tell you exactly why
+              nobody&apos;s applying — or if you&apos;re actually offering
+              market rate for a unicorn engineer.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-              <Link
-                href="/create"
-                className="btn-primary flex items-center space-x-2 text-lg"
-              >
-                <span>Fix My Mess 🔥</span>
-                <ArrowRight className="w-5 h-5" />
-              </Link>
-              <button className="btn-secondary flex items-center space-x-2 text-lg">
-                <Play className="w-5 h-5" />
-                <span>See It Work (Proof)</span>
-              </button>
+            {/* Career Page Input Section */}
+            <div className="max-w-2xl mx-auto mb-4">
+              <div className="flex flex-col sm:flex-row gap-3 p-2 bg-white rounded-xl shadow-lg border border-gray-200">
+                <div className="flex-1 relative">
+                  <Link2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <input
+                    type="url"
+                    value={careerPageUrl}
+                    onChange={(e) => setCareerPageUrl(e.target.value)}
+                    placeholder="Paste your career page URL... we'll analyze the reality."
+                    className="w-full pl-10 pr-3 py-3 text-sm bg-transparent border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-400"
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        handleAnalyze();
+                      }
+                    }}
+                  />
+                </div>
+                <button
+                  onClick={handleAnalyze}
+                  className="btn-primary flex items-center justify-center space-x-2 text-sm px-6 py-3 whitespace-nowrap"
+                >
+                  <span>Reality Check</span>
+                </button>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-gray-500">
+            <div className="flex flex-col items-center justify-center gap-3 mb-10">
+              <p className="text-base text-gray-500 font-medium">Or</p>
+              <Link
+                href="/create"
+                className="btn-primary flex items-center justify-center space-x-2 text-sm px-6 py-3"
+              >
+                <span>Build From Scratch</span>
+              </Link>
+            </div>
+
+            <p className="text-sm text-gray-500 mb-6">
+              No pressure. It&apos;s only your hiring budget on the line.
+            </p>
+
+            <div className="flex flex-wrap items-center justify-center gap-8 text-base text-gray-600 mt-8">
               <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold text-primary-600">⚡</span>
-                <span>Faster than your last bad hire</span>
+                <Zap className="w-7 h-7 text-red-600 fill-red-600" />
+                <span className="font-medium">Faster than regret</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold text-primary-600">🎯</span>
-                <span>8+ card types (we counted)</span>
+                <Target className="w-7 h-7 text-red-600" />
+                <span className="font-medium">Brutally honest scoring</span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-2xl font-bold text-primary-600">✨</span>
-                <span>AI that doesn't suck</span>
+                <Sparkles className="w-7 h-7 text-red-600" />
+                <span className="font-medium">No BS, just data</span>
               </div>
             </div>
           </motion.div>
         </div>
-
-        {/* Hero Image/Cards Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.2 }}
-          className="mt-16 max-w-6xl mx-auto"
-        >
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent to-transparent z-10"></div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 perspective-1000">
-              {/* Sample Cards */}
-              {[
-                {
-                  title: "Role Definition",
-                  color: "from-blue-500 to-blue-600",
-                  icon: "💼",
-                },
-                {
-                  title: "Market Data",
-                  color: "from-purple-500 to-purple-600",
-                  icon: "📊",
-                },
-                {
-                  title: "Salary Range",
-                  color: "from-pink-500 to-pink-600",
-                  icon: "💰",
-                },
-              ].map((card, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, rotateY: -20, y: 20 }}
-                  animate={{ opacity: 1, rotateY: 0, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.4 + index * 0.1 }}
-                  className="card hover:scale-105 transition-transform duration-300"
-                >
-                  <div
-                    className={`w-full h-48 bg-gradient-to-br ${card.color} rounded-lg p-6 text-white flex flex-col justify-between`}
-                  >
-                    <div className="text-5xl">{card.icon}</div>
-                    <div>
-                      <h3 className="text-xl font-bold mb-2">{card.title}</h3>
-                      <div className="h-2 bg-white/30 rounded-full w-3/4"></div>
-                      <div className="h-2 bg-white/30 rounded-full w-1/2 mt-2"></div>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </motion.div>
       </div>
     </section>
   );
-}
+};

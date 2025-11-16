@@ -99,7 +99,7 @@ export default function HowItWorks() {
             className="text-center mt-16"
           >
             <a href="/create" className="btn-primary text-lg inline-block">
-              Let's Do This 🚀
+              Let&apos;s Do This 🚀
             </a>
           </motion.div>
         </div>

@@ -58,7 +58,7 @@ export default function FAQ() {
               Your Burning Questions
               <br />
               <span className="text-2xl md:text-3xl font-normal text-gray-600">
-                (Probably Dumb, But We'll Answer)
+                (Probably Dumb, But We&apos;ll Answer)
               </span>
             </h2>
           </motion.div>
@@ -112,7 +112,7 @@ export default function FAQ() {
           className="text-center mt-12"
         >
           <p className="text-gray-500 italic mb-6">
-            My circuits are fried. You're on your own now, champ.
+            My circuits are fried. You&apos;re on your own now, champ.
           </p>
           <a href="/create" className="btn-primary text-lg inline-block">
             Just Take Me to the Cards Already 🚀

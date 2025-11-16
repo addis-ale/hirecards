@@ -52,7 +52,7 @@ export default function Testimonials() {
               </span>
             </h2>
             <p className="text-xl text-gray-600">
-              (They're still surprised this actually works)
+              (They&apos;re still surprised this actually works)
             </p>
           </motion.div>
         </div>
@@ -76,7 +76,7 @@ export default function Testimonials() {
                 ))}
               </div>
               <p className="text-gray-700 mb-6 leading-relaxed italic">
-                "{testimonial.text}"
+                &ldquo;{testimonial.text}&rdquo;
               </p>
               <div className="flex items-center space-x-3 pt-4 border-t border-gray-100">
                 <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 flex items-center justify-center text-2xl">

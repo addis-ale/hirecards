@@ -83,11 +83,11 @@ export default function Features() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              This Isn't Just
+              This Isn&apos;t Just
               <span className="gradient-text"> Pretty Cards</span>
               <br />
               <span className="text-2xl md:text-3xl font-normal text-gray-600">
-                It's Structured Smackdown for Bad Hiring
+                It&apos;s Structured Smackdown for Bad Hiring
               </span>
             </h2>
             <p className="text-xl text-gray-600">
