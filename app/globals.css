@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gray-2: #4f5c65;
+  --gray-1: #353e44;
+  --gray-3: #e9eef1;
+  --white: white;
+  --primary-2: #0fbf95;
+  --primary-1: #4285f4;
+  --primary-3: #041e39;
+  --light-blue: #f0f6ff;
+  --success: #3cba58;
+  --warning: #ffb400;
+  --danger: #da2424;
+  --gray-4: #f7fafc;
+  --primary-6: #344054;
+  --primary-5: #1570ef;
+  --primary-7: #101828;
+  --primary-4: #1d2939;
+  --grey-text: #475467;
+  --dim-light-blue: #f5faff;
+  --black: black;
+  --ph: #da552f;
+  --font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+  --lightgrey: #abb0bb;
+  --lightblue-2: #d1e9ff;
+  --svgarrowcolor: #98a2b3;
+  --light-blue-bg: #deefff;
+  --nav-bg-hover-color: #c9e6ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+    font-family: sans-serif;
+  }
+
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--gray-2);
+    background-color: #fff;
+    padding-left: 0;
+    font-family: Rubik, sans-serif;
+    font-size: 16px;
+    line-height: 24px;
+    min-height: 100%;
+    margin: 0;
+  }
+
+  canvas {
+    vertical-align: baseline;
+    display: inline-block;
+  }
+}
+
+@layer components {
+  .gradient-canvas {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    --gradient-color-1: #ffffff;
+    --gradient-color-2: #ffffff;
+    --gradient-color-3: #ffffff;
+    --gradient-color-4: #cfe9ff;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .content-wrapper {
+    position: relative;
+    z-index: 1;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 bg-white text-gray-900 font-semibold rounded-lg border-2 border-gray-200 hover:border-primary-500 hover:text-primary-600 transition-all duration-200;
+  }
+
+  .card {
+    @apply bg-white rounded-xl shadow-md hover:shadow-xl transition-shadow duration-300 p-6;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-600;
+  }
+
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--gray-3);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--lightgrey);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-2);
+}
