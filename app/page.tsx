@@ -1,4 +1,5 @@
 import { Hero } from "@/components/Hero";
+import TrustedBy from "@/components/TrustedBy";
 import SampleOutput from "@/components/SampleOutput";
 import Features from "@/components/Features";
 import HowItWorks from "@/components/HowItWorks";
@@ -18,6 +19,7 @@ export default function Home() {
       <main className="min-h-screen content-wrapper">
         <Navbar />
         <Hero />
+        <TrustedBy />
         <SampleOutput />
         <Features />
         <HowItWorks />
