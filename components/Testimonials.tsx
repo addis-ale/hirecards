@@ -45,7 +45,8 @@ export default function Testimonials() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="gradient-text">Real People</span> Who No Longer
+              <span className="text-primary-600">Real People</span> Who No
+              Longer
               <br />
               <span className="text-3xl md:text-4xl">
                 Hate Their Hiring Process

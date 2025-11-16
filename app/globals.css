@@ -82,7 +82,7 @@
   }
 
   .btn-primary {
-    @apply px-6 py-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200;
+    @apply px-6 py-3 bg-primary-600 text-white font-semibold rounded-lg shadow-lg hover:shadow-xl hover:bg-primary-700 transform hover:scale-105 transition-all duration-200;
   }
 
   .btn-secondary {

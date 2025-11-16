@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import Link from 'next/link';
-import { Menu, X, Sparkles } from 'lucide-react';
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { Menu, X, Sparkles } from "lucide-react";
 
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -12,14 +12,14 @@ export default function Navbar() {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-md' : 'bg-transparent'
+        isScrolled ? "bg-white/95 backdrop-blur-sm shadow-md" : "bg-transparent"
       }`}
     >
       <div className="section-container">
@@ -29,20 +29,29 @@ export default function Navbar() {
             <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform">
               <Sparkles className="w-6 h-6 text-white" />
             </div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-secondary-600">
+            <span className="text-2xl font-bold text-primary-600">
               HireCards
             </span>
           </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/#features" className="text-gray-700 hover:text-primary-600 transition-colors font-medium">
+            <Link
+              href="/#features"
+              className="text-gray-700 hover:text-primary-600 transition-colors font-medium"
+            >
               Features
             </Link>
-            <Link href="/#how-it-works" className="text-gray-700 hover:text-primary-600 transition-colors font-medium">
+            <Link
+              href="/#how-it-works"
+              className="text-gray-700 hover:text-primary-600 transition-colors font-medium"
+            >
               How It Works
             </Link>
-            <Link href="/#testimonials" className="text-gray-700 hover:text-primary-600 transition-colors font-medium">
+            <Link
+              href="/#testimonials"
+              className="text-gray-700 hover:text-primary-600 transition-colors font-medium"
+            >
               Testimonials
             </Link>
             <Link href="/create" className="btn-primary">

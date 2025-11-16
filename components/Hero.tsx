@@ -31,28 +31,19 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center justify-center space-x-2 bg-red-50 text-red-700 px-4 py-2 rounded-full mb-4 border border-red-200">
-              <FileWarning className="w-4 h-4 flex-shrink-0" />
-              <span className="text-sm font-bold leading-none">
-                YOUR JOB POSTING PROBABLY SUCKS
-              </span>
-            </div>
-
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-tight">
-              <span className="gradient-text">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 leading-relaxed">
+              <span className="text-primary-600 block mb-3">
                 Instant Hiring Reality Check.
               </span>
-              <br />
-              <span className="text-2xl md:text-3xl lg:text-4xl text-gray-900">
+              <span className="text-2xl md:text-3xl lg:text-4xl text-gray-900 block mb-2">
                 Before You Waste 2 Months.
               </span>
-              <br />
-              <span className="text-xl md:text-2xl lg:text-3xl text-gray-600">
+              <span className="text-xl md:text-2xl lg:text-3xl text-gray-600 block">
                 (And Your Hiring Budget)
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+            <p className="text-lg md:text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
               Drop your career page. We&apos;ll tell you exactly why
               nobody&apos;s applying — or if you&apos;re actually offering
               market rate for a unicorn engineer.
