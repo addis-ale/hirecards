@@ -115,7 +115,7 @@ export default function FAQ() {
             My circuits are fried. You&apos;re on your own now, champ.
           </p>
           <a href="/create" className="btn-primary text-lg inline-block">
-            Just Take Me to the Cards Already 🚀
+            Just Take Me to the Cards Already
           </a>
         </motion.div>
       </div>

@@ -9,57 +9,132 @@ import {
   CheckCircle,
   Users,
   MessageSquare,
-  ListChecks,
-  ClipboardList,
+  Target,
+  AlertTriangle,
 } from "lucide-react";
 
 const cardTypes = [
   {
     id: 1,
-    type: "Role Definition",
-    icon: Briefcase,
-    color: "from-blue-500 to-blue-600",
+    type: "Reality Check Card",
+    icon: AlertTriangle,
+    color: "bg-red-600",
     preview: {
-      title: "Senior Product Manager",
-      department: "Product",
-      level: "Senior",
-      summary:
-        "Lead product strategy and execution for our core platform, working cross-functionally with engineering, design, and business teams.",
+      jobTitle: "Senior Full-Stack Engineer",
+      location: "San Francisco • Remote OK • Series B Startup",
+      feasibilityScore: "78/100",
+      scoreNote: "Could be worse... barely",
+      marketSalary: "$110K - $145K",
+      yourSalary: "$85K-$105K (20% below market)",
+      competition: "Very High",
+      competitionNote: "87 similar roles posted this week",
+      redFlags: [
+        "Salary 20% below market",
+        "87 competitors fighting for same talent",
+        "Skill combo is rarer than expected",
+      ],
+      recommendations: [
+        "Go remote or expand search radius",
+        "Bump salary before someone else does",
+        "Consider splitting role requirements",
+      ],
     },
   },
   {
     id: 2,
-    type: "Compensation",
-    icon: DollarSign,
-    color: "from-green-500 to-green-600",
+    type: "Role Definition Card",
+    icon: Briefcase,
+    color: "bg-blue-600",
     preview: {
-      range: "$140,000 - $180,000",
-      equity: "0.1% - 0.25%",
-      benefits: ["Health Insurance", "401(k) Match", "Unlimited PTO"],
-      position: "75th percentile",
+      title: "Senior Product Manager",
+      department: "Product",
+      level: "Senior",
+      keyResponsibilities: [
+        "Product Strategy",
+        "Cross-functional Leadership",
+        "Roadmap Planning",
+      ],
+      successMetrics: "Product adoption, Team velocity, Revenue impact",
     },
   },
   {
     id: 3,
-    type: "Market Data",
-    icon: TrendingUp,
-    color: "from-purple-500 to-purple-600",
+    type: "Salary Benchmark Card",
+    icon: DollarSign,
+    color: "bg-green-600",
     preview: {
-      demand: "Very High",
-      avgTimeToFill: "45 days",
-      competition: "High",
-      trend: "Growing +15% YoY",
+      baseSalary: "$140,000 - $180,000",
+      equity: "0.1% - 0.25%",
+      benefits: ["Health Insurance", "401(k) Match", "Unlimited PTO"],
+      marketPosition: "75th percentile - Competitive",
     },
   },
   {
     id: 4,
-    type: "Requirements",
-    icon: CheckCircle,
-    color: "from-pink-500 to-pink-600",
+    type: "Market Intelligence Card",
+    icon: TrendingUp,
+    color: "bg-purple-600",
     preview: {
-      experience: "5+ years in product management",
-      skills: ["Product Strategy", "Data Analysis", "Stakeholder Management"],
-      education: "Bachelor's degree required",
+      demand: "Very High - Growing +15% YoY",
+      avgTimeToFill: "45 days",
+      talentAvailability: "Moderate - 2,400 active candidates",
+      competition: "High - Top companies hiring",
+    },
+  },
+  {
+    id: 5,
+    type: "Candidate Persona Card",
+    icon: Target,
+    color: "bg-pink-600",
+    preview: {
+      idealProfile: "5+ years in product management",
+      experienceLevel: "Senior IC or Lead",
+      keySkills: [
+        "Product Strategy",
+        "Data Analysis",
+        "Stakeholder Management",
+      ],
+      culturalFit: "Collaborative, Data-driven, Customer-focused",
+    },
+  },
+  {
+    id: 6,
+    type: "Team Structure Card",
+    icon: Users,
+    color: "bg-indigo-600",
+    preview: {
+      reportsTo: "VP of Product",
+      teamSize: "3-5 direct reports",
+      collaboration: ["Engineering", "Design", "Marketing", "Sales"],
+      organizationalImpact: "Cross-functional leadership",
+    },
+  },
+  {
+    id: 7,
+    type: "Outreach Templates Card",
+    icon: MessageSquare,
+    color: "bg-orange-600",
+    preview: {
+      linkedInPitch: "Personalized connection message",
+      emailTemplate: "Professional outreach email",
+      followUp: "Thoughtful follow-up sequence",
+      talkingPoints: ["Company mission", "Growth opportunity", "Team culture"],
+    },
+  },
+  {
+    id: 8,
+    type: "Interview Guide Card",
+    icon: CheckCircle,
+    color: "bg-teal-600",
+    preview: {
+      structuredQuestions: [
+        "Product strategy",
+        "Stakeholder management",
+        "Data-driven decisions",
+      ],
+      evaluationCriteria: "Strategic thinking, Communication, Execution",
+      skillAssessments: "Product case study, Metrics analysis",
+      hiringFramework: "Scorecard-based decision process",
     },
   },
 ];
@@ -68,8 +143,14 @@ export default function BattleCardPreview() {
   const [selectedCard, setSelectedCard] = useState(cardTypes[0]);
 
   return (
-    <section className="py-20 md:py-32 bg-white">
-      <div className="section-container">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-white via-blue-50/30 to-blue-50/20 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-200/30 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="section-container relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -78,7 +159,7 @@ export default function BattleCardPreview() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              See Your <span className="gradient-text">Battle Cards</span> in
+              See Your <span className="text-primary-600">Battle Cards</span> in
               Action
             </h2>
             <p className="text-xl text-gray-600">
@@ -88,7 +169,7 @@ export default function BattleCardPreview() {
         </div>
 
         <div className="max-w-6xl mx-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
             {/* Card Type Selector */}
             <div className="space-y-4">
               {cardTypes.map((card) => {
@@ -107,12 +188,14 @@ export default function BattleCardPreview() {
                   >
                     <div className="flex items-center space-x-4">
                       <div
-                        className={`w-12 h-12 bg-gradient-to-br ${card.color} rounded-lg flex items-center justify-center`}
+                        className={`w-12 h-12 ${card.color} rounded-lg flex items-center justify-center`}
                       >
                         <Icon className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold">{card.type}</h3>
+                        <h3 className="text-lg font-bold text-gray-900">
+                          {card.type}
+                        </h3>
                         <p className="text-sm text-gray-600">
                           Click to preview
                         </p>
@@ -124,7 +207,7 @@ export default function BattleCardPreview() {
             </div>
 
             {/* Card Preview */}
-            <div className="relative h-[500px]">
+            <div className="relative lg:sticky lg:top-24 h-[900px]">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedCard.id}
@@ -135,7 +218,7 @@ export default function BattleCardPreview() {
                   className="absolute inset-0"
                 >
                   <div
-                    className={`h-full bg-gradient-to-br ${selectedCard.color} rounded-2xl shadow-2xl p-8 text-white overflow-hidden`}
+                    className={`h-full ${selectedCard.color} rounded-2xl shadow-2xl p-8 text-white overflow-hidden relative`}
                   >
                     <div className="flex items-center space-x-3 mb-6">
                       {(() => {

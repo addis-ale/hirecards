@@ -17,56 +17,62 @@ const personas = [
     icon: Briefcase,
     title: "Startup Founder",
     description: "Hiring is hard. Doing it wrong is expensive.",
-    color: "from-blue-500 to-blue-600",
+    color: "bg-blue-600",
   },
   {
     icon: Users,
     title: "Head of Talent",
     description: "Drowning in reqs. This is your life raft.",
-    color: "from-purple-500 to-purple-600",
+    color: "bg-purple-600",
   },
   {
     icon: Coffee,
     title: "Solo Recruiter",
     description: "You're doing the work of 5 people. We know.",
-    color: "from-pink-500 to-pink-600",
+    color: "bg-pink-600",
   },
   {
     icon: Target,
     title: "Hiring Manager",
     description: "You just want a job description that makes sense.",
-    color: "from-green-500 to-green-600",
+    color: "bg-green-600",
   },
   {
     icon: TrendingUp,
     title: "VP of People",
     description: "Scaling fast. Breaking things. Need structure.",
-    color: "from-orange-500 to-orange-600",
+    color: "bg-orange-600",
   },
   {
     icon: Code,
     title: "Tech Lead",
     description: "If it compiles, it ships. If they can code, they're hired.",
-    color: "from-indigo-500 to-indigo-600",
+    color: "bg-indigo-600",
   },
   {
     icon: Rocket,
     title: "Growth Team",
     description: "You need people yesterday. We get it.",
-    color: "from-teal-500 to-teal-600",
+    color: "bg-teal-600",
   },
   {
     icon: Zap,
     title: "Speed Demon",
     description: "Move fast. Hire faster. No excuses.",
-    color: "from-yellow-500 to-yellow-600",
+    color: "bg-yellow-600",
   },
 ];
 
 export default function BuiltFor() {
   return (
-    <section className="py-20 md:py-32 bg-white">
-      <div className="section-container">
+    <section className="py-20 md:py-32 bg-gradient-to-b from-white via-blue-50/30 to-blue-50/20 relative overflow-hidden">
+      {/* Background decorations */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-200/30 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="section-container relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -77,7 +83,7 @@ export default function BuiltFor() {
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Built for These
               <br />
-              <span className="gradient-text">Beautiful Delusionals</span>
+              <span className="text-primary-600">Beautiful Delusionals</span>
             </h2>
             <p className="text-xl text-gray-600">
               (Who Think They Can Actually Hire Good People)
@@ -98,11 +104,13 @@ export default function BuiltFor() {
                 className="card hover:scale-105 transition-all duration-300 text-center"
               >
                 <div
-                  className={`w-16 h-16 mx-auto bg-gradient-to-br ${persona.color} rounded-2xl flex items-center justify-center mb-4`}
+                  className={`w-16 h-16 mx-auto ${persona.color} rounded-2xl flex items-center justify-center mb-4`}
                 >
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">{persona.title}</h3>
+                <h3 className="text-lg font-bold mb-2 text-gray-900">
+                  {persona.title}
+                </h3>
                 <p className="text-sm text-gray-600 leading-relaxed">
                   {persona.description}
                 </p>
@@ -119,7 +127,7 @@ export default function BuiltFor() {
           className="text-center mt-12"
         >
           <a href="/create" className="btn-primary text-lg inline-block">
-            Think You Qualify? Try It 🎯
+            Think You Qualify? Try It
           </a>
         </motion.div>
       </div>
