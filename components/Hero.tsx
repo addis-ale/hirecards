@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Link2, Zap, Target, Sparkles } from "lucide-react";
+import { Link2, Zap, Target, Sparkles, FileWarning } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 
@@ -31,9 +31,10 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center space-x-2 bg-red-50 text-red-700 px-4 py-2 rounded-full mb-4 border border-red-200">
-              <span className="text-sm font-bold">
-                🚨 YOUR JOB POSTING PROBABLY SUCKS
+            <div className="inline-flex items-center justify-center space-x-2 bg-red-50 text-red-700 px-4 py-2 rounded-full mb-4 border border-red-200">
+              <FileWarning className="w-4 h-4 flex-shrink-0" />
+              <span className="text-sm font-bold leading-none">
+                YOUR JOB POSTING PROBABLY SUCKS
               </span>
             </div>
 
