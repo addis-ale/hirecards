@@ -42,7 +42,7 @@ export default function HowItWorks() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              How We <span className="gradient-text">Fix Your Chaos</span>
+              How We <span className="text-primary-600">Fix Your Chaos</span>
               <br />
               <span className="text-2xl md:text-3xl font-normal text-gray-600">
                 (In Three Actually Simple Steps)
@@ -69,7 +69,7 @@ export default function HowItWorks() {
                 >
                   {/* Connector line (hidden on mobile) */}
                   {index < steps.length - 1 && (
-                    <div className="hidden md:block absolute top-16 left-[60%] w-full h-0.5 bg-gradient-to-r from-primary-300 to-transparent z-0"></div>
+                    <div className="hidden md:block absolute top-16 left-[60%] w-full h-0.5 bg-primary-200 z-0"></div>
                   )}
 
                   <div className="relative z-10 text-center">

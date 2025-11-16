@@ -8,66 +8,66 @@ import {
   Users,
   MessageSquare,
   CheckCircle,
-  Zap,
+  AlertTriangle,
 } from "lucide-react";
 import { motion } from "framer-motion";
 
 const features = [
   {
-    icon: Briefcase,
-    title: "Role Definition",
+    icon: AlertTriangle,
+    title: "Reality Check Card",
     description:
-      'No more vague "team player wanted" BS. Get actual job descriptions that make sense.',
+      "Feasibility score, market salary range, competition analysis, red flags, and instant recommendations.",
+    color: "from-red-500 to-red-600",
+  },
+  {
+    icon: Briefcase,
+    title: "Role Definition Card",
+    description:
+      "Clear job description, key responsibilities, required skills, and success metrics for the position.",
     color: "from-blue-500 to-blue-600",
   },
   {
     icon: DollarSign,
-    title: "Real Salary Data",
+    title: "Salary Benchmark Card",
     description:
-      "Stop underpaying (or overpaying) like an amateur. Market-aligned numbers that won't embarrass you.",
+      "Market-aligned compensation data, equity ranges, benefits comparison, and competitive positioning.",
     color: "from-green-500 to-green-600",
   },
   {
     icon: TrendingUp,
-    title: "Market Intel",
+    title: "Market Intelligence Card",
     description:
-      "Know what's actually happening in talent land. Not your cousin's LinkedIn hot take.",
+      "Hiring trends, demand analysis, talent availability, and competitive landscape insights.",
     color: "from-purple-500 to-purple-600",
   },
   {
     icon: Target,
-    title: "Candidate Persona",
+    title: "Candidate Persona Card",
     description:
-      'Who you\'re actually looking for. (Spoiler: not just "passionate" about "synergy").',
+      "Ideal candidate profile, experience level, skill requirements, and cultural fit indicators.",
     color: "from-pink-500 to-pink-600",
   },
   {
     icon: Users,
-    title: "Team Structure",
+    title: "Team Structure Card",
     description:
-      "Who reports to who without the org chart that looks like spaghetti.",
+      "Reporting lines, team composition, collaboration needs, and organizational fit analysis.",
     color: "from-indigo-500 to-indigo-600",
   },
   {
     icon: MessageSquare,
-    title: "Recruiting Messages",
+    title: "Outreach Templates Card",
     description:
-      "Pitch templates that don't sound like a bot wrote them (ironically, our AI did).",
+      "Recruiting messages, email templates, LinkedIn pitches, and personalized outreach strategies.",
     color: "from-orange-500 to-orange-600",
   },
   {
     icon: CheckCircle,
-    title: "Interview Framework",
+    title: "Interview Guide Card",
     description:
-      "Ask better questions. Stop winging it. Hire people who can actually do the job.",
+      "Structured questions, evaluation criteria, skill assessments, and hiring decision framework.",
     color: "from-teal-500 to-teal-600",
-  },
-  {
-    icon: Zap,
-    title: "Share Anywhere",
-    description:
-      'Export faster than you can say "let\'s circle back on that hire."',
-    color: "from-yellow-500 to-yellow-600",
   },
 ];
 
@@ -84,7 +84,7 @@ export default function Features() {
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               This Isn&apos;t Just
-              <span className="gradient-text"> Pretty Cards</span>
+              <span className="text-primary-600"> Pretty Cards</span>
               <br />
               <span className="text-2xl md:text-3xl font-normal text-gray-600">
                 It&apos;s Structured Smackdown for Bad Hiring
@@ -106,19 +106,40 @@ export default function Features() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.5, delay: index * 0.05 }}
-                className="card group hover:scale-105 transition-all duration-300 cursor-pointer"
+                className="relative bg-white rounded-3xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-500 cursor-pointer group"
+                style={{
+                  aspectRatio: "1 / 1.1",
+                }}
               >
+                {/* Gradient Background */}
                 <div
-                  className={`w-14 h-14 bg-gradient-to-br ${feature.color} rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}
-                >
-                  <Icon className="w-7 h-7 text-white" />
+                  className={`absolute inset-0 bg-gradient-to-br ${feature.color} opacity-5 group-hover:opacity-10 transition-opacity duration-500`}
+                ></div>
+
+                {/* Content */}
+                <div className="relative h-full flex flex-col p-8">
+                  {/* Icon */}
+                  <div
+                    className={`w-16 h-16 bg-gradient-to-br ${feature.color} rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 group-hover:rotate-3 transition-all duration-500 shadow-lg`}
+                  >
+                    <Icon className="w-8 h-8 text-white" />
+                  </div>
+
+                  {/* Text Content */}
+                  <div className="flex-1 flex flex-col">
+                    <h3 className="text-xl font-bold mb-4 text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
+                      {feature.title}
+                    </h3>
+                    <p className="text-gray-600 leading-relaxed text-sm">
+                      {feature.description}
+                    </p>
+                  </div>
+
+                  {/* Decorative Element */}
+                  <div
+                    className={`absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br ${feature.color} opacity-0 group-hover:opacity-5 rounded-tl-full transition-all duration-500 transform translate-x-8 translate-y-8`}
+                  ></div>
                 </div>
-                <h3 className="text-xl font-bold mb-3 group-hover:text-primary-600 transition-colors">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 leading-relaxed">
-                  {feature.description}
-                </p>
               </motion.div>
             );
           })}

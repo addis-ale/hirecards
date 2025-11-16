@@ -26,7 +26,7 @@ export default function SampleOutput() {
   ];
 
   return (
-    <section className="min-h-screen pt-4 pb-20 md:pt-6 md:pb-24 bg-gradient-to-b from-white via-blue-50/30 to-white relative overflow-hidden flex items-center">
+    <section className="py-16 md:py-20 bg-gradient-to-b from-white via-blue-50/30 to-white relative overflow-hidden">
       {/* Dotted Background Pattern */}
       <div
         className="absolute inset-0 pointer-events-none opacity-40"
@@ -42,7 +42,7 @@ export default function SampleOutput() {
         <div className="absolute top-20 right-10 w-96 h-96 bg-primary-200/20 rounded-full blur-3xl"></div>
       </div>
 
-      <div className="section-container relative z-10 mt-16">
+      <div className="section-container relative z-10">
         {/* Header */}
         <div className="text-center mb-8">
           <motion.div
@@ -59,7 +59,7 @@ export default function SampleOutput() {
             </div>
             <h2 className="text-4xl md:text-5xl font-bold mb-4">
               Here&apos;s What{" "}
-              <span className="gradient-text">We&apos;ll Tell You</span>
+              <span className="text-primary-600">We&apos;ll Tell You</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-2xl mx-auto">
               Brutally honest scores. Market reality. Red flags you can&apos;t
@@ -74,26 +74,26 @@ export default function SampleOutput() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="max-w-4xl mx-auto"
+          className="max-w-3xl mx-auto"
         >
           <div className="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden">
             {/* Header with Score */}
-            <div className="bg-gradient-to-br from-primary-600 to-secondary-600 p-8 text-white">
+            <div className="bg-gradient-to-br from-primary-600 to-secondary-600 p-6 text-white">
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
                   <div className="text-sm font-bold opacity-90 mb-2 uppercase">
                     YOUR HIRING POSTED — ROASTED
                   </div>
-                  <h3 className="text-2xl md:text-3xl font-bold">
+                  <h3 className="text-xl md:text-2xl font-bold">
                     Senior Full-Stack Engineer
                   </h3>
-                  <p className="text-sm opacity-80 mt-1">
+                  <p className="text-xs opacity-80 mt-1">
                     San Francisco • Remote OK • Series B Startup
                   </p>
                 </div>
-                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl px-6 py-4 border border-white/20">
-                  <div className="text-5xl font-bold">78</div>
-                  <div className="text-sm font-semibold opacity-90">
+                <div className="text-center bg-white/10 backdrop-blur-sm rounded-xl px-5 py-3 border border-white/20">
+                  <div className="text-4xl font-bold">78</div>
+                  <div className="text-xs font-semibold opacity-90">
                     /100 Feasibility
                   </div>
                   <div className="text-xs opacity-75 mt-1">
@@ -104,18 +104,18 @@ export default function SampleOutput() {
             </div>
 
             {/* Content Grid */}
-            <div className="p-8 grid md:grid-cols-2 gap-6">
+            <div className="p-6 grid md:grid-cols-2 gap-5">
               {/* Salary Range */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 text-gray-900 font-bold">
-                  <DollarSign className="w-5 h-5 text-green-600" />
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-gray-900 font-bold text-sm">
+                  <DollarSign className="w-4 h-4 text-green-600" />
                   <span>Market Salary Range</span>
                 </div>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="text-3xl font-bold text-green-700">
+                <div className="bg-green-50 border border-green-200 rounded-lg p-3">
+                  <div className="text-2xl font-bold text-green-700">
                     $110K - $145K
                   </div>
-                  <div className="text-sm text-gray-600 mt-1">
+                  <div className="text-xs text-gray-600 mt-1">
                     Your range: $85K-$105K{" "}
                     <span className="text-red-600 font-semibold inline-flex items-center gap-1">
                       <TrendingUp className="w-4 h-4" /> 20% below market
@@ -125,40 +125,40 @@ export default function SampleOutput() {
               </div>
 
               {/* Competition Level */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 text-gray-900 font-bold">
-                  <Users className="w-5 h-5 text-orange-600" />
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-gray-900 font-bold text-sm">
+                  <Users className="w-4 h-4 text-orange-600" />
                   <span>Competition Analysis</span>
                 </div>
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-2xl font-bold text-orange-700">
+                      <div className="text-xl font-bold text-orange-700">
                         Very High
                       </div>
-                      <div className="text-sm text-gray-600 mt-1">
+                      <div className="text-xs text-gray-600 mt-1">
                         87 similar roles posted this week
                       </div>
                     </div>
-                    <Flame className="w-10 h-10 text-orange-600" />
+                    <Flame className="w-8 h-8 text-orange-600" />
                   </div>
                 </div>
               </div>
 
               {/* Red Flags */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 text-gray-900 font-bold">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-gray-900 font-bold text-sm">
+                  <AlertTriangle className="w-4 h-4 text-red-600" />
                   <span>Key Red Flags ({redFlags.length})</span>
                 </div>
                 <div className="space-y-2">
                   {redFlags.map((flag, index) => (
                     <div
                       key={index}
-                      className="flex items-start space-x-2 bg-red-50 border border-red-200 rounded-lg p-3"
+                      className="flex items-start space-x-2 bg-red-50 border border-red-200 rounded-lg p-2"
                     >
-                      <AlertTriangle className="w-4 h-4 text-red-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 flex-1">
+                      <AlertTriangle className="w-3 h-3 text-red-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 flex-1">
                         {flag}
                       </span>
                     </div>
@@ -167,19 +167,19 @@ export default function SampleOutput() {
               </div>
 
               {/* Recommendations */}
-              <div className="space-y-3">
-                <div className="flex items-center space-x-2 text-gray-900 font-bold">
-                  <CheckCircle className="w-5 h-5 text-blue-600" />
+              <div className="space-y-2">
+                <div className="flex items-center space-x-2 text-gray-900 font-bold text-sm">
+                  <CheckCircle className="w-4 h-4 text-blue-600" />
                   <span>Recommendations ({recommendations.length})</span>
                 </div>
                 <div className="space-y-2">
                   {recommendations.map((rec, index) => (
                     <div
                       key={index}
-                      className="flex items-start space-x-2 bg-blue-50 border border-blue-200 rounded-lg p-3"
+                      className="flex items-start space-x-2 bg-blue-50 border border-blue-200 rounded-lg p-2"
                     >
-                      <Lightbulb className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                      <span className="text-sm text-gray-700 flex-1">
+                      <Lightbulb className="w-3 h-3 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <span className="text-xs text-gray-700 flex-1">
                         {rec}
                       </span>
                     </div>
