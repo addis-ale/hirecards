@@ -43,14 +43,10 @@ export default function CTA() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/create"
-              className="px-8 py-4 bg-white text-primary-700 font-bold rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 flex items-center space-x-2 text-lg"
+              className="px-8 py-4 bg-white text-primary-700 font-bold rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 text-lg"
             >
-              <span>FIX MY HIRING MESS 🔥</span>
-              <ArrowRight className="w-5 h-5" />
+              <span>FIX MY HIRING MESS</span>
             </Link>
-            <button className="px-8 py-4 bg-white/10 backdrop-blur-sm text-white font-bold rounded-lg border-2 border-white/30 hover:bg-white/20 transition-all duration-200 text-lg">
-              Or Just Watch Me Demo
-            </button>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-sm opacity-80">

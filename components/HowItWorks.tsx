@@ -6,23 +6,23 @@ import { motion } from "framer-motion";
 const steps = [
   {
     icon: FileText,
-    title: "YOU SPILL YOUR GUTS",
+    title: "SHARE YOUR REQUIREMENTS",
     description:
-      "Tell us about your hiring chaos. No judgment (yet). We've seen worse. Probably.",
+      "Tell us about your role requirements, ideal candidate profile, and hiring needs. The more details, the better your battle cards.",
     color: "from-blue-500 to-blue-600",
   },
   {
     icon: Sparkles,
-    title: "AI WARMS UP THE GRILL",
+    title: "GENERATED FROM REAL DATA",
     description:
-      "Our highly caffeinated AI dissects your requirements and generates battle cards. Trained on real data, not LinkedIn influencer posts.",
+      "Comprehensive battle cards generated from real-world scraped data - complete with key competencies, interview questions, and evaluation criteria tailored to your role.",
     color: "from-purple-500 to-purple-600",
   },
   {
     icon: Download,
-    title: "SHARE & DOMINATE",
+    title: "SHARE & START HIRING",
     description:
-      "Get your deck instantly. Share with your team. Actually hire someone good for once.",
+      "Get your deck instantly. Share with your hiring team. Run structured interviews that help you identify the best candidates.",
     color: "from-pink-500 to-pink-600",
   },
 ];
@@ -55,7 +55,7 @@ export default function HowItWorks() {
         </div>
 
         <div className="max-w-5xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12 relative">
             {steps.map((step, index) => {
               const Icon = step.icon;
               return (
@@ -67,9 +67,38 @@ export default function HowItWorks() {
                   transition={{ duration: 0.6, delay: index * 0.2 }}
                   className="relative"
                 >
-                  {/* Connector line (hidden on mobile) */}
+                  {/* Connector line with animated pulse (hidden on mobile) */}
                   {index < steps.length - 1 && (
-                    <div className="hidden md:block absolute top-16 left-[60%] w-full h-0.5 bg-primary-200 z-0"></div>
+                    <div className="hidden md:block absolute top-12 left-[calc(50%+48px)] right-[calc(-100%+50%-48px)] h-0.5 z-0">
+                      {/* Base line */}
+                      <div className="absolute inset-0 bg-primary-200"></div>
+
+                      {/* Animated flowing gradient */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-primary-500 to-transparent"
+                        initial={{ x: "-100%" }}
+                        animate={{ x: "200%" }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "linear",
+                          delay: index * 0.5,
+                        }}
+                      ></motion.div>
+
+                      {/* Animated circle */}
+                      <motion.div
+                        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-primary-600 rounded-full shadow-lg"
+                        initial={{ left: "0%" }}
+                        animate={{ left: "100%" }}
+                        transition={{
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                          delay: index * 0.5,
+                        }}
+                      ></motion.div>
+                    </div>
                   )}
 
                   <div className="relative z-10 text-center">
@@ -99,7 +128,7 @@ export default function HowItWorks() {
             className="text-center mt-16"
           >
             <a href="/create" className="btn-primary text-lg inline-block">
-              Let&apos;s Do This 🚀
+              Let&apos;s Do This
             </a>
           </motion.div>
         </div>
