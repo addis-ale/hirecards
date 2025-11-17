@@ -37,21 +37,22 @@ const iconMap: { [key: string]: any } = {
   clipboard: Clipboard,
 };
 
-const colorMap: { [key: string]: string } = {
-  "Role Definition": "from-blue-500 to-blue-600",
-  Compensation: "from-green-500 to-green-600",
-  "Market Intelligence": "from-purple-500 to-purple-600",
-  Requirements: "from-pink-500 to-pink-600",
-  Responsibilities: "from-indigo-500 to-indigo-600",
-  "Culture Fit": "from-orange-500 to-orange-600",
-  Messaging: "from-teal-500 to-teal-600",
-  "Interview Guide": "from-yellow-500 to-yellow-600",
+const colorMap: { [key: string]: { bg: string; accent: string } } = {
+  "Role Definition": { bg: "#102a63", accent: "#278f8c" },
+  Compensation: { bg: "#0f4c5c", accent: "#5da9a2" },
+  "Market Intelligence": { bg: "#1b3a4f", accent: "#6ba3b8" },
+  Requirements: { bg: "#1e3a5f", accent: "#6495a8" },
+  Responsibilities: { bg: "#0d2f47", accent: "#4a8fa0" },
+  "Culture Fit": { bg: "#163850", accent: "#5b9aa6" },
+  Messaging: { bg: "#1a4d5c", accent: "#66b2b2" },
+  "Interview Guide": { bg: "#0e3348", accent: "#5499a3" },
+  "Reality Check": { bg: "#1a3d52", accent: "#66b7b7" },
 };
 
 export default function BattleCard({ card, index }: BattleCardProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const Icon = iconMap[card.icon] || Briefcase;
-  const colorClass = colorMap[card.type] || "from-gray-500 to-gray-600";
+  const colors = colorMap[card.type] || { bg: "#102a63", accent: "#278f8c" };
 
   return (
     <motion.div
@@ -61,15 +62,23 @@ export default function BattleCard({ card, index }: BattleCardProps) {
       className="group"
     >
       <div
-        className={`relative h-full bg-gradient-to-br ${colorClass} rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer`}
+        className="relative h-full rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden cursor-pointer border border-gray-200"
+        style={{
+          background: `linear-gradient(135deg, ${colors.bg} 0%, ${colors.accent} 100%)`,
+        }}
         onClick={() => setIsExpanded(!isExpanded)}
       >
         {/* Card Header */}
-        <div className="p-6 text-white">
-          <div className="flex items-start justify-between mb-4">
-            <Icon className="w-8 h-8" />
+        <div className="p-5 text-white">
+          <div className="flex items-start justify-between mb-3">
+            <div
+              className="p-2.5 rounded-lg"
+              style={{ backgroundColor: "rgba(255, 255, 255, 0.15)" }}
+            >
+              <Icon className="w-6 h-6" />
+            </div>
             <button
-              className="p-1 hover:bg-white/20 rounded-full transition-colors"
+              className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsExpanded(!isExpanded);
@@ -82,7 +91,7 @@ export default function BattleCard({ card, index }: BattleCardProps) {
               )}
             </button>
           </div>
-          <h3 className="text-2xl font-bold mb-2">{card.title}</h3>
+          <h3 className="text-xl font-bold mb-1">{card.title}</h3>
           <p className="text-sm opacity-90">{card.type}</p>
         </div>
 
@@ -96,29 +105,35 @@ export default function BattleCard({ card, index }: BattleCardProps) {
               transition={{ duration: 0.3 }}
               className="bg-white text-gray-900"
             >
-              <div className="p-6 space-y-4">
+              <div className="p-5 space-y-4">
                 {Object.entries(card.content).map(([key, value]) => (
                   <div
                     key={key}
-                    className="border-b border-gray-100 pb-3 last:border-0"
+                    className="border-b border-gray-100 pb-3 last:border-0 last:pb-0"
                   >
-                    <div className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-2">
+                    <div
+                      className="text-xs font-bold uppercase tracking-wide mb-2"
+                      style={{ color: colors.bg }}
+                    >
                       {key.replace(/([A-Z])/g, " $1").trim()}
                     </div>
                     {Array.isArray(value) ? (
-                      <ul className="space-y-1">
+                      <ul className="space-y-2">
                         {value.map((item: string, i: number) => (
                           <li
                             key={i}
                             className="flex items-start space-x-2 text-sm"
                           >
-                            <span className="w-1.5 h-1.5 bg-primary-600 rounded-full mt-1.5 flex-shrink-0"></span>
-                            <span>{item}</span>
+                            <span
+                              className="w-1.5 h-1.5 rounded-full mt-1.5 flex-shrink-0"
+                              style={{ backgroundColor: colors.accent }}
+                            ></span>
+                            <span className="text-gray-700">{item}</span>
                           </li>
                         ))}
                       </ul>
                     ) : (
-                      <div className="text-sm font-medium text-gray-900">
+                      <div className="text-sm font-medium text-gray-800">
                         {String(value)}
                       </div>
                     )}
@@ -131,30 +146,36 @@ export default function BattleCard({ card, index }: BattleCardProps) {
 
         {/* Collapsed Preview */}
         {!isExpanded && (
-          <div className="p-6 bg-white/10 backdrop-blur-sm text-white">
+          <div
+            className="p-5 text-white"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+          >
             <div className="space-y-2">
               {Object.entries(card.content)
                 .slice(0, 2)
                 .map(([key, value]) => (
                   <div key={key} className="text-sm">
-                    <span className="opacity-75">
+                    <span className="opacity-80 font-medium">
                       {key.replace(/([A-Z])/g, " $1").trim()}:{" "}
                     </span>
                     <span className="font-semibold">
                       {Array.isArray(value)
                         ? value.length + " items"
-                        : String(value).substring(0, 30) + "..."}
+                        : String(value).substring(0, 35) + "..."}
                     </span>
                   </div>
                 ))}
             </div>
-            <div className="mt-4 text-xs opacity-75">Click to expand</div>
+            <div className="mt-3 text-xs opacity-80 flex items-center gap-1">
+              <span>Click to expand</span>
+              <ChevronDown className="w-3 h-3" />
+            </div>
           </div>
         )}
 
         {/* Decorative Icon */}
-        <div className="absolute bottom-4 right-4 opacity-10 pointer-events-none">
-          <Icon className="w-24 h-24" />
+        <div className="absolute bottom-3 right-3 opacity-5 pointer-events-none">
+          <Icon className="w-20 h-20" />
         </div>
       </div>
     </motion.div>
