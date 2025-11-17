@@ -6,7 +6,10 @@ import { motion } from "framer-motion";
 
 export default function CTA() {
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-br from-primary-600 via-primary-700 to-secondary-600 relative overflow-hidden">
+    <section
+      className="py-20 md:py-32 relative overflow-hidden"
+      style={{ backgroundColor: "#102A63" }}
+    >
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-10 left-10 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
@@ -43,7 +46,7 @@ export default function CTA() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/create"
-              className="px-8 py-4 bg-white text-primary-700 font-bold rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 text-lg"
+              className="px-8 py-4 bg-white text-[#0B1E3F] font-bold rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 text-lg"
             >
               <span>FIX MY HIRING MESS</span>
             </Link>

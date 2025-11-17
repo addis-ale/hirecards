@@ -43,7 +43,10 @@ export default function TrustedBy() {
   const duplicatedCompanies = [...companies, ...companies];
 
   return (
-    <section className="relative w-full py-20 md:py-24 overflow-hidden -mt-8">
+    <section
+      className="relative w-full py-28 md:py-32 overflow-hidden -mt-8"
+      style={{ backgroundColor: "#FFFFFF" }}
+    >
       <div className="relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}

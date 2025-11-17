@@ -65,7 +65,10 @@ const personas = [
 
 export default function BuiltFor() {
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-white via-blue-50/30 to-blue-50/20 relative overflow-hidden">
+    <section
+      className="py-20 md:py-32 relative overflow-hidden"
+      style={{ backgroundColor: "#E8ECF5" }}
+    >
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 rounded-full blur-3xl"></div>
@@ -83,7 +86,7 @@ export default function BuiltFor() {
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               Built for These
               <br />
-              <span className="text-primary-600">Beautiful Delusionals</span>
+              <span className="text-[#3B7CFF]">Beautiful Delusionals</span>
             </h2>
             <p className="text-xl text-gray-600">
               (Who Think They Can Actually Hire Good People)

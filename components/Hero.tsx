@@ -17,13 +17,10 @@ export const Hero = () => {
   };
 
   return (
-    <section className="relative min-h-screen flex items-center pt-24 pb-16 md:pt-32 md:pb-24 overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-blue-50/20 mb-8">
-      {/* Background decorations */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-secondary-200/30 rounded-full blur-3xl"></div>
-      </div>
-
+    <section
+      className="relative min-h-screen flex items-center pt-24 pb-0 md:pt-32 md:pb-4 overflow-hidden mb-8"
+      style={{ backgroundColor: "#f5f5f5" }}
+    >
       <div className="section-container relative z-10 w-full">
         <div className="text-center max-w-5xl mx-auto">
           <motion.div
@@ -31,19 +28,36 @@ export const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-8 leading-relaxed">
-              <span className="text-primary-600 block mb-3">
-                Instant Hiring Reality Check.
+            <h1
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-relaxed mt-16 md:mt-20"
+              style={{ color: "#102a63" }}
+            >
+              <span className="block mb-3">
+                Instant{" "}
+                <span
+                  className="px-3 py-1 rounded-lg"
+                  style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
+                >
+                  Hiring Reality Check.
+                </span>
               </span>
-              <span className="text-2xl md:text-3xl lg:text-4xl text-gray-900 block mb-2">
+              <span className="text-2xl md:text-3xl lg:text-4xl block mb-2">
                 Before You Waste 2 Months.
               </span>
-              <span className="text-xl md:text-2xl lg:text-3xl text-gray-600 block">
-                (And Your Hiring Budget)
+              <span className="text-xl md:text-2xl lg:text-3xl block">
+                <span
+                  className="px-3 py-1 rounded-lg"
+                  style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
+                >
+                  (And Your Hiring Budget)
+                </span>
               </span>
             </h1>
 
-            <p className="text-lg md:text-xl text-gray-600 mb-10 max-w-3xl mx-auto leading-relaxed">
+            <p
+              className="text-lg md:text-xl mb-6 max-w-3xl mx-auto leading-relaxed"
+              style={{ color: "#102a63", opacity: 0.8 }}
+            >
               Drop your career page. We&apos;ll tell you exactly why
               nobody&apos;s applying — or if you&apos;re actually offering
               market rate for a unicorn engineer.
@@ -77,7 +91,9 @@ export const Hero = () => {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-3 mb-10">
-              <p className="text-base text-gray-500 font-medium">Or</p>
+              <p className="text-base font-medium" style={{ color: "#102a63" }}>
+                Or
+              </p>
               <Link
                 href="/create"
                 className="btn-primary flex items-center justify-center space-x-2 text-sm px-6 py-3"
@@ -86,21 +102,30 @@ export const Hero = () => {
               </Link>
             </div>
 
-            <p className="text-sm text-gray-500 mb-6">
+            <p
+              className="text-sm mb-6"
+              style={{ color: "#102a63", opacity: 0.8 }}
+            >
               No pressure. It&apos;s only your hiring budget on the line.
             </p>
 
-            <div className="flex flex-wrap items-center justify-center gap-8 text-base text-gray-600 mt-8">
+            <div
+              className="flex flex-wrap items-center justify-center gap-8 text-base mt-8"
+              style={{ color: "#102a63" }}
+            >
               <div className="flex items-center space-x-2">
-                <Zap className="w-7 h-7 text-red-600 fill-red-600" />
+                <Zap
+                  className="w-7 h-7"
+                  style={{ color: "#278f8c", fill: "#278f8c" }}
+                />
                 <span className="font-medium">Faster than regret</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Target className="w-7 h-7 text-red-600" />
+                <Target className="w-7 h-7" style={{ color: "#278f8c" }} />
                 <span className="font-medium">Brutally honest scoring</span>
               </div>
               <div className="flex items-center space-x-2">
-                <Sparkles className="w-7 h-7 text-red-600" />
+                <Sparkles className="w-7 h-7" style={{ color: "#278f8c" }} />
                 <span className="font-medium">No BS, just data</span>
               </div>
             </div>
