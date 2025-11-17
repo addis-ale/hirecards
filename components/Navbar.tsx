@@ -113,6 +113,78 @@ export default function Navbar() {
             </button>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown */}
+        {isMobileMenuOpen && (
+          <div
+            className="md:hidden rounded-b-2xl"
+            style={{ backgroundColor: "rgb(16, 42, 99)" }}
+          >
+            <div className="px-6 py-4 space-y-2">
+              <Link
+                href="/#features"
+                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
+                style={{
+                  color: "rgba(255, 255, 255, 0.9)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#D7F4F2";
+                  e.currentTarget.style.color = "rgb(16, 42, 99)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
+                }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Features
+              </Link>
+              <Link
+                href="/#how-it-works"
+                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
+                style={{
+                  color: "rgba(255, 255, 255, 0.9)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#D7F4F2";
+                  e.currentTarget.style.color = "rgb(16, 42, 99)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
+                }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                How It Works
+              </Link>
+              <Link
+                href="/#testimonials"
+                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
+                style={{
+                  color: "rgba(255, 255, 255, 0.9)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#D7F4F2";
+                  e.currentTarget.style.color = "rgb(16, 42, 99)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
+                }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Testimonials
+              </Link>
+              <Link
+                href="/create"
+                className="block btn-primary px-4 py-2 text-sm text-center mt-4"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Get Started
+              </Link>
+            </div>
+          </div>
+        )}
       </div>
     </nav>
   );

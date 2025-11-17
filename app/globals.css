@@ -508,3 +508,62 @@ ol > li > ol > li > ol {
 .dark .Toastify__toast--success .Toastify__toast-icon svg {
   fill: #005f73 !important;
 }
+
+/* Print Styles for Battle Card One-Pager */
+@media print {
+  /* Hide everything except the battle card */
+  body * {
+    visibility: hidden;
+  }
+
+  /* Show only the battle card */
+  .battle-card-print-container,
+  .battle-card-print-container * {
+    visibility: visible;
+  }
+
+  .battle-card-print-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+
+  /* Ensure proper page breaks */
+  .battle-card-print-container {
+    page-break-after: avoid;
+    page-break-inside: avoid;
+  }
+
+  /* Remove shadows and optimize for print */
+  .battle-card-print-container .shadow-2xl,
+  .battle-card-print-container .shadow-xl,
+  .battle-card-print-container .shadow-lg {
+    box-shadow: none !important;
+  }
+
+  /* Ensure backgrounds print */
+  .battle-card-print-container * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  /* Remove rounded corners for cleaner print */
+  .battle-card-print-container .rounded-lg,
+  .battle-card-print-container .rounded-xl {
+    border-radius: 0 !important;
+  }
+
+  /* Optimize font sizes for print */
+  @page {
+    margin: 0.3cm;
+    size: A4 portrait;
+  }
+
+  /* Force one page */
+  .battle-card-print-container {
+    max-height: 29.7cm !important;
+    overflow: hidden !important;
+  }
+}
