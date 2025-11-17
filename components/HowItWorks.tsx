@@ -31,7 +31,8 @@ export default function HowItWorks() {
   return (
     <section
       id="how-it-works"
-      className="py-20 md:py-32 bg-gradient-to-b from-gray-50 to-white"
+      className="py-20 md:py-32"
+      style={{ backgroundColor: "#E8ECF5" }}
     >
       <div className="section-container">
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -42,7 +43,7 @@ export default function HowItWorks() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              How We <span className="text-primary-600">Fix Your Chaos</span>
+              How We <span className="text-[#3B7CFF]">Fix Your Chaos</span>
               <br />
               <span className="text-2xl md:text-3xl font-normal text-gray-600">
                 (In Three Actually Simple Steps)

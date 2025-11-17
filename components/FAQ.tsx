@@ -45,7 +45,7 @@ export default function FAQ() {
   };
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-gray-50 to-white">
+    <section className="py-20 md:py-32" style={{ backgroundColor: "#E8ECF5" }}>
       <div className="section-container max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <motion.div
@@ -80,7 +80,7 @@ export default function FAQ() {
                   {faq.question}
                 </h3>
                 <ChevronDown
-                  className={`w-6 h-6 text-primary-600 flex-shrink-0 transition-transform duration-300 ${
+                  className={`w-6 h-6 text-[#3B7CFF] flex-shrink-0 transition-transform duration-300 ${
                     openIndex === index ? "transform rotate-180" : ""
                   }`}
                 />

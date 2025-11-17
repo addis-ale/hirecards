@@ -3,13 +3,16 @@ import { Sparkles, Twitter, Linkedin, Github } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-300 py-8 md:py-10">
+    <footer
+      className="text-gray-300 py-8 md:py-10"
+      style={{ backgroundColor: "#0B1E3F" }}
+    >
       <div className="section-container">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-6">
           {/* Brand */}
           <div className="col-span-1 md:col-span-2">
             <Link href="/" className="flex items-center space-x-2 mb-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary-600 to-secondary-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-[#3B7CFF] rounded-lg flex items-center justify-center">
                 <Sparkles className="w-6 h-6 text-white" />
               </div>
               <span className="text-2xl font-bold text-white">HireCards</span>
@@ -21,19 +24,19 @@ export default function Footer() {
             <div className="flex items-center space-x-3">
               <a
                 href="#"
-                className="w-9 h-9 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
+                className="w-9 h-9 bg-indigo-900/50 rounded-lg flex items-center justify-center hover:bg-[#3B7CFF] transition-colors"
               >
                 <Twitter className="w-4 h-4" />
               </a>
               <a
                 href="#"
-                className="w-9 h-9 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
+                className="w-9 h-9 bg-indigo-900/50 rounded-lg flex items-center justify-center hover:bg-[#3B7CFF] transition-colors"
               >
                 <Linkedin className="w-4 h-4" />
               </a>
               <a
                 href="#"
-                className="w-9 h-9 bg-gray-800 rounded-lg flex items-center justify-center hover:bg-primary-600 transition-colors"
+                className="w-9 h-9 bg-indigo-900/50 rounded-lg flex items-center justify-center hover:bg-[#3B7CFF] transition-colors"
               >
                 <Github className="w-4 h-4" />
               </a>
@@ -47,7 +50,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/#features"
-                  className="hover:text-primary-400 transition-colors"
+                  className="hover:text-[#3B7CFF] transition-colors"
                 >
                   Features
                 </Link>
@@ -55,7 +58,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/#how-it-works"
-                  className="hover:text-primary-400 transition-colors"
+                  className="hover:text-[#3B7CFF] transition-colors"
                 >
                   How It Works
                 </Link>
@@ -63,7 +66,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="/create"
-                  className="hover:text-primary-400 transition-colors"
+                  className="hover:text-[#3B7CFF] transition-colors"
                 >
                   Create Deck
                 </Link>
@@ -78,7 +81,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-primary-400 transition-colors"
+                  className="hover:text-[#3B7CFF] transition-colors"
                 >
                   About
                 </Link>
@@ -86,7 +89,7 @@ export default function Footer() {
               <li>
                 <Link
                   href="#"
-                  className="hover:text-primary-400 transition-colors"
+                  className="hover:text-[#3B7CFF] transition-colors"
                 >
                   Contact
                 </Link>
@@ -95,15 +98,18 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-gray-800 pt-6 flex flex-col md:flex-row items-center justify-between">
+        <div
+          className="border-t pt-6 flex flex-col md:flex-row items-center justify-between"
+          style={{ borderColor: "rgba(255, 255, 255, 0.1)" }}
+        >
           <p className="text-sm text-gray-400 mb-3 md:mb-0">
             © 2025 HireCards™ | Not liable for suddenly good hiring decisions
           </p>
           <div className="flex items-center space-x-6 text-sm">
-            <Link href="#" className="hover:text-primary-400 transition-colors">
+            <Link href="#" className="hover:text-green-400 transition-colors">
               Privacy
             </Link>
-            <Link href="#" className="hover:text-primary-400 transition-colors">
+            <Link href="#" className="hover:text-green-400 transition-colors">
               Terms
             </Link>
           </div>

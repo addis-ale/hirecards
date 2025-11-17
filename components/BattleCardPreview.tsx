@@ -143,7 +143,10 @@ export default function BattleCardPreview() {
   const [selectedCard, setSelectedCard] = useState(cardTypes[0]);
 
   return (
-    <section className="py-20 md:py-32 bg-gradient-to-b from-white via-blue-50/30 to-blue-50/20 relative overflow-hidden">
+    <section
+      className="py-20 md:py-32 relative overflow-hidden"
+      style={{ backgroundColor: "#FFFFFF" }}
+    >
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-primary-200/30 rounded-full blur-3xl"></div>
@@ -159,7 +162,7 @@ export default function BattleCardPreview() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              See Your <span className="text-primary-600">Battle Cards</span> in
+              See Your <span className="text-[#3B7CFF]">Battle Cards</span> in
               Action
             </h2>
             <p className="text-xl text-gray-600">

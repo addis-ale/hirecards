@@ -73,7 +73,11 @@ const features = [
 
 export default function Features() {
   return (
-    <section id="features" className="py-20 md:py-32 bg-white">
+    <section
+      id="features"
+      className="py-20 md:py-32"
+      style={{ backgroundColor: "#FFFFFF" }}
+    >
       <div className="section-container">
         <div className="text-center max-w-3xl mx-auto mb-16">
           <motion.div
@@ -84,7 +88,7 @@ export default function Features() {
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
               This Isn&apos;t Just
-              <span className="text-primary-600"> Pretty Cards</span>
+              <span className="text-[#3B7CFF]"> Pretty Cards</span>
               <br />
               <span className="text-2xl md:text-3xl font-normal text-gray-600">
                 It&apos;s Structured Smackdown for Bad Hiring
@@ -127,7 +131,7 @@ export default function Features() {
 
                   {/* Text Content */}
                   <div className="flex-1 flex flex-col">
-                    <h3 className="text-xl font-bold mb-4 text-gray-900 group-hover:text-primary-600 transition-colors duration-300">
+                    <h3 className="text-xl font-bold mb-4 text-gray-900 group-hover:text-[#3B7CFF] transition-colors duration-300">
                       {feature.title}
                     </h3>
                     <p className="text-gray-600 leading-relaxed text-sm">

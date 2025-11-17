@@ -34,7 +34,8 @@ export default function Testimonials() {
   return (
     <section
       id="testimonials"
-      className="py-20 md:py-32 bg-gradient-to-b from-white to-gray-50"
+      className="py-20 md:py-32"
+      style={{ backgroundColor: "#FFFFFF" }}
     >
       <div className="section-container">
         <div className="text-center max-w-3xl mx-auto mb-16">
@@ -45,8 +46,7 @@ export default function Testimonials() {
             transition={{ duration: 0.6 }}
           >
             <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-primary-600">Real People</span> Who No
-              Longer
+              <span className="text-[#3B7CFF]">Real People</span> Who No Longer
               <br />
               <span className="text-3xl md:text-4xl">
                 Hate Their Hiring Process
