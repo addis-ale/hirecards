@@ -89,7 +89,7 @@ export default function SampleOutput() {
               <div className="flex items-center justify-between flex-wrap gap-4">
                 <div>
                   <div className="text-sm font-bold opacity-90 mb-2 uppercase">
-                    YOUR HIRING POSTED — ROASTED
+                    YOUR HIRING POSTED. ROASTED
                   </div>
                   <h3 className="text-xl md:text-2xl font-bold">
                     Senior Full-Stack Engineer
@@ -261,7 +261,7 @@ export default function SampleOutput() {
               style={{ color: "#102a63" }}
             >
               This is just the{" "}
-              <span className="text-red-600">Damage Report Card</span> — you get
+              <span className="text-red-600">Damage Report Card</span>, you get
               8+ more cards that&apos;ll save your hiring budget.
             </p>
             <a

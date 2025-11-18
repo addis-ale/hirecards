@@ -1,6 +1,6 @@
 # HireCards - Transform Hiring into Smart Battle Cards
 
-A modern, full-stack Next.js 15 application that transforms a short hiring intake form into a comprehensive "Battle Card Deck" — a set of smart cards that explain a job role from every perspective.
+A modern, full-stack Next.js 15 application that transforms a short hiring intake form into a comprehensive "Battle Card Deck", a set of smart cards that explain a job role from every perspective.
 
 ## 🚀 Features
 

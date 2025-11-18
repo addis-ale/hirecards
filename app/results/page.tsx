@@ -4,32 +4,34 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import BattleCardOnePager from "@/components/BattleCardOnePager";
-import { ArrowLeft, Loader2 } from "lucide-react";
-
-interface Card {
-  id: number;
-  type: string;
-  title: string;
-  icon: string;
-  content: any;
-}
+import { HireCardTabs } from "@/components/HireCardTabs";
+import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
 
 export default function ResultsPage() {
   const router = useRouter();
-  const [cards, setCards] = useState<Card[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [isSubscribed, setIsSubscribed] = useState(false);
 
   useEffect(() => {
-    // Retrieve cards from sessionStorage
-    const storedCards = sessionStorage.getItem("battleCards");
-    if (storedCards) {
-      setCards(JSON.parse(storedCards));
+    const checkSubscription = () => {
+      // Check if coming from pricing page or has existing subscription
+      const plan = sessionStorage.getItem("selectedPlan");
+      
+      if (plan) {
+        setSelectedPlan(plan);
+        setIsSubscribed(true); // User has subscribed
+        setShowSuccess(true);
+        setTimeout(() => setShowSuccess(false), 5000);
+      } else {
+        setIsSubscribed(false); // Free user - show overview only
+      }
+      
       setLoading(false);
-    } else {
-      // Redirect to create page if no cards found
-      router.push("/create");
-    }
+    };
+
+    checkSubscription();
   }, [router]);
 
   if (loading) {
@@ -51,15 +53,38 @@ export default function ResultsPage() {
       <Navbar />
       <div className="pt-32 md:pt-36 pb-16">
         <div className="section-container">
+          {/* Success Message */}
+          {showSuccess && selectedPlan && (
+            <div className="max-w-6xl mx-auto mb-8">
+              <div
+                className="flex items-center space-x-3 p-4 rounded-lg shadow-lg animate-fade-in"
+                style={{ backgroundColor: "#d7f4f2", border: "2px solid #278f8c" }}
+              >
+                <CheckCircle
+                  className="w-6 h-6 flex-shrink-0"
+                  style={{ color: "#278f8c" }}
+                />
+                <div>
+                  <p className="font-bold" style={{ color: "#102a63" }}>
+                    Payment Successful! 🎉
+                  </p>
+                  <p className="text-sm" style={{ color: "#102a63", opacity: 0.8 }}>
+                    You&apos;ve unlocked the {selectedPlan} plan. Your complete hiring battle cards are ready below!
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Header */}
-          <div className="max-w-6xl mx-auto mb-12">
+          <div className="max-w-6xl mx-auto mb-8">
             <button
-              onClick={() => router.push("/create")}
+              onClick={() => router.push("/")}
               className="flex items-center space-x-2 mb-6 transition-colors hover:opacity-80"
               style={{ color: "#102a63" }}
             >
               <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Create Another Deck</span>
+              <span className="font-medium">Back to Home</span>
             </button>
 
             <div>
@@ -72,36 +97,21 @@ export default function ResultsPage() {
                   className="px-3 py-1 rounded-lg"
                   style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
                 >
-                  Hiring Battle Card
+                  HireCard Strategy
                 </span>
               </h1>
               <p className="text-lg text-gray-600">
-                Complete hiring intelligence in one professional document
+                {isSubscribed 
+                  ? "Complete hiring intelligence across 13 strategic cards"
+                  : "Preview your hiring analysis (Subscribe to unlock all 13 cards)"
+                }
               </p>
             </div>
           </div>
 
-          {/* Battle Card One-Pager */}
-          <div className="max-w-6xl mx-auto mt-8 mb-8">
-            <BattleCardOnePager cards={cards} />
-          </div>
-
-          {/* CTA Section */}
-          <div
-            className="max-w-4xl mx-auto mt-16 text-center p-8 rounded-xl shadow-md"
-            style={{ backgroundColor: "#d7f4f2" }}
-          >
-            <h3
-              className="text-2xl font-bold mb-3"
-              style={{ color: "#102a63" }}
-            >
-              Love Your Battle Cards?
-            </h3>
-            <p className="text-gray-700 mb-6">
-              Create unlimited decks, access premium templates, and get advanced
-              analytics
-            </p>
-            <button className="btn-primary px-8 py-3">Upgrade to Pro</button>
+          {/* HireCard Tabs */}
+          <div className="max-w-6xl mx-auto">
+            <HireCardTabs isSubscribed={isSubscribed} />
           </div>
         </div>
       </div>

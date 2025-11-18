@@ -18,12 +18,11 @@ export default function CreatePage() {
                 className="px-3 py-1 rounded-lg"
                 style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
               >
-                Battle Card Deck
+                HireCard Strategy
               </span>
             </h1>
             <p className="text-base text-gray-600">
-              Follow these simple steps to generate your comprehensive hiring
-              cards
+              Tell us about your role and get a tailored hiring strategy
             </p>
           </div>
           <MultiPageForm />
