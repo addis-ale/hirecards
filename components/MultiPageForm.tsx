@@ -221,25 +221,37 @@ export default function MultiPageForm() {
         salaryRange: `${formData.minSalary} - ${formData.maxSalary}`,
       };
 
-      const response = await fetch("/api/generate-cards", {
+      // Store form data in sessionStorage
+      sessionStorage.setItem("formData", JSON.stringify(submitData));
+
+      // Try to call API, but don't wait for it or show errors
+      fetch("/api/generate-cards", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(submitData),
-      });
+      })
+        .then(response => response.json())
+        .then(result => {
+          if (result.success) {
+            sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
+            sessionStorage.setItem("sessionId", result.sessionId);
+          }
+        })
+        .catch(() => {
+          // Silently fail - user is already redirected
+        });
 
-      const result = await response.json();
-
-      if (result.success) {
-        sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
-        sessionStorage.setItem("sessionId", result.sessionId);
+      // Always redirect to results after a short delay
+      setTimeout(() => {
         router.push("/results");
-      } else {
-        setError(result.error || "Failed to generate cards");
-      }
+      }, 1500);
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      // Even if something goes wrong, redirect to results
+      setTimeout(() => {
+        router.push("/results");
+      }, 500);
     } finally {
       setIsSubmitting(false);
     }
@@ -286,7 +298,7 @@ export default function MultiPageForm() {
     <div className="max-w-4xl mx-auto">
       <form
         onSubmit={handleSubmit}
-        className="bg-white rounded-xl shadow-lg p-8"
+        className="bg-white rounded-2xl shadow-xl p-8 md:p-12"
       >
         {renderStepIndicator()}
         

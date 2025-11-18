@@ -409,7 +409,7 @@ export const Hero = () => {
                               className="text-xs md:text-sm leading-relaxed font-medium"
                               style={{ color: "#102a63", opacity: 0.9 }}
                             >
-                              Fill the blanks and we'll tell you the truth—whether this role is solid gold 
+                              Fill the blanks and we&apos;ll tell you the truth—whether this role is solid gold 
                               or hiring fantasy. Complete analysis with real market data, not guesswork.
                             </p>
                           </div>
@@ -417,7 +417,7 @@ export const Hero = () => {
                       ) : (
                         <div className="mb-4">
                           <Link
-                            href="/pricing"
+                            href="/results"
                             className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-6 py-3 mb-2 w-full sm:w-auto"
                           >
                             <Sparkles className="w-4 h-4" />

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { DollarSign } from "lucide-react";
+import { Section } from "@/components/ui/Section";
 
 export const PayCard = () => {
   return (
@@ -62,61 +63,49 @@ export const PayCard = () => {
       </div>
 
       {/* Red Flags */}
-      <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-        <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-          Red Flags
-        </h3>
-        <ul className="space-y-2">
+      <Section title="Red Flags" Icon={DollarSign} tone="danger">
+        <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-red-600">
           {[
             "Candidate wants &gt;20% above internal band",
             "Company refuses to budge on comp",
             "Internal equity blocks competitive offers"
           ].map((flag, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: "#102a63" }}>
-              <span className="text-orange-500 font-bold">•</span>
-              <span>{flag}</span>
+            <li key={idx} className="text-[13px] leading-snug text-red-700">
+              {flag}
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Don't Do This */}
-      <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-        <h3 className="font-bold text-lg mb-3 text-red-700">
-          Don&apos;t Do This
-        </h3>
-        <ul className="space-y-2">
+      <Section title="Don&apos;t Do This" Icon={DollarSign} tone="danger">
+        <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-red-600">
           {[
             "Hide comp until final stage",
             "Use equity as compensation if it&apos;s not meaningful",
             "Expect senior technical talent at mid-level pay"
           ].map((dont, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm text-red-900">
-              <span className="text-red-500 font-bold">•</span>
-              <span>{dont}</span>
+            <li key={idx} className="text-[13px] leading-snug text-red-700">
+              {dont}
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Fix This Now */}
-      <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-        <h3 className="font-bold text-lg mb-3 text-green-700">
-          Fix This Now
-        </h3>
-        <ul className="space-y-2">
+      <Section title="Fix This Now" Icon={DollarSign} tone="success">
+        <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-emerald-600">
           {[
             "Align comp band before launching the search",
             "Offer clarity upfront",
             "Highlight ownership + product impact as value drivers"
           ].map((fix, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm text-green-900">
-              <span className="text-green-500 font-bold">•</span>
-              <span>{fix}</span>
+            <li key={idx} className="text-[13px] leading-snug text-emerald-800">
+              {fix}
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Hidden Bottleneck */}
       <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg">

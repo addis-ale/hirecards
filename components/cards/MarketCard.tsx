@@ -2,6 +2,7 @@
 
 import React from "react";
 import { TrendingUp } from "lucide-react";
+import { Section } from "@/components/ui/Section";
 
 export const MarketCard = () => {
   return (
@@ -126,42 +127,34 @@ export const MarketCard = () => {
       </div>
 
       {/* Don't Do This */}
-      <div className="bg-red-50 border border-red-200 p-4 rounded-lg">
-        <h3 className="font-bold text-lg mb-3 text-red-700">
-          Don&apos;t Do This
-        </h3>
-        <ul className="space-y-2">
+      <Section title="Don&apos;t Do This" Icon={TrendingUp} tone="danger">
+        <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-red-600">
           {[
             "Start with internal referrals only",
             "Rely on job boards",
             "Insist on niche location experience"
           ].map((dont, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm text-red-900">
-              <span className="text-red-500 font-bold">•</span>
-              <span>{dont}</span>
+            <li key={idx} className="text-[13px] leading-snug text-red-700">
+              {dont}
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Fix This Now */}
-      <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-        <h3 className="font-bold text-lg mb-3 text-green-700">
-          Fix This Now
-        </h3>
-        <ul className="space-y-2">
+      <Section title="Fix This Now" Icon={TrendingUp} tone="success">
+        <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-emerald-600">
           {[
             "Expand geography: Lisbon, Berlin, Barcelona, Warsaw",
             "Improve comp (paying bottom-of-market = slow hire)",
             "Update messaging to focus on product impact, not tools"
           ].map((fix, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm text-green-900">
-              <span className="text-green-500 font-bold">•</span>
-              <span>{fix}</span>
+            <li key={idx} className="text-[13px] leading-snug text-emerald-800">
+              {fix}
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Hidden Bottleneck */}
       <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg">

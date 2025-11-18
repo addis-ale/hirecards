@@ -54,32 +54,73 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   };
 
   const renderCardContent = () => {
-    if (!isSubscribed && activeTab !== "overview") {
-      return <OverviewCard />;
-    }
-
+    // Check if current tab is locked (not subscribed and not overview)
+    const isCurrentTabLocked = !isSubscribed && activeTab !== "overview";
+    
+    let content;
     switch (activeTab) {
       case "overview":
-        return <OverviewCard />;
+        content = <OverviewCard isSubscribed={isSubscribed} />;
+        break;
       case "role":
-        return <RoleCard />;
+        content = <RoleCard />;
+        break;
       case "skill":
-        return <SkillCard />;
+        content = <SkillCard />;
+        break;
       case "market":
-        return <MarketCard />;
+        content = <MarketCard />;
+        break;
       case "pay":
-        return <PayCard />;
+        content = <PayCard />;
+        break;
       case "reality":
-        return <RealityCard />;
+        content = <RealityCard />;
+        break;
       // Add other cards here as we build them
       default:
-        return (
+        content = (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">This card is under construction</p>
             <p className="text-sm text-gray-400">More detailed content coming soon...</p>
           </div>
         );
     }
+
+    // If locked, wrap content in blur overlay
+    if (isCurrentTabLocked) {
+      return (
+        <div className="relative min-h-[400px]">
+          {/* Blurred content in background */}
+          <div className="blur-sm pointer-events-none select-none opacity-30">
+            {content}
+          </div>
+          
+          {/* Lock overlay in center */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <div className="text-center bg-white/95 backdrop-blur-sm rounded-3xl p-12 md:p-16 shadow-2xl max-w-2xl mx-4">
+              <Lock className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-6 text-gray-400" />
+              <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "#102a63" }}>
+                This Card is Locked
+              </h3>
+              <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
+                Subscribe to unlock all 13 strategic hiring cards with detailed analysis, 
+                market insights, and actionable strategies.
+              </p>
+              <a
+                href="/pricing"
+                className="inline-flex items-center gap-3 px-8 py-4 text-lg md:text-xl bg-[#278f8c] text-white rounded-xl hover:bg-[#1a6764] transition-all font-semibold shadow-lg hover:shadow-xl"
+              >
+                <Lock className="w-6 h-6" />
+                <span>Unlock All Cards</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return content;
   };
 
   return (
@@ -109,18 +150,11 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => {
-                if (!tab.locked) {
-                  setActiveTab(tab.id);
-                }
-              }}
-              disabled={tab.locked}
+              onClick={() => setActiveTab(tab.id)}
               className={`
                 relative flex-shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap transition-all
                 ${activeTab === tab.id
                   ? "bg-[#278f8c] text-white"
-                  : tab.locked
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
                   : "bg-white text-gray-700 hover:bg-gray-50"
                 }
               `}
@@ -129,10 +163,10 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
                 <tab.Icon className="w-4 h-4" />
                 <span>{tab.label}</span>
                 {tab.locked && (
-                  <Lock className="w-3 h-3 text-gray-400" aria-label="locked" />
+                  <Lock className="w-3 h-3" aria-label="locked" />
                 )}
               </div>
-              {activeTab === tab.id && !tab.locked && (
+              {activeTab === tab.id && (
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-white" />
               )}
             </button>

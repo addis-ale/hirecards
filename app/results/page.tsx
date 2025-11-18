@@ -16,18 +16,22 @@ export default function ResultsPage() {
 
   useEffect(() => {
     const checkSubscription = () => {
-      // Check if coming from pricing page or has existing subscription
+      // Prefer real subscription if present
       const plan = sessionStorage.getItem("selectedPlan");
-      
+      const quickAnalysis = sessionStorage.getItem("incompleteData");
+
       if (plan) {
         setSelectedPlan(plan);
-        setIsSubscribed(true); // User has subscribed
+        setIsSubscribed(true);
         setShowSuccess(true);
-        setTimeout(() => setShowSuccess(false), 5000);
+        setTimeout(() => setShowSuccess(false), 3000);
+      } else if (quickAnalysis) {
+        // If user came from Hero quick analysis, show only overview (not subscribed)
+        setIsSubscribed(false);
       } else {
-        setIsSubscribed(false); // Free user - show overview only
+        setIsSubscribed(false);
       }
-      
+
       setLoading(false);
     };
 

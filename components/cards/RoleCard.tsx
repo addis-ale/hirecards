@@ -84,7 +84,7 @@ export const RoleCard = () => {
           </Callout>
 
           {/* Red Flags */}
-          <Section title="Red Flags" Icon={FlagTriangleRight}>
+          <Section title="Red Flags" Icon={FlagTriangleRight} tone="danger">
             <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-red-600">
               {redFlags.map((f, i) => (
                 <li key={i} className="text-[13px] leading-snug text-red-700">
@@ -95,7 +95,7 @@ export const RoleCard = () => {
           </Section>
 
           {/* Don&apos;t Do This */}
-          <Section title="Don&apos;t Do This" Icon={AlertTriangle}>
+          <Section title="Don&apos;t Do This" Icon={AlertTriangle} tone="danger">
             <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-red-600">
               {donts.map((d, i) => (
                 <li key={i} className="text-[13px] leading-snug text-red-700">
@@ -106,7 +106,7 @@ export const RoleCard = () => {
           </Section>
 
           {/* Fix This Now */}
-          <Section title="Fix This Now" Icon={Wrench}>
+          <Section title="Fix This Now" Icon={Wrench} tone="success">
             <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-emerald-600">
               {fixes.map((f, i) => (
                 <li key={i} className="text-[13px] leading-snug text-emerald-800">
