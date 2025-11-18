@@ -151,7 +151,7 @@ export const Hero = () => {
               missing = ["Budget/Salary Range", "Why Hiring Now", "Non-Negotiables", "Timeline", "Flexible"];
               score = 58;
               category = "Moderate Feasibility";
-              message = "Not bad! You've got most of the picture. We found role details, location, experience level, skills—good stuff. But here's where it gets fuzzy: no salary range, no timeline, no non-negotiables. That 58 you're seeing? It's a guess. If you're paying competitive rates with realistic expectations, you might hit 70-75. If you're lowballing or expecting to hire yesterday, you're looking at 40-45. See the problem? We're reading tea leaves. Fill in what's missing, and we'll tell you if you're competitive or dreaming.";
+              message = "Not bad! You've got most of the picture. We found role details, location, experience level, skills, good stuff. But here's where it gets fuzzy: no salary range, no timeline, no non-negotiables. That 58 you're seeing? It's a guess. If you're paying competitive rates with realistic expectations, you might hit 70-75. If you're lowballing or expecting to hire yesterday, you're looking at 40-45. See the problem? We're reading tea leaves. Fill in what's missing, and we'll tell you if you're competitive or dreaming.";
               break;
               
             case 'good':
@@ -168,7 +168,7 @@ export const Hero = () => {
               missing = ["Budget/Salary Range", "Timeline", "Flexible"];
               score = 65;
               category = "Moderate Feasibility";
-              message = "Almost there! You've got most of the puzzle pieces. We found role details, location, experience, skills, even why you're hiring. Nice. But you're missing the big ones: salary range and timeline. That 65 you're seeing? Could swing ±15 points. If you're paying $140K-$180K (competitive for Austin) with a 6-8 week timeline, you're golden—might hit 75-80. If you're offering $100K and want someone yesterday, you're looking at 50-55. Fill in the gaps and we'll give you the real number, not a guess.";
+              message = "Almost there! You've got most of the puzzle pieces. We found role details, location, experience, skills, even why you're hiring. Nice. But you're missing the big ones: salary range and timeline. That 65 you're seeing? Could swing ±15 points. If you're paying $140K-$180K (competitive for Austin) with a 6-8 week timeline, you're golden, might hit 75-80. If you're offering $100K and want someone yesterday, you're looking at 50-55. Fill in the gaps and we'll give you the real number, not a guess.";
               break;
               
             case 'great':
@@ -212,7 +212,7 @@ export const Hero = () => {
           missing = ["Experience Level", "Location", "Work Model", "Critical Skills", "Budget/Salary Range", "Why Hiring Now", "Non-Negotiables", "Timeline"];
           score = 16;
           category = "Ghost Town";
-          message = "Just a job title? Really? That's like walking into a café and saying 'coffee' and expecting a masterpiece. We gave you a 16, but let's be real—we know nothing. Your actual feasibility could be 70 if you've got a solid offer, or it could be 10 if you're asking for a unicorn on a shoestring budget. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.";
+          message = "Just a job title? Really? That's like walking into a café and saying 'coffee' and expecting a masterpiece. We gave you a 16, but let's be real, we know nothing. Your actual feasibility could be 70 if you've got a solid offer, or it could be 10 if you're asking for a unicorn on a shoestring budget. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.";
         }
         
         setMissingFields(missing);
@@ -409,7 +409,7 @@ export const Hero = () => {
                               className="text-xs md:text-sm leading-relaxed font-medium"
                               style={{ color: "#102a63", opacity: 0.9 }}
                             >
-                              Fill the blanks and we&apos;ll tell you the truth—whether this role is solid gold 
+                              Fill the blanks and we&apos;ll tell you the truth, whether this role is solid gold 
                               or hiring fantasy. Complete analysis with real market data, not guesswork.
                             </p>
                           </div>

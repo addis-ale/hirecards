@@ -24,11 +24,11 @@ export const RoleCard = () => {
   const donts = [
     "Copy competitor job descriptions.",
     "Hide the real complexity of your data.",
-    "List 20+ responsibilities — it signals chaos.",
+    "List 20+ responsibilities. It signals chaos.",
   ];
 
   const fixes = [
-    "Show candidates exactly where the mess is — it builds trust.",
+    "Show candidates exactly where the mess is. It builds trust.",
     "Rewrite responsibilities to outcomes (not task lists).",
     "Align hiring manager + PM on what \"success\" looks like BEFORE sourcing starts.",
   ];
@@ -45,7 +45,7 @@ export const RoleCard = () => {
                 <h4 className="text-sm font-semibold mb-1" style={{ color: "#102a63" }}>Role Summary</h4>
                 <p className="text-[13px] leading-snug" style={{ color: "#102a63", opacity: 0.9 }}>
                   Design, build, and maintain production-grade analytics models that power Mollie&apos;s merchant
-                  analytics experiences — internal and customer-facing. Own modelling standards, improve data quality,
+                  analytics experiences, internal and customer-facing. Own modelling standards, improve data quality,
                   and partner with Engineering & Product to ship meaningful analytics features.
                 </p>
               </div>
