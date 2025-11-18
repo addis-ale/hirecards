@@ -155,7 +155,7 @@ URL: `https://company.com/jobs/senior-backend-engineer`
 **Category:** "Moderate to High Feasibility"
 
 **Roasting Message:**
-"Okay, you actually filled everything out. Impressive. We scraped your URL and found a complete job description—role, salary, timeline, the works. Here's the reality check: your salary is about 10-15% below market for SF. You're offering $160K-$190K when the market's closer to $180K-$220K for senior backend engineers. With all the data in, your score is 70—not bad, but not great either. The market competitiveness in SF is brutal, and your salary puts you at a disadvantage. You'll get applicants, but expect to lose them in final rounds to better offers. Bump the range or prepare for second-choice candidates. Your timeline is solid though, so that's something."
+"Okay, you actually filled everything out. Impressive. We scraped your URL and found a complete job description: role, salary, timeline, the works. Here's the reality check: your salary is about 10-15% below market for SF. You're offering $160K-$190K when the market's closer to $180K-$220K for senior backend engineers. With all the data in, your score is 70, not bad, but not great either. The market competitiveness in SF is brutal, and your salary puts you at a disadvantage. You'll get applicants, but expect to lose them in final rounds to better offers. Bump the range or prepare for second-choice candidates. Your timeline is solid though, so that's something."
 
 **Call to Action:**
 - Button: "Refine Your Data & Get Full Analysis" → `/create`
@@ -193,11 +193,11 @@ URL: `https://startup.com/careers/product-manager`
 **Category:** "Moderate Feasibility (Uncertain)"
 
 **Roasting Message:**
-"Not bad! You've got most of the picture. We found role details, location, skills—good stuff. But here's where it gets fuzzy: no salary range and no timeline. That 65 you're seeing? It's a guess. If you're paying $140K-$180K (competitive for remote PM), you might hit 75-80. If you're offering $100K and expecting to hire yesterday, you're looking at 45-50. See the problem? We're reading tea leaves. Fill in salary and timeline, and we'll tell you if you're competitive or dreaming."
+"Not bad! You've got most of the picture. We found role details, location, skills, good stuff. But here's where it gets fuzzy: no salary range and no timeline. That 65 you're seeing? It's a guess. If you're paying $140K-$180K (competitive for remote PM), you might hit 75-80. If you're offering $100K and expecting to hire yesterday, you're looking at 45-50. See the problem? We're reading tea leaves. Fill in salary and timeline, and we'll tell you if you're competitive or dreaming."
 
 **Call to Action:**
 - Button: "Add Missing Fields & Get Accurate Score" → `/create`
-- Description: "Your score could swing ±15 points based on what's missing. Stop guessing—get the real answer."
+- Description: "Your score could swing ±15 points based on what's missing. Stop guessing. Get the real answer."
 
 ---
 
@@ -242,7 +242,7 @@ Missing Critical Data:
 
 **Call to Action:**
 - Button: "Stop Guessing. Get Accurate Results." → `/create`
-- Description: "Fill the blanks and we'll tell you the truth—whether this role is solid gold or hiring fantasy. Complete analysis with real market data, not guesswork."
+- Description: "Fill the blanks and we'll tell you the truth, whether this role is solid gold or hiring fantasy. Complete analysis with real market data, not guesswork."
 
 ---
 
@@ -276,7 +276,7 @@ Text: "Senior Frontend Engineer"
 **Category:** "Ghost Town"
 
 **Roasting Message:**
-"Just a job title? Really? That's like walking into a café and saying 'coffee' and expecting a masterpiece. We gave you a 16, but let's be real—we know nothing. Your actual feasibility could be 70 if you've got a solid offer in Austin with $150K salary, or it could be 10 if you're asking for a unicorn on a shoestring budget in the middle of nowhere. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer."
+"Just a job title? Really? That's like walking into a café and saying 'coffee' and expecting a masterpiece. We gave you a 16, but let's be real, we know nothing. Your actual feasibility could be 70 if you've got a solid offer in Austin with $150K salary, or it could be 10 if you're asking for a unicorn on a shoestring budget in the middle of nowhere. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer."
 
 **Missing Fields Display:**
 ```
@@ -287,7 +287,7 @@ Missing Critical Data:
 
 **Call to Action:**
 - Button: "Stop Guessing. Get Accurate Results." → `/create`
-- Description: "Fill the blanks and we'll tell you the truth—whether this role is solid gold or hiring fantasy. Complete analysis with real market data, not guesswork."
+- Description: "Fill the blanks and we'll tell you the truth, whether this role is solid gold or hiring fantasy. Complete analysis with real market data, not guesswork."
 
 ---
 
@@ -363,7 +363,7 @@ User fills out complete form at `/create`
 **Category:** "High Feasibility"
 
 **Roasting Message:**
-"Well, well, look at you being realistic. You filled out everything, and here's the shocker: it actually makes sense. Junior frontend dev, $65K-$80K in Austin, 1-2 years experience, React skills, 6-8 weeks to hire. You're not asking for unicorns, your budget is competitive for the market, and your timeline is reasonable. You'll get applicants. Good ones, even. Only critique: hybrid work might limit your candidate pool slightly—fully remote would get you more options—but that's nitpicking. This is a hireable role. Congratulations, you're in the top 15% of job postings that don't make us want to roast you into oblivion."
+"Well, well, look at you being realistic. You filled out everything, and here's the shocker: it actually makes sense. Junior frontend dev, $65K-$80K in Austin, 1-2 years experience, React skills, 6-8 weeks to hire. You're not asking for unicorns, your budget is competitive for the market, and your timeline is reasonable. You'll get applicants. Good ones, even. Only critique: hybrid work might limit your candidate pool slightly. Fully remote would get you more options, but that's nitpicking. This is a hireable role. Congratulations, you're in the top 15% of job postings that don't make us want to roast you into oblivion."
 
 **Recommendations:**
 1. ✅ Role is well-structured and realistic
