@@ -19,7 +19,7 @@ const spaceGrotesk = Space_Grotesk({
 export const metadata: Metadata = {
   title: "HireCards - Instant Hiring Reality Check. Before You Waste 2 Months",
   description:
-    "Get feasibility score, salary benchmarks, competition analysis, red flags and recommendations — in seconds. Turn hiring chaos into data-driven decisions.",
+    "Get feasibility score, salary benchmarks, competition analysis, red flags and recommendations, in seconds. Turn hiring chaos into data-driven decisions.",
   keywords:
     "hiring, recruitment, job cards, battle cards, HR tech, hiring process, talent acquisition, salary benchmarks, hiring feasibility",
 };

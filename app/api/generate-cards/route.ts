@@ -200,7 +200,7 @@ function generateBattleCards(formData: any) {
         successRate: "73% success rate... IF you have your act together",
         theHarshTruth: "The Brutal Truth™",
         insights: [
-          "Candidates judge your company in 10 minutes. First impressions aren't just important—they're everything.",
+          "Candidates judge your company in 10 minutes. First impressions aren't just important, they're everything.",
           "Radio silence = ghosting. Keep candidates updated or they'll find someone who will.",
           "Culture fit isn't optional. Misaligned hires leave 30% faster (and cost you way more).",
           "Your 'competitive salary' better actually be competitive. Candidates Google that stuff now.",
