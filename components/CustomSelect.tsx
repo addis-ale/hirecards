@@ -61,7 +61,7 @@ export default function CustomSelect({
         type="button"
         id={id}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#D7F4F2] focus:border-transparent transition-all text-left flex items-center justify-between text-sm ${className}`}
+        className={`w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent transition-all text-left flex items-center justify-between ${className}`}
         style={{
           color: value ? "#000" : "#9ca3af",
         }}
@@ -76,9 +76,11 @@ export default function CustomSelect({
 
       {isOpen && (
         <div
-          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto"
+          className="absolute z-50 w-full mt-1 bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto scrollbar-hide"
           style={{
             boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+            scrollbarWidth: "none", /* Firefox */
+            msOverflowStyle: "none", /* IE and Edge */
           }}
         >
           {options.map((option, index) => (
@@ -87,7 +89,7 @@ export default function CustomSelect({
               onClick={() => handleSelect(option.value)}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(-1)}
-              className="px-3 py-2 cursor-pointer transition-all rounded-lg text-sm"
+              className="px-4 py-2 cursor-pointer transition-all rounded-lg"
               style={{
                 backgroundColor:
                   hoveredIndex === index || value === option.value

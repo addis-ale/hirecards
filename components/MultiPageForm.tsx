@@ -14,7 +14,6 @@ interface FormData {
   criticalSkill: string;
   minSalary: string;
   maxSalary: string;
-  whyHiringNow: string;
   nonNegotiables: string;
   flexible: string;
   timeline: string;
@@ -25,6 +24,7 @@ export default function MultiPageForm() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [preFilledFields, setPreFilledFields] = useState<string[]>([]);
   const [formData, setFormData] = useState<FormData>({
     roleTitle: "",
@@ -34,7 +34,6 @@ export default function MultiPageForm() {
     criticalSkill: "",
     minSalary: "",
     maxSalary: "",
-    whyHiringNow: "",
     nonNegotiables: "",
     flexible: "",
     timeline: "",
@@ -81,10 +80,6 @@ export default function MultiPageForm() {
         if (extracted.criticalSkills) {
           mappedData.criticalSkill = extracted.criticalSkills;
           filledFields.push('criticalSkill');
-        }
-        if (extracted.whyHiring) {
-          mappedData.whyHiringNow = extracted.whyHiring;
-          filledFields.push('whyHiringNow');
         }
         if (extracted.nonNegotiables) {
           mappedData.nonNegotiables = extracted.nonNegotiables;
@@ -173,10 +168,6 @@ export default function MultiPageForm() {
         break;
 
       case 3:
-        if (!formData.whyHiringNow.trim()) {
-          setError("Please explain why you're hiring now");
-          return false;
-        }
         if (!formData.nonNegotiables.trim()) {
           setError("Non-negotiables are required");
           return false;
@@ -195,19 +186,24 @@ export default function MultiPageForm() {
   };
 
   const handleNext = () => {
+    setHasInteracted(true);
     if (validateStep(currentStep)) {
       setCurrentStep(prev => Math.min(prev + 1, totalSteps));
+      setHasInteracted(false); // Reset for next step
+      setError(""); // Clear error when moving to next step
     }
   };
 
   const handlePrevious = () => {
     setCurrentStep(prev => Math.max(prev - 1, 1));
     setError("");
+    setHasInteracted(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    setHasInteracted(true);
     if (!validateStep(currentStep)) {
       return;
     }
@@ -266,11 +262,15 @@ export default function MultiPageForm() {
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold transition-all ${
                   step < currentStep
-                    ? "bg-green-500 text-white"
+                    ? "text-white"
                     : step === currentStep
                     ? "bg-[#278f8c] text-white"
                     : "bg-gray-200 text-gray-500"
                 }`}
+                style={{
+                  backgroundColor: step < currentStep ? "#d7f4f2" : undefined,
+                  color: step < currentStep ? "#102a63" : undefined,
+                }}
               >
                 {step < currentStep ? "✓" : step}
               </div>
@@ -284,8 +284,11 @@ export default function MultiPageForm() {
             {step < totalSteps && (
               <div
                 className={`flex-1 h-1 mx-2 transition-all ${
-                  step < currentStep ? "bg-green-500" : "bg-gray-200"
+                  step < currentStep ? "" : "bg-gray-200"
                 }`}
+                style={{
+                  backgroundColor: step < currentStep ? "#d7f4f2" : undefined,
+                }}
               />
             )}
           </div>
@@ -316,7 +319,7 @@ export default function MultiPageForm() {
               >
                 Role Title *
                 {preFilledFields.includes('roleTitle') && (
-                  <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                  <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                     ✓ Pre-filled
                   </span>
                 )}
@@ -340,7 +343,7 @@ export default function MultiPageForm() {
               >
                 Experience Level *
                 {preFilledFields.includes('experienceLevel') && (
-                  <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                  <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                     ✓ Pre-filled
                   </span>
                 )}
@@ -377,7 +380,7 @@ export default function MultiPageForm() {
               >
                 Location *
                 {preFilledFields.includes('location') && (
-                  <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                  <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                     ✓ Pre-filled
                   </span>
                 )}
@@ -401,7 +404,7 @@ export default function MultiPageForm() {
               >
                 Work Model *
                 {preFilledFields.includes('workModel') && (
-                  <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                  <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                     ✓ Pre-filled
                   </span>
                 )}
@@ -437,7 +440,7 @@ export default function MultiPageForm() {
             >
               Critical Skill *
               {preFilledFields.includes('criticalSkill') && (
-                <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                   ✓ Pre-filled
                 </span>
               )}
@@ -464,7 +467,7 @@ export default function MultiPageForm() {
             >
               Budget or Salary Range *
               {(preFilledFields.includes('minSalary') || preFilledFields.includes('maxSalary')) && (
-                <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                   ✓ Pre-filled
                 </span>
               )}
@@ -512,31 +515,6 @@ export default function MultiPageForm() {
           {/* Step 3: Details */}
           {currentStep === 3 && (
             <>
-              {/* Why Hiring Now */}
-              <div>
-            <label
-              htmlFor="whyHiringNow"
-              className="block text-sm font-semibold mb-2"
-              style={{ color: "#102a63" }}
-            >
-              Why Hiring Now? *
-              {preFilledFields.includes('whyHiringNow') && (
-                <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
-                  ✓ Pre-filled
-                </span>
-              )}
-            </label>
-            <textarea
-              id="whyHiringNow"
-              name="whyHiringNow"
-              rows={3}
-              value={formData.whyHiringNow}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent transition-all"
-              placeholder="e.g., Scaling the team for Q2 product launch, replacing a departing team member, new project starting..."
-            />
-          </div>
-
           {/* Non-Negotiables */}
           <div>
             <label
@@ -546,7 +524,7 @@ export default function MultiPageForm() {
             >
               Non-Negotiables *
               {preFilledFields.includes('nonNegotiables') && (
-                <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                   ✓ Pre-filled
                 </span>
               )}
@@ -574,7 +552,7 @@ export default function MultiPageForm() {
             >
               What Could Be Flexible?
               {preFilledFields.includes('flexible') && (
-                <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                   ✓ Pre-filled
                 </span>
               )}
@@ -607,7 +585,7 @@ export default function MultiPageForm() {
             >
               Desired Timeline *
               {preFilledFields.includes('timeline') && (
-                <span className="ml-2 text-xs font-normal px-2 py-0.5 bg-green-100 text-green-700 rounded-full">
+                <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                   ✓ Pre-filled
                 </span>
               )}
@@ -634,7 +612,7 @@ export default function MultiPageForm() {
         </div>
 
         {/* Error Message */}
-        {error && (
+        {error && hasInteracted && (
           <div className="mt-6 flex items-center space-x-2 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700">
             <AlertCircle className="w-5 h-5 flex-shrink-0" />
             <span>{error}</span>
@@ -669,12 +647,17 @@ export default function MultiPageForm() {
               <button
                 type="submit"
                 disabled={isSubmitting}
-                className="btn-primary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                className="btn-primary px-8 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-all duration-300 relative overflow-hidden"
+                style={isSubmitting ? {
+                  background: 'linear-gradient(90deg, #278f8c 0%, #20706e 50%, #278f8c 100%)',
+                  backgroundSize: '200% 100%',
+                  animation: 'gradient-shift 2s ease-in-out infinite',
+                } : undefined}
               >
                 {isSubmitting ? (
                   <>
                     <Loader2 className="w-5 h-5 animate-spin" />
-                    <span>Generating...</span>
+                    <span className="animate-pulse">Generating your HireCard...</span>
                   </>
                 ) : (
                   <>
@@ -687,9 +670,19 @@ export default function MultiPageForm() {
           </div>
           
           {isSubmitting && (
-            <p className="text-sm text-gray-500 text-center mt-3">
-              This will take approximately 10-15 seconds
-            </p>
+            <div className="text-center mt-4 space-y-2">
+              <p className="text-sm text-gray-600 font-medium animate-pulse">
+                ✨ Creating your personalized hiring strategy...
+              </p>
+              <p className="text-xs text-gray-500">
+                This will take approximately 10-15 seconds
+              </p>
+              <div className="flex items-center justify-center space-x-1 mt-2">
+                <div className="w-2 h-2 bg-[#278f8c] rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-2 h-2 bg-[#278f8c] rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                <div className="w-2 h-2 bg-[#278f8c] rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+              </div>
+            </div>
           )}
         </div>
       </form>

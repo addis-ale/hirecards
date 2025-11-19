@@ -58,7 +58,7 @@ export default function Navbar() {
       }`}
     >
       <div
-        className={`max-w-6xl mx-auto rounded-2xl transition-all duration-300 ${
+        className={`max-w-7xl mx-auto rounded-2xl transition-all duration-300 ${
           isScrolled ? "shadow-xl" : "shadow-lg"
         }`}
         style={{

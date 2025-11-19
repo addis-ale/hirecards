@@ -108,124 +108,97 @@ export const Hero = () => {
     return 'default';
   };
 
-  const handleAnalyze = () => {
+  const handleAnalyze = async () => {
     if (roleDescription.trim()) {
       setIsAnalyzing(true);
 
-      // Simulate AI processing delay
-      setTimeout(() => {
-        const inputIsURL = isURL(roleDescription);
+      try {
+        // Call AI-powered parsing API
+        const parseResponse = await fetch('/api/parse-role', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ input: roleDescription }),
+        });
+
+        const parseResult = await parseResponse.json();
+
+        if (!parseResult.success) {
+          throw new Error('Failed to parse role');
+        }
+
+        const parsedData = parseResult.data;
+        const inputIsURL = parsedData.isURL;
         
+        // Build extracted fields from AI parsing
+        let extractedFields: any = {
+          roleTitle: parsedData.jobTitle,
+        };
+
+        if (parsedData.location) extractedFields.location = parsedData.location;
+        if (parsedData.workModel) extractedFields.workModel = parsedData.workModel;
+        if (parsedData.experienceLevel) extractedFields.experienceLevel = parsedData.experienceLevel;
+        if (parsedData.department) extractedFields.department = parsedData.department;
+        if (parsedData.skills && parsedData.skills.length > 0) {
+          extractedFields.criticalSkills = parsedData.skills.join(', ');
+        }
+
+        // Determine missing fields
         let missing: string[] = [];
-        let extractedFields: any = {};
-        let score = 16;
+        if (!parsedData.experienceLevel) missing.push("Experience Level");
+        if (!parsedData.location) missing.push("Location");
+        if (!parsedData.workModel) missing.push("Work Model");
+        if (!parsedData.skills || parsedData.skills.length === 0) missing.push("Critical Skills");
+        missing.push("Budget/Salary Range");
+        missing.push("Non-Negotiables");
+        missing.push("Timeline");
+
+        // Calculate score based on completeness and confidence
+        const fieldsProvided = 8 - missing.length;
+        const completenessScore = (fieldsProvided / 8) * 100;
+        const confidenceWeight = parsedData.confidence || 0.5;
+        let score = Math.round(completenessScore * confidenceWeight);
+
+        // Adjust score based on quality
+        score = Math.max(16, Math.min(85, score));
+
         let category = "Low Feasibility";
         let message = "";
-        let isIncomplete = true;
+        let isIncomplete = missing.length > 0;
 
-        if (inputIsURL) {
-          const quality = getURLQuality(roleDescription);
-          
-          switch (quality) {
-            case 'poor':
-              // Only role and location - 8 fields missing
-              extractedFields = {
-                roleTitle: "Senior Backend Engineer",
-                location: "San Francisco, CA",
-              };
-              missing = ["Experience Level", "Work Model", "Critical Skills", "Budget/Salary Range", "Why Hiring Now", "Non-Negotiables", "Timeline", "Flexible"];
-              score = 31;
-              category = "Low Feasibility";
-              message = "Okay, so you dropped a URL like you're trying to impress us. Cool. We scraped it. Found a title and maybe a location. But here's the thing: your job description is basically a ghost town. No salary range? No must-haves? No timeline? We're giving you a 31, but honestly? That's just our best guess based on scraps. Your real score could be 60 if you're paying well, or 15 if you're living in fantasy land. Right now we're reading tea leaves. Want the actual truth? Fill in what's missing.";
-              break;
-              
-            case 'well':
-              // 4-6 fields missing
-              extractedFields = {
-                roleTitle: "Product Manager",
-                location: "Remote (US)",
-                experienceLevel: "4-6 years",
-                workModel: "Fully Remote",
-                criticalSkills: "Product strategy, user research, agile",
-              };
-              missing = ["Budget/Salary Range", "Why Hiring Now", "Non-Negotiables", "Timeline", "Flexible"];
-              score = 58;
-              category = "Moderate Feasibility";
-              message = "Not bad! You've got most of the picture. We found role details, location, experience level, skills, good stuff. But here's where it gets fuzzy: no salary range, no timeline, no non-negotiables. That 58 you're seeing? It's a guess. If you're paying competitive rates with realistic expectations, you might hit 70-75. If you're lowballing or expecting to hire yesterday, you're looking at 40-45. See the problem? We're reading tea leaves. Fill in what's missing, and we'll tell you if you're competitive or dreaming.";
-              break;
-              
-            case 'good':
-              // 1-3 fields missing
-              extractedFields = {
-                roleTitle: "Senior Frontend Developer",
-                location: "Austin, TX",
-                experienceLevel: "5-7 years",
-                workModel: "Hybrid (3 days on-site)",
-                criticalSkills: "React, TypeScript, Next.js, Node.js",
-                whyHiring: "Scaling product team for new feature launch",
-                nonNegotiables: "Strong frontend architecture experience",
-              };
-              missing = ["Budget/Salary Range", "Timeline", "Flexible"];
-              score = 65;
-              category = "Moderate Feasibility";
-              message = "Almost there! You've got most of the puzzle pieces. We found role details, location, experience, skills, even why you're hiring. Nice. But you're missing the big ones: salary range and timeline. That 65 you're seeing? Could swing ±15 points. If you're paying $140K-$180K (competitive for Austin) with a 6-8 week timeline, you're golden, might hit 75-80. If you're offering $100K and want someone yesterday, you're looking at 50-55. Fill in the gaps and we'll give you the real number, not a guess.";
-              break;
-              
-            case 'great':
-              // All fields present
-              extractedFields = {
-                roleTitle: "Backend Engineer",
-                location: "New York, NY",
-                experienceLevel: "3-5 years",
-                workModel: "Hybrid (2 days on-site)",
-                criticalSkills: "Python, Django, PostgreSQL, AWS",
-                salary: "$130K - $160K",
-                whyHiring: "Expanding engineering team",
-                nonNegotiables: "Backend architecture experience",
-                timeline: "6-8 weeks",
-                flexible: "Open to different framework experience",
-              };
-              missing = [];
-              score = 72;
-              category = "Moderate-High Feasibility";
-              message = "Well, well, look at you with a complete job description! Gold star for effort. We found everything we need... on paper. Here's the reality check: your salary range of $130K-$160K for NYC is competitive but on the lower end for mid-level engineers. The market's closer to $140K-$170K. Your timeline is solid, your requirements are clear, and the hybrid model is reasonable. You'll get applicants, but expect some to negotiate up or drop off for better offers. You're not asking for unicorns, which puts you ahead of 80% of job postings. Bump the range slightly and you're golden.";
-              isIncomplete = false;
-              break;
-              
-            default:
-              // Default poor case
-              extractedFields = {
-                roleTitle: "Senior Backend Engineer",
-                location: "San Francisco, CA",
-              };
-              missing = ["Experience Level", "Work Model", "Critical Skills", "Budget/Salary Range", "Why Hiring Now", "Non-Negotiables", "Timeline"];
-              score = 31;
-              category = "Low Feasibility";
-              message = "Okay, so you dropped a URL like you're trying to impress us. Cool. We scraped it. Found a title and maybe a location. But here's the thing: your job description is basically a ghost town. No salary range? No must-haves? No timeline? We're giving you a 31, but honestly? That's just our best guess based on scraps. Your real score could be 60 if you're paying well, or 15 if you're living in fantasy land. Right now we're reading tea leaves. Want the actual truth? Fill in what's missing.";
-              break;
-          }
+        if (missing.length === 0) {
+          // Complete information (from URL)
+          score = Math.max(score, 70);
+          category = "Moderate-High Feasibility";
+          message = `Well, well, look at you with ${inputIsURL ? 'a complete job description URL' : 'detailed information'}! We found: role, location, experience level, work model, and skills. Here's the reality check: we still need salary range, timeline, and non-negotiables to give you the full picture. Your score of ${score} is solid, but could swing ±15 points based on compensation and urgency. Fill in the missing pieces for an accurate assessment.`;
+          isIncomplete = true; // Still missing salary, timeline, etc.
+        } else if (missing.length <= 2) {
+          score = Math.max(score, 60);
+          category = "Moderate Feasibility";
+          message = `Almost there! We extracted: ${Object.keys(extractedFields).map(k => k === 'roleTitle' ? 'role title' : k).join(', ')}. But you're missing the critical ones: ${missing.slice(0, 2).join(', ')}. That ${score} you're seeing? Could swing ±15 points. Give us the full picture and we'll tell you the real feasibility.`;
+        } else if (missing.length <= 5) {
+          score = Math.max(score, 35);
+          category = "Low Feasibility";
+          message = `Not bad, but here's where it gets fuzzy. We found: ${Object.keys(extractedFields).map(k => k === 'roleTitle' ? 'role title' : k).join(', ')}. Missing: ${missing.slice(0, 3).join(', ')} and more. That ${score}? It's a guess. Your real score could be 70 if you're paying competitive rates, or 20 if you're lowballing. Fill in what's missing for an accurate reality check.`;
         } else {
-          // Just job role - no URL
-          extractedFields = {
-            roleTitle: roleDescription,
-          };
-          missing = ["Experience Level", "Location", "Work Model", "Critical Skills", "Budget/Salary Range", "Why Hiring Now", "Non-Negotiables", "Timeline"];
-          score = 16;
+          score = Math.max(score, 16);
           category = "Ghost Town";
-          message = "Just a job title? Really? That's like walking into a café and saying 'coffee' and expecting a masterpiece. We gave you a 16, but let's be real, we know nothing. Your actual feasibility could be 70 if you've got a solid offer, or it could be 10 if you're asking for a unicorn on a shoestring budget. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.";
+          message = `${inputIsURL ? 'Dropped a URL but it\'s thin on details.' : 'Just a job title?'} We found: ${parsedData.jobTitle}${parsedData.location ? ` in ${parsedData.location}` : ''}. That's it. We gave you a ${score}, but let's be real, we know almost nothing. Your actual feasibility could be 70 or it could be 10. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.`;
         }
-        
+
         setMissingFields(missing);
         
-        const mockIncompleteData = {
+        const incompleteData = {
           isURL: inputIsURL,
           roleDescription: roleDescription,
           extractedFields: extractedFields,
           missingFields: missing,
+          parsedData: parsedData,
         };
         
         // Store incomplete data
-        sessionStorage.setItem("incompleteData", JSON.stringify(mockIncompleteData));
+        sessionStorage.setItem("incompleteData", JSON.stringify(incompleteData));
         
         // Generate result
         const result = {
@@ -238,8 +211,21 @@ export const Hero = () => {
         
         setAnalysisResult(result);
         setShowResults(true);
+      } catch (error) {
+        console.error('Error analyzing role:', error);
+        // Fallback to basic analysis
+        const result = {
+          score: 16,
+          category: "Error",
+          message: "We couldn't analyze this role properly. Please try again or provide more details.",
+          icon: <AlertTriangle className="w-12 h-12" />,
+          isIncomplete: true,
+        };
+        setAnalysisResult(result);
+        setShowResults(true);
+      } finally {
         setIsAnalyzing(false);
-      }, 1500);
+      }
     }
   };
 
