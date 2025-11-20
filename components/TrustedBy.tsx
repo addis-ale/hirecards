@@ -1,7 +1,7 @@
-"use client";
+"use client"
 
-import { motion } from "framer-motion";
-import Image from "next/image";
+import { motion } from "framer-motion"
+import Image from "next/image"
 
 const companies = [
   {
@@ -36,17 +36,56 @@ const companies = [
     name: "Airbnb",
     logo: "https://upload.wikimedia.org/wikipedia/commons/6/69/Airbnb_Logo_B%C3%A9lo.svg",
   },
-];
+]
+
+const PokerChip = ({
+  position,
+  delay,
+}: {
+  position: string
+  delay: number
+}) => (
+  <motion.div
+    className="absolute pointer-events-none"
+    style={{ ...JSON.parse(position) }}
+    animate={{
+      y: [0, -20, 0],
+      rotate: [0, 360],
+    }}
+    transition={{
+      duration: 6 + delay,
+      repeat: Number.POSITIVE_INFINITY,
+      ease: "easeInOut",
+      delay,
+    }}
+  >
+    <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-700 shadow-lg border-4 border-red-300 flex items-center justify-center text-white font-bold text-xl">
+      {["♠", "♥", "♦", "♣"][Math.floor(Math.random() * 4)]}
+    </div>
+  </motion.div>
+)
 
 export default function TrustedBy() {
-  // Duplicate companies array for seamless loop
-  const duplicatedCompanies = [...companies, ...companies];
+  const duplicatedCompanies = [...companies, ...companies]
 
   return (
-    <section
-      className="relative w-full py-28 md:py-32 overflow-hidden -mt-8"
-      style={{ backgroundColor: "#FFFFFF" }}
-    >
+    <section className="relative w-full py-32 md:py-40 overflow-hidden">
+      <div className="absolute inset-0 bg-gradient-to-br from-red-950/95 via-red-900/90 to-red-800/95" />
+
+      <PokerChip position='{"top": "5%", "left": "5%"}' delay={0} />
+      <PokerChip position='{"top": "20%", "right": "8%"}' delay={1.5} />
+      <PokerChip position='{"bottom": "10%", "left": "12%"}' delay={3} />
+      <PokerChip position='{"bottom": "25%", "right": "6%"}' delay={0.75} />
+
+      <div
+        className="absolute inset-0 opacity-10"
+        style={{
+          backgroundImage:
+            "repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,.1) 35px, rgba(255,255,255,.1) 70px)",
+        }}
+      />
+
+      {/* Content */}
       <div className="relative z-10">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -55,21 +94,29 @@ export default function TrustedBy() {
           transition={{ duration: 0.6 }}
           className="text-center"
         >
-          <p className="text-base md:text-xl font-semibold text-gray-500 uppercase tracking-wide mb-16 md:mb-20 px-4">
-            Trusted by hiring teams at these companies
+          <div className="mb-6 flex items-center justify-center gap-2">
+            <span className="text-red-300 text-2xl">♠</span>
+            <p className="text-base md:text-lg font-bold uppercase tracking-widest bg-gradient-to-r from-red-200 via-red-100 to-red-200 bg-clip-text text-transparent">
+              Going All In
+            </p>
+            <span className="text-red-300 text-2xl">♣</span>
+          </div>
+
+          <p className="text-sm md:text-base font-semibold text-red-200 uppercase tracking-wide mb-20 md:mb-28 px-4">
+            Trusted by hiring teams at these premium companies
           </p>
 
-          <div className="relative overflow-visible w-full">
+          <div className="relative overflow-hidden rounded-2xl backdrop-blur-md bg-white/5 border border-red-300/20 p-8 md:p-12 shadow-2xl">
             {/* Infinite scroll container */}
             <div className="flex w-full">
               <motion.div
-                className="flex gap-12 md:gap-16 lg:gap-20 items-center"
+                className="flex gap-16 md:gap-24 lg:gap-32 items-center"
                 animate={{
                   x: [0, -50 + "%"],
                 }}
                 transition={{
                   x: {
-                    repeat: Infinity,
+                    repeat: Number.POSITIVE_INFINITY,
                     repeatType: "loop",
                     duration: 30,
                     ease: "linear",
@@ -77,30 +124,38 @@ export default function TrustedBy() {
                 }}
               >
                 {duplicatedCompanies.map((company, index) => (
-                  <div
+                  <motion.div
                     key={`${company.name}-${index}`}
-                    className="flex-shrink-0 transition-all duration-300 opacity-70 hover:opacity-100 hover:scale-110"
+                    className="flex-shrink-0 transition-all duration-500"
+                    whileHover={{
+                      scale: 1.15,
+                      filter: "drop-shadow(0 0 20px rgba(239, 68, 68, 0.5))",
+                    }}
                   >
-                    <div className="h-10 w-32 flex items-center justify-center relative">
+                    <div className="h-12 w-40 flex items-center justify-center relative group">
+                      <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-red-500 to-red-600 opacity-0 group-hover:opacity-20 blur-lg transition-opacity duration-300" />
                       <Image
-                        src={company.logo}
+                        src={company.logo || "/placeholder.svg"}
                         alt={`${company.name} logo`}
-                        width={128}
-                        height={40}
-                        className="max-h-full max-w-full object-contain"
+                        width={160}
+                        height={48}
+                        className="max-h-full max-w-full object-contain filter brightness-90 group-hover:brightness-100 transition-all duration-300"
                       />
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </motion.div>
             </div>
           </div>
 
-          <p className="text-sm md:text-base text-gray-400 mt-12 italic px-4">
-            (They fixed their hiring mess first. Smart people.)
-          </p>
+          <div className="mt-16 space-y-3">
+            <p className="text-sm md:text-base text-red-200 italic px-4">
+              They checked their hand before going all in on hiring.
+            </p>
+            <p className="text-xs md:text-sm text-red-300/60 px-4">Smart moves always beat the odds.</p>
+          </div>
         </motion.div>
       </div>
     </section>
-  );
+  )
 }
