@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -34,14 +34,6 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<"newest" | "oldest" | "role">("newest");
 
-  useEffect(() => {
-    loadSavedCards();
-  }, []);
-
-  useEffect(() => {
-    filterAndSortCards();
-  }, [savedCards, searchQuery, sortBy]);
-
   const loadSavedCards = () => {
     // Load from localStorage
     const saved = localStorage.getItem("savedHireCards");
@@ -55,7 +47,7 @@ export default function DashboardPage() {
     }
   };
 
-  const filterAndSortCards = () => {
+  const filterAndSortCards = useCallback(() => {
     let filtered = [...savedCards];
 
     // Search filter
@@ -78,7 +70,15 @@ export default function DashboardPage() {
     });
 
     setFilteredCards(filtered);
-  };
+  }, [savedCards, searchQuery, sortBy]);
+
+  useEffect(() => {
+    loadSavedCards();
+  }, []);
+
+  useEffect(() => {
+    filterAndSortCards();
+  }, [savedCards, searchQuery, sortBy, filterAndSortCards]);
 
   const viewCard = (card: SavedCard) => {
     // Save to sessionStorage and navigate to results
