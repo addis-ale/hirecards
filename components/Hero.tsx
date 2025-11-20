@@ -242,38 +242,33 @@ export const Hero = () => {
             transition={{ duration: 0.6 }}
           >
             <h1
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 leading-relaxed mt-16 md:mt-20"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight mt-16 md:mt-20"
               style={{ color: "#102a63" }}
             >
-              <span className="block mb-3">
-                Instant{" "}
-                <span
-                  className="px-3 py-1 rounded-lg"
-                  style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
-                >
-                  Hiring Reality Check.
-                </span>
-              </span>
-              <span className="text-2xl md:text-3xl lg:text-4xl block mb-2">
-                Before You Waste 2 Months.
-              </span>
-              <span className="text-xl md:text-2xl lg:text-3xl block">
-                <span
-                  className="px-3 py-1 rounded-lg"
-                  style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
-                >
-                  (And Your Hiring Budget)
-                </span>
+              Instant{" "}
+              <span
+                className="px-3 py-1 rounded-lg"
+                style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
+              >
+                Hiring Reality Check
               </span>
             </h1>
 
             <p
-              className="text-lg md:text-xl mb-6 max-w-3xl mx-auto leading-relaxed"
+              className="text-lg md:text-xl mb-4 max-w-3xl mx-auto leading-relaxed"
+              style={{ color: "#102a63", opacity: 0.9 }}
+            >
+              Most roles fail before they even hit the market.<br />
+              Wrong scope. Wrong salary. Wrong expectations.<br />
+              Teams only find out 60–90 days later.
+            </p>
+
+            <p
+              className="text-lg md:text-xl mb-8 max-w-3xl mx-auto leading-relaxed"
               style={{ color: "#102a63", opacity: 0.8 }}
             >
-              Enter a job role or paste a job description URL. We&apos;ll tell you exactly why
-              nobody&apos;s applying, or if you&apos;re actually offering
-              market rate for a unicorn engineer.
+              Paste a job URL or add a few details — HireCards shows if the role is hireable, 
+              what&apos;s off, how to fix it, and gives you a full hiring strategy in under 5 minutes.
             </p>
 
             {/* Role Description Input Section */}
@@ -304,7 +299,7 @@ export const Hero = () => {
                       <span>Analyzing...</span>
                     </>
                   ) : (
-                    <span>Reality Check</span>
+                    <span>Run My Reality Check</span>
                   )}
                 </button>
               </div>
@@ -382,21 +377,40 @@ export const Hero = () => {
                           </div>
                           
                           <div className="mb-4">
-                            <Link
-                              href="/create"
-                              className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-6 py-3 mb-2 w-full sm:w-auto"
-                            >
-                              <Sparkles className="w-4 h-4" />
-                              <span>
-                                Stop Guessing. Get Accurate Results.
-                              </span>
-                            </Link>
+                            {/* Two equal buttons side by side on large screens */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                              {/* Primary CTA - Generate with what we have */}
+                              <Link
+                                href="/results"
+                                className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
+                              >
+                                <Sparkles className="w-4 h-4" />
+                                <span>
+                                  Generate Now
+                                </span>
+                              </Link>
+                              
+                              {/* Secondary CTA - Complete for better results */}
+                              <Link
+                                href="/create"
+                                className="inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5 border-2 rounded-lg font-medium transition-all hover:bg-gray-50"
+                                style={{ 
+                                  color: "#278f8c", 
+                                  borderColor: "#278f8c"
+                                }}
+                              >
+                                <Target className="w-4 h-4" />
+                                <span>
+                                  Complete Details
+                                </span>
+                              </Link>
+                            </div>
+                            
                             <p
-                              className="text-xs md:text-sm leading-relaxed font-medium"
-                              style={{ color: "#102a63", opacity: 0.9 }}
+                              className="text-xs text-center leading-relaxed"
+                              style={{ color: "#102a63", opacity: 0.7 }}
                             >
-                              Fill the blanks and we&apos;ll tell you the truth, whether this role is solid gold 
-                              or hiring fantasy. Complete analysis with real market data, not guesswork.
+                              More details = more accurate strategy
                             </p>
                           </div>
                         </>
