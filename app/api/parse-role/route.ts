@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { scrapeJobURL, parseScrapedJobData } from "@/lib/jobScraper";
 
 interface ParsedRole {
   jobTitle: string;
@@ -10,6 +11,12 @@ interface ParsedRole {
   isURL: boolean;
   confidence: number;
   rawInput: string;
+  company?: string;
+  minSalary?: string | null;
+  maxSalary?: string | null;
+  requirements?: string[];
+  timeline?: string | null;
+  source?: string;
 }
 
 export async function POST(request: NextRequest) {
@@ -135,25 +142,47 @@ Return ONLY valid JSON with this exact structure:
 }
 
 async function parseJobDescriptionURL(url: string): Promise<ParsedRole> {
-  // In production, you would:
-  // 1. Scrape the URL using a service like Puppeteer, Playwright, or a scraping API
-  // 2. Extract the job description text
-  // 3. Use AI to parse the extracted content
-  
-  // For now, simulate with mock data
-  console.log("URL parsing not yet implemented:", url);
-  
-  return {
-    jobTitle: "Role from URL",
-    location: "Location from URL",
-    workModel: "Hybrid",
-    experienceLevel: "Senior",
-    department: "Engineering",
-    skills: [],
-    isURL: true,
-    confidence: 0.5,
-    rawInput: url,
-  };
+  try {
+    // Step 1: Scrape the job posting from the URL
+    const scrapedData = await scrapeJobURL(url);
+    
+    // Step 2: Parse the scraped data using AI
+    const parsedData = await parseScrapedJobData(scrapedData);
+    
+    // Step 3: Return structured data
+    return {
+      jobTitle: parsedData.jobTitle || "Job Position",
+      location: parsedData.location || null,
+      workModel: parsedData.workModel || null,
+      experienceLevel: parsedData.experienceLevel || null,
+      department: parsedData.department || null,
+      skills: parsedData.skills || [],
+      isURL: true,
+      confidence: parsedData.confidence || 0.7,
+      rawInput: url,
+      company: parsedData.company || undefined,
+      minSalary: parsedData.minSalary || null,
+      maxSalary: parsedData.maxSalary || null,
+      requirements: parsedData.requirements || [],
+      timeline: parsedData.timeline || null,
+      source: parsedData.source || "Unknown",
+    };
+  } catch (error) {
+    console.error("Error parsing job URL:", error);
+    
+    // Return minimal data if scraping fails
+    return {
+      jobTitle: "Unable to scrape job details",
+      location: null,
+      workModel: null,
+      experienceLevel: null,
+      department: null,
+      skills: [],
+      isURL: true,
+      confidence: 0.1,
+      rawInput: url,
+    };
+  }
 }
 
 function fallbackParsing(input: string): ParsedRole {

@@ -1,0 +1,438 @@
+/**
+ * Job Description URL Scraper
+ * 
+ * This module provides functionality to scrape job descriptions from various job boards
+ * and extract structured information using AI.
+ */
+
+import * as cheerio from 'cheerio';
+
+interface ScrapedJobData {
+  title: string;
+  description: string;
+  location?: string;
+  company?: string;
+  salary?: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  benefits?: string[];
+  rawText: string;
+  source: string;
+}
+
+/**
+ * Scrape a job description from a URL
+ */
+export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
+  try {
+    // Fetch the HTML content
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch URL: ${response.statusText}`);
+    }
+
+    const html = await response.text();
+    const $ = cheerio.load(html);
+
+    // Determine the job board and use appropriate selectors
+    const hostname = new URL(url).hostname.toLowerCase();
+    
+    let scrapedData: ScrapedJobData;
+
+    if (hostname.includes('linkedin.com')) {
+      scrapedData = scrapeLinkedIn($, url);
+    } else if (hostname.includes('indeed.com')) {
+      scrapedData = scrapeIndeed($, url);
+    } else if (hostname.includes('greenhouse.io')) {
+      scrapedData = scrapeGreenhouse($, url);
+    } else if (hostname.includes('lever.co')) {
+      scrapedData = scrapeLever($, url);
+    } else if (hostname.includes('workday.com')) {
+      scrapedData = scrapeWorkday($, url);
+    } else if (hostname.includes('myworkdayjobs.com')) {
+      scrapedData = scrapeWorkday($, url);
+    } else if (hostname.includes('ashbyhq.com')) {
+      scrapedData = scrapeAshby($, url);
+    } else if (hostname.includes('jobs.')) {
+      scrapedData = scrapeGenericJobBoard($, url);
+    } else {
+      // Generic scraping for unknown job boards
+      scrapedData = scrapeGenericJobBoard($, url);
+    }
+
+    return scrapedData;
+  } catch (error) {
+    console.error('Error scraping job URL:', error);
+    throw new Error('Failed to scrape job description from URL');
+  }
+}
+
+/**
+ * Scrape LinkedIn job postings
+ */
+function scrapeLinkedIn($: cheerio.CheerioAPI, url: string): ScrapedJobData {
+  const title = $('h1.top-card-layout__title, h1.topcard__title').first().text().trim();
+  const company = $('a.topcard__org-name-link, .topcard__flavor--black-link').first().text().trim();
+  const location = $('span.topcard__flavor--bullet, .topcard__flavor').first().text().trim();
+  
+  const description = $('.description__text, .show-more-less-html__markup').text().trim();
+  
+  // Extract salary if available
+  const salary = $('.salary, .compensation').text().trim();
+
+  const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return {
+    title: title || 'Job Position',
+    description: description || rawText,
+    location: location || undefined,
+    company: company || undefined,
+    salary: salary || undefined,
+    requirements: extractListItems($, 'requirements', description),
+    responsibilities: extractListItems($, 'responsibilities', description),
+    benefits: extractListItems($, 'benefits', description),
+    rawText,
+    source: 'LinkedIn',
+  };
+}
+
+/**
+ * Scrape Indeed job postings
+ */
+function scrapeIndeed($: cheerio.CheerioAPI, url: string): ScrapedJobData {
+  const title = $('h1.jobsearch-JobInfoHeader-title, h1').first().text().trim();
+  const company = $('.jobsearch-InlineCompanyRating-companyHeader, .jobsearch-CompanyInfoContainer').first().text().trim();
+  const location = $('.jobsearch-JobInfoHeader-subtitle div, .jobsearch-JobComponent-location').first().text().trim();
+  
+  const description = $('#jobDescriptionText, .jobsearch-jobDescriptionText').text().trim();
+  
+  const salary = $('.jobsearch-JobMetadataHeader-item, .salary-snippet').text().trim();
+
+  const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return {
+    title: title || 'Job Position',
+    description: description || rawText,
+    location: location || undefined,
+    company: company || undefined,
+    salary: salary || undefined,
+    requirements: extractListItems($, 'requirements', description),
+    responsibilities: extractListItems($, 'responsibilities', description),
+    benefits: extractListItems($, 'benefits', description),
+    rawText,
+    source: 'Indeed',
+  };
+}
+
+/**
+ * Scrape Greenhouse job postings
+ */
+function scrapeGreenhouse($: cheerio.CheerioAPI, url: string): ScrapedJobData {
+  const title = $('#header .app-title, h1.app-title').first().text().trim();
+  const company = $('.company-name').first().text().trim();
+  const location = $('.location').first().text().trim();
+  
+  const description = $('#content, .content').text().trim();
+  
+  const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return {
+    title: title || 'Job Position',
+    description: description || rawText,
+    location: location || undefined,
+    company: company || undefined,
+    requirements: extractListItems($, 'requirements', description),
+    responsibilities: extractListItems($, 'responsibilities', description),
+    benefits: extractListItems($, 'benefits', description),
+    rawText,
+    source: 'Greenhouse',
+  };
+}
+
+/**
+ * Scrape Lever job postings
+ */
+function scrapeLever($: cheerio.CheerioAPI, url: string): ScrapedJobData {
+  const title = $('.posting-headline h2, h2').first().text().trim();
+  const company = $('.main-header-text-item-company, .company-name').first().text().trim();
+  const location = $('.posting-categories .location, .workplaceTypes').first().text().trim();
+  
+  const description = $('.section-wrapper, .posting-description').text().trim();
+  
+  const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return {
+    title: title || 'Job Position',
+    description: description || rawText,
+    location: location || undefined,
+    company: company || undefined,
+    requirements: extractListItems($, 'requirements', description),
+    responsibilities: extractListItems($, 'responsibilities', description),
+    benefits: extractListItems($, 'benefits', description),
+    rawText,
+    source: 'Lever',
+  };
+}
+
+/**
+ * Scrape Workday job postings
+ */
+function scrapeWorkday($: cheerio.CheerioAPI, url: string): ScrapedJobData {
+  const title = $('h1[data-automation-id="jobPostingHeader"], h1').first().text().trim();
+  const location = $('[data-automation-id="locations"], .jobLocation').first().text().trim();
+  
+  const description = $('[data-automation-id="jobPostingDescription"], .jobDescription').text().trim();
+  
+  const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return {
+    title: title || 'Job Position',
+    description: description || rawText,
+    location: location || undefined,
+    requirements: extractListItems($, 'requirements', description),
+    responsibilities: extractListItems($, 'responsibilities', description),
+    benefits: extractListItems($, 'benefits', description),
+    rawText,
+    source: 'Workday',
+  };
+}
+
+/**
+ * Scrape Ashby job postings
+ */
+function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
+  const title = $('h1.job-title, h1').first().text().trim();
+  const company = $('.company-name').first().text().trim();
+  const location = $('.job-location').first().text().trim();
+  
+  const description = $('.job-description, .description-content').text().trim();
+  
+  const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return {
+    title: title || 'Job Position',
+    description: description || rawText,
+    location: location || undefined,
+    company: company || undefined,
+    requirements: extractListItems($, 'requirements', description),
+    responsibilities: extractListItems($, 'responsibilities', description),
+    benefits: extractListItems($, 'benefits', description),
+    rawText,
+    source: 'Ashby',
+  };
+}
+
+/**
+ * Generic scraping for unknown job boards
+ */
+function scrapeGenericJobBoard($: cheerio.CheerioAPI, url: string): ScrapedJobData {
+  // Try to find title using common patterns
+  const title = $('h1, [class*="title" i], [class*="job" i] h1, [class*="position" i]')
+    .first()
+    .text()
+    .trim();
+  
+  // Try to find location
+  const location = $('[class*="location" i], [data-location], .location')
+    .first()
+    .text()
+    .trim();
+  
+  // Try to find company
+  const company = $('[class*="company" i], .company-name')
+    .first()
+    .text()
+    .trim();
+
+  // Try to find description - look for the largest text block
+  let description = '';
+  $('[class*="description" i], [class*="content" i], main, article').each((_, elem) => {
+    const text = $(elem).text().trim();
+    if (text.length > description.length) {
+      description = text;
+    }
+  });
+
+  const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+
+  return {
+    title: title || 'Job Position',
+    description: description || rawText,
+    location: location || undefined,
+    company: company || undefined,
+    requirements: extractListItems($, 'requirements', description),
+    responsibilities: extractListItems($, 'responsibilities', description),
+    benefits: extractListItems($, 'benefits', description),
+    rawText,
+    source: 'Generic',
+  };
+}
+
+/**
+ * Extract list items from a section (requirements, responsibilities, benefits)
+ */
+function extractListItems($: cheerio.CheerioAPI, section: string, context: string): string[] {
+  const items: string[] = [];
+  
+  // Look for section headers and extract list items
+  const sectionRegex = new RegExp(section, 'i');
+  
+  // Find elements that might contain the section
+  $('h2, h3, h4, h5, strong, b').each((_, elem) => {
+    const text = $(elem).text().trim();
+    if (sectionRegex.test(text)) {
+      // Get the next sibling elements (ul, ol, or p tags)
+      let next = $(elem).next();
+      let count = 0;
+      
+      while (next.length && count < 5) {
+        if (next.is('ul, ol')) {
+          next.find('li').each((_, li) => {
+            const item = $(li).text().trim();
+            if (item) items.push(item);
+          });
+          break;
+        } else if (next.is('p')) {
+          const item = next.text().trim();
+          if (item) items.push(item);
+        }
+        next = next.next();
+        count++;
+      }
+    }
+  });
+
+  return items;
+}
+
+/**
+ * Parse scraped data using AI to extract structured fields
+ */
+export async function parseScrapedJobData(scrapedData: ScrapedJobData): Promise<any> {
+  const apiKey = process.env.OPENAI_API_KEY;
+
+  if (!apiKey) {
+    console.warn('OpenAI API key not configured');
+    return extractBasicFields(scrapedData);
+  }
+
+  try {
+    const prompt = `You are an expert at parsing job descriptions. Extract structured information from the following job posting.
+
+Job Title: ${scrapedData.title}
+Company: ${scrapedData.company || 'Not specified'}
+Location: ${scrapedData.location || 'Not specified'}
+
+Description:
+${scrapedData.description.substring(0, 4000)}
+
+Extract the following information:
+- Job title (clean format)
+- Location (city/state/country or "Remote")
+- Work model (Remote, Hybrid, On-site)
+- Experience level (Entry Level, Mid-Level, Senior, Lead, Principal)
+- Salary range (if mentioned, format as "min - max")
+- Key required skills (top 5-7 skills)
+- Critical requirements (must-haves)
+- Timeline/urgency (if mentioned)
+- Department (Engineering, Product, Design, Marketing, Sales, etc.)
+
+Return ONLY valid JSON with this exact structure:
+{
+  "jobTitle": "extracted role title",
+  "location": "city/country or Remote",
+  "workModel": "Remote/Hybrid/On-site",
+  "experienceLevel": "level",
+  "minSalary": "number or null",
+  "maxSalary": "number or null",
+  "skills": ["skill1", "skill2"],
+  "requirements": ["req1", "req2"],
+  "timeline": "timeline or null",
+  "department": "department",
+  "confidence": 0.0-1.0
+}`;
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert at parsing job descriptions. Always return valid JSON.',
+          },
+          {
+            role: 'user',
+            content: prompt,
+          },
+        ],
+        temperature: 0.3,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.statusText}`);
+    }
+
+    const data = await response.json();
+    const parsed = JSON.parse(data.choices[0].message.content);
+
+    return {
+      ...parsed,
+      company: scrapedData.company,
+      source: scrapedData.source,
+      isURL: true,
+    };
+  } catch (error) {
+    console.error('AI parsing error:', error);
+    return extractBasicFields(scrapedData);
+  }
+}
+
+/**
+ * Extract basic fields without AI (fallback)
+ */
+function extractBasicFields(scrapedData: ScrapedJobData): any {
+  const description = scrapedData.description.toLowerCase();
+  
+  // Determine work model
+  let workModel = null;
+  if (description.includes('remote')) workModel = 'Remote';
+  else if (description.includes('hybrid')) workModel = 'Hybrid';
+  else if (description.includes('on-site') || description.includes('onsite')) workModel = 'On-site';
+  
+  // Determine experience level
+  let experienceLevel = null;
+  if (description.includes('senior') || description.includes('sr.')) experienceLevel = 'Senior';
+  else if (description.includes('lead')) experienceLevel = 'Lead';
+  else if (description.includes('principal')) experienceLevel = 'Principal';
+  else if (description.includes('junior') || description.includes('entry')) experienceLevel = 'Entry Level';
+  else if (description.includes('mid-level') || description.includes('mid level')) experienceLevel = 'Mid-Level';
+
+  return {
+    jobTitle: scrapedData.title,
+    location: scrapedData.location || null,
+    workModel,
+    experienceLevel,
+    minSalary: null,
+    maxSalary: null,
+    skills: scrapedData.requirements?.slice(0, 5) || [],
+    requirements: scrapedData.requirements || [],
+    timeline: null,
+    department: null,
+    company: scrapedData.company,
+    source: scrapedData.source,
+    confidence: 0.6,
+    isURL: true,
+  };
+}

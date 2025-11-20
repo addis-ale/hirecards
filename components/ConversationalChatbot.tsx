@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { 
   Loader2, 
   Send, 
-  Sparkles, 
   Bot,
   CheckCircle2,
   AlertCircle,
@@ -70,7 +69,7 @@ export default function ConversationalChatbot() {
     if (!greetingAdded.current) {
       greetingAdded.current = true;
       setTimeout(() => {
-        const greeting = "Hey there! 👋 I'm your AI hiring assistant. I'm here to help you create a perfect HireCard strategy. Let's start - what role are you looking to hire for?";
+        const greeting = "Hey there! 👋 I'm your AI hiring assistant. I'm here to help you create a perfect HireCard strategy.\n\nJust tell me about the role you're hiring for, and I'll guide you through the process with a few quick questions.\n\nLet's get started! What role are you looking to hire for?";
         addAssistantMessage(greeting);
       }, 500);
     }
@@ -167,22 +166,60 @@ export default function ConversationalChatbot() {
     setIsLoading(true);
 
     try {
-      // Get AI response
-      const response = await fetch("/api/chat", {
+      // STEP 1: Intelligent extraction from user message (real-time)
+      const extractionResponse = await fetch("/api/intelligent-extract", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          message: userMessage,
+          currentData: extractedData,
+        }),
+      });
+
+      const extractionResult = await extractionResponse.json();
+      
+      // Merge extracted data immediately before sending to chat API
+      let updatedExtractedData = { ...extractedData };
+      
+      if (extractionResult.success && extractionResult.hasNewData) {
+        // Update extracted data with new information
+        Object.keys(extractionResult.extracted).forEach((key) => {
+          if (extractionResult.extracted[key]) {
+            // For skills array, merge with existing
+            if (key === "skills" && Array.isArray(extractionResult.extracted[key])) {
+              updatedExtractedData.criticalSkill = extractionResult.extracted[key][0] || updatedExtractedData.criticalSkill;
+            } else {
+              (updatedExtractedData as any)[key] = extractionResult.extracted[key];
+            }
+          }
+        });
+
+        // Update state
+        setExtractedData(updatedExtractedData);
+
+        // Update completeness
+        const newFilledCount = Object.values(updatedExtractedData).filter((v) => v !== null && v !== "").length;
+        setCompleteness(Math.round((newFilledCount / 10) * 100));
+      }
+
+      // STEP 2: Get AI response with the LATEST extracted data
+      const chatResponse = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           messages: conversationMessages.current,
-          extractedData,
+          extractedData: updatedExtractedData, // Use the updated data!
         }),
       });
 
-      const result = await response.json();
-
-      if (result.success) {
-        addAssistantMessage(result.message);
+      // Process chat response
+      const chatResult = await chatResponse.json();
+      if (chatResult.success) {
+        addAssistantMessage(chatResult.message);
         
         // Stop loading immediately after adding message
         setIsLoading(false);
@@ -191,14 +228,14 @@ export default function ConversationalChatbot() {
         extractDataFromConversation();
 
         // Check if assistant says it's complete
-        if (result.message.toLowerCase().includes("i have everything") ||
-            result.message.toLowerCase().includes("generate your hirecard")) {
+        if (chatResult.message.toLowerCase().includes("i have everything") ||
+            chatResult.message.toLowerCase().includes("generate your hirecard")) {
           setTimeout(() => {
             handleComplete();
           }, 2000);
         }
       } else {
-        setError(result.error || "Failed to get response");
+        setError(chatResult.error || "Failed to get response");
         setIsLoading(false);
       }
     } catch (err) {

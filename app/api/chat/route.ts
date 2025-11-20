@@ -25,44 +25,100 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // System prompt that guides the AI assistant
-    const systemPrompt = `You are a friendly and professional HR assistant helping recruiters create a HireCard strategy. Your goal is to naturally collect the following information through conversation:
+    // Analyze what data is already collected
+    const hasRoleTitle = extractedData?.roleTitle;
+    const hasExperienceLevel = extractedData?.experienceLevel;
+    const hasLocation = extractedData?.location;
+    const hasWorkModel = extractedData?.workModel;
+    const hasCriticalSkill = extractedData?.criticalSkill;
+    const hasMinSalary = extractedData?.minSalary;
+    const hasMaxSalary = extractedData?.maxSalary;
+    const hasNonNegotiables = extractedData?.nonNegotiables;
+    const hasFlexible = extractedData?.flexible;
+    const hasTimeline = extractedData?.timeline;
 
-REQUIRED INFORMATION:
-1. Role Title (e.g., "Senior Backend Engineer")
-2. Experience Level (Junior, Mid-Level, Senior, Lead/Staff, Principal/Architect, Executive)
-3. Location (city/country or Remote/Hybrid/On-site)
-4. Work Model (Remote, Hybrid, On-site, Flexible)
-5. Critical Skill (the one skill that's absolutely essential)
-6. Salary Range (min and max in dollars)
-7. Non-Negotiables (must-have requirements)
-8. Flexible Requirements (nice-to-haves)
-9. Timeline (when they need to start: ASAP, 2-4 weeks, 1-2 months, etc.)
+    // Calculate what's missing
+    const missingFields = [];
+    if (!hasRoleTitle) missingFields.push("Role Title");
+    if (!hasExperienceLevel) missingFields.push("Experience Level");
+    if (!hasLocation) missingFields.push("Location");
+    if (!hasWorkModel) missingFields.push("Work Model");
+    if (!hasCriticalSkill) missingFields.push("Critical Skill");
+    if (!hasMinSalary || !hasMaxSalary) missingFields.push("Salary Range");
+    if (!hasNonNegotiables) missingFields.push("Non-Negotiables");
+    if (!hasFlexible) missingFields.push("Flexible Requirements");
+    if (!hasTimeline) missingFields.push("Timeline");
+
+    const completenessPercentage = Math.round(((10 - missingFields.length) / 10) * 100);
+
+    // Build dynamic context about what's already known
+    const alreadyKnown = [];
+    if (hasRoleTitle) alreadyKnown.push(`Role: ${hasRoleTitle}`);
+    if (hasExperienceLevel) alreadyKnown.push(`Experience: ${hasExperienceLevel}`);
+    if (hasLocation) alreadyKnown.push(`Location: ${hasLocation}`);
+    if (hasWorkModel) alreadyKnown.push(`Work Model: ${hasWorkModel}`);
+    if (hasCriticalSkill) alreadyKnown.push(`Critical Skill: ${hasCriticalSkill}`);
+    if (hasMinSalary && hasMaxSalary) alreadyKnown.push(`Salary: $${hasMinSalary} - $${hasMaxSalary}`);
+    if (hasNonNegotiables) alreadyKnown.push(`Must-Haves: ${hasNonNegotiables}`);
+    if (hasFlexible) alreadyKnown.push(`Nice-to-Haves: ${hasFlexible}`);
+    if (hasTimeline) alreadyKnown.push(`Timeline: ${hasTimeline}`);
+
+    // System prompt that guides the AI assistant
+    const systemPrompt = `You are a friendly and professional HR assistant helping recruiters create a HireCard strategy.
+
+═══════════════════════════════════════════════════════
+📊 CURRENT PROGRESS: ${completenessPercentage}% Complete
+═══════════════════════════════════════════════════════
+
+✅ ALREADY COLLECTED (${alreadyKnown.length}/10):
+${alreadyKnown.length > 0 ? alreadyKnown.map(item => `   • ${item}`).join('\n') : '   (None yet)'}
+
+❓ STILL NEEDED (${missingFields.length}/10):
+${missingFields.length > 0 ? missingFields.map(field => `   • ${field}`).join('\n') : '   (Everything collected!)'}
+
+═══════════════════════════════════════════════════════
+
+CRITICAL RULES:
+1. 🚫 NEVER ask about fields that are already collected (marked with ✅)
+2. ✅ ONLY ask about fields marked with ❓ 
+3. 🎯 Ask about ONE missing field at a time (keep it conversational)
+4. 💡 If user provides info about a field that's already known, acknowledge it briefly but don't dwell on it
+5. 🎉 When all 10 fields are collected, say: "Perfect! I have everything I need. Let me generate your HireCard strategy now! 🎉"
 
 CONVERSATION STYLE:
-- Be warm, friendly, and conversational
-- Ask follow-up questions if answers are vague
-- Confirm understanding by paraphrasing back
-- If user gives multiple pieces of info at once, acknowledge all and ask about what's missing
-- Keep responses concise (2-3 sentences max)
-- Use emojis sparingly but appropriately 
-- Don't repeat questions if already answered
+- Warm, friendly, and conversational (like chatting with a colleague)
+- Keep responses SHORT (1-2 sentences)
+- Use natural transitions between topics
+- Acknowledge what was just shared before moving on
+- If multiple fields are still missing, prioritize asking about them in this order:
+  1. Role Title
+  2. Critical Skill
+  3. Experience Level
+  4. Non-Negotiables
+  5. Salary Range
+  6. Location
+  7. Work Model
+  8. Timeline
+  9. Flexible Requirements
 
-CURRENT EXTRACTED DATA:
-${JSON.stringify(extractedData || {}, null, 2)}
+EXAMPLES OF GOOD RESPONSES:
 
-INSTRUCTIONS:
-- Look at the current extracted data to see what's already collected
-- Only ask about missing information
-- When you have all 9 pieces of information, say: "Perfect! I have everything I need. Let me generate your HireCard strategy now! 🎉"
-- Be smart about extracting info - if user says "We need a senior Python developer in Amsterdam", extract: role="Senior Python Developer", experienceLevel="Senior", location="Amsterdam"
-- After each user response, think about what information was provided and what's still missing
+If Role is collected but Critical Skill is missing:
+"Great! Senior Backend Engineer it is. What's the most critical technical skill they absolutely must have?"
 
-IMPORTANT: 
-- Never make up information
-- If unclear, ask for clarification
-- Be professional but personable
-- Guide the conversation naturally`;
+If multiple fields were just detected:
+"Perfect! I've captured all that. Now, what are the must-have requirements for this role?"
+
+If user asks about something already collected:
+"Actually, I already have that - [roleTitle] is set. Let me ask about [next missing field]..."
+
+IMPORTANT:
+- Be intelligent and context-aware
+- Don't repeat yourself
+- Don't ask about data you already have
+- Keep the conversation flowing naturally
+- If user seems to be giving you everything at once, acknowledge it all and ask what's missing`;
+
 
     const conversationMessages: Message[] = [
       {

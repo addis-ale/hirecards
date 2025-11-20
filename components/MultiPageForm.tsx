@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
 import CustomSelect from "./CustomSelect";
 import CurrencyInput from "./CurrencyInput";
+import JobURLInput from "./JobURLInput";
 
 interface FormData {
   roleTitle: string;
@@ -26,6 +27,7 @@ export default function MultiPageForm() {
   const [error, setError] = useState("");
   const [hasInteracted, setHasInteracted] = useState(false);
   const [preFilledFields, setPreFilledFields] = useState<string[]>([]);
+  const [showURLInput, setShowURLInput] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     roleTitle: "",
     experienceLevel: "",
@@ -253,6 +255,53 @@ export default function MultiPageForm() {
     }
   };
 
+  const handleURLDataExtracted = (data: any) => {
+    // Update form data with scraped information
+    const updatedData: Partial<FormData> = {};
+    const newPreFilledFields: string[] = [...preFilledFields];
+
+    if (data.roleTitle) {
+      updatedData.roleTitle = data.roleTitle;
+      if (!newPreFilledFields.includes('roleTitle')) newPreFilledFields.push('roleTitle');
+    }
+    if (data.experienceLevel) {
+      updatedData.experienceLevel = data.experienceLevel;
+      if (!newPreFilledFields.includes('experienceLevel')) newPreFilledFields.push('experienceLevel');
+    }
+    if (data.location) {
+      updatedData.location = data.location;
+      if (!newPreFilledFields.includes('location')) newPreFilledFields.push('location');
+    }
+    if (data.workModel) {
+      updatedData.workModel = data.workModel;
+      if (!newPreFilledFields.includes('workModel')) newPreFilledFields.push('workModel');
+    }
+    if (data.criticalSkill) {
+      updatedData.criticalSkill = data.criticalSkill;
+      if (!newPreFilledFields.includes('criticalSkill')) newPreFilledFields.push('criticalSkill');
+    }
+    if (data.minSalary) {
+      updatedData.minSalary = data.minSalary;
+      if (!newPreFilledFields.includes('minSalary')) newPreFilledFields.push('minSalary');
+    }
+    if (data.maxSalary) {
+      updatedData.maxSalary = data.maxSalary;
+      if (!newPreFilledFields.includes('maxSalary')) newPreFilledFields.push('maxSalary');
+    }
+    if (data.nonNegotiables) {
+      updatedData.nonNegotiables = data.nonNegotiables;
+      if (!newPreFilledFields.includes('nonNegotiables')) newPreFilledFields.push('nonNegotiables');
+    }
+    if (data.timeline) {
+      updatedData.timeline = data.timeline;
+      if (!newPreFilledFields.includes('timeline')) newPreFilledFields.push('timeline');
+    }
+
+    setFormData(prev => ({ ...prev, ...updatedData }));
+    setPreFilledFields(newPreFilledFields);
+    setShowURLInput(false);
+  };
+
   const renderStepIndicator = () => (
     <div className="mb-8">
       <div className="flex items-center justify-between">
@@ -299,6 +348,13 @@ export default function MultiPageForm() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Job URL Input - Show at the beginning */}
+      {showURLInput && currentStep === 1 && (
+        <div className="mb-4">
+          <JobURLInput onDataExtracted={handleURLDataExtracted} />
+        </div>
+      )}
+
       <form
         onSubmit={handleSubmit}
         className="bg-white rounded-2xl shadow-xl p-8 md:p-12"
