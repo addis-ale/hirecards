@@ -1,55 +1,51 @@
-"use client";
+"use client"
 
-import { useState, useEffect, useRef } from "react";
-import Link from "next/link";
-import { Menu, X, Sparkles } from "lucide-react";
+import { useState, useEffect, useRef } from "react"
+import Link from "next/link"
+import { Menu, X, Spade as Spades } from "lucide-react"
 
 export default function Navbar() {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(true);
-  const [isScrolling, setIsScrolling] = useState(false);
-  const lastScrollY = useRef(0);
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isVisible, setIsVisible] = useState(true)
+  const [isScrolling, setIsScrolling] = useState(false)
+  const lastScrollY = useRef(0)
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      const currentScrollY = window.scrollY
 
-      setIsScrolled(currentScrollY > 10);
+      setIsScrolled(currentScrollY > 10)
 
-      // Clear existing timeout
       if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
+        clearTimeout(scrollTimeout.current)
       }
 
-      // Hide navbar when scrolling down
       if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setIsVisible(false);
-        setIsScrolling(true);
+        setIsVisible(false)
+        setIsScrolling(true)
       } else if (currentScrollY < lastScrollY.current) {
-        // Show immediately when scrolling up
-        setIsVisible(true);
-        setIsScrolling(false);
+        setIsVisible(true)
+        setIsScrolling(false)
       }
 
-      lastScrollY.current = currentScrollY;
+      lastScrollY.current = currentScrollY
 
-      // Show navbar when scrolling stops
       scrollTimeout.current = setTimeout(() => {
-        setIsVisible(true);
-        setIsScrolling(false);
-      }, 150);
-    };
+        setIsVisible(true)
+        setIsScrolling(false)
+      }, 150)
+    }
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", handleScroll)
       if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
+        clearTimeout(scrollTimeout.current)
       }
-    };
-  }, []);
+    }
+  }, [])
 
   return (
     <nav
@@ -59,133 +55,119 @@ export default function Navbar() {
     >
       <div
         className={`max-w-7xl mx-auto rounded-2xl transition-all duration-300 ${
-          isScrolled ? "shadow-xl" : "shadow-lg"
+          isScrolled ? "shadow-2xl" : "shadow-xl"
         }`}
         style={{
-          backgroundColor: isScrolled ? "rgba(215, 244, 242, 0.95)" : "#d7f4f2",
+          backgroundColor: isScrolled ? "rgba(236, 76, 47, 0.94)" : "rgba(236, 76, 47, 0.92)",
+          backdropFilter: "blur(8px)",
+          borderBottom: "2px solid rgba(255, 255, 255, 0.1)",
         }}
       >
         <div className="px-6">
           <div className="flex items-center justify-between h-14 md:h-16">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-8 h-8 bg-[#278f8c] rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform">
-                <Sparkles className="w-5 h-5 text-white" />
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div
+                className="w-9 h-9 bg-gradient-to-br from-white to-orange-100 rounded-lg flex items-center justify-center transform group-hover:scale-110 transition-transform shadow-lg"
+                style={{
+                  border: "2px solid rgba(255, 255, 255, 0.3)",
+                }}
+              >
+                <Spades className="w-5 h-5 text-[#EC4C2F]" />
               </div>
-              <span className="text-xl font-bold text-black">HireCards</span>
+              <span className="text-xl font-bold text-white drop-shadow-lg">PokerPro</span>
             </Link>
 
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-6">
+            <div className="hidden md:flex items-center space-x-8">
               <Link
-                href="/#features"
-                className="text-black/80 hover:text-black transition-colors font-medium text-sm"
+                href="/#games"
+                className="text-white/90 hover:text-white transition-colors font-semibold text-sm tracking-wide"
               >
-                Features
+                Games
               </Link>
               <Link
-                href="/#how-it-works"
-                className="text-black/80 hover:text-black transition-colors font-medium text-sm"
+                href="/#tournaments"
+                className="text-white/90 hover:text-white transition-colors font-semibold text-sm tracking-wide"
               >
-                How It Works
+                Tournaments
               </Link>
               <Link
-                href="/#testimonials"
-                className="text-black/80 hover:text-black transition-colors font-medium text-sm"
+                href="/#leaderboard"
+                className="text-white/90 hover:text-white transition-colors font-semibold text-sm tracking-wide"
               >
-                Testimonials
+                Leaderboard
               </Link>
-              <Link href="/create" className="btn-primary px-4 py-2 text-sm">
-                Get Started
+              <Link
+                href="/#strategies"
+                className="text-white/90 hover:text-white transition-colors font-semibold text-sm tracking-wide"
+              >
+                Strategies
+              </Link>
+              <Link
+                href="/play"
+                className="px-6 py-2 text-sm font-bold text-[#EC4C2F] bg-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 drop-shadow-md"
+              >
+                Play Now
               </Link>
             </div>
 
             {/* Mobile Menu Button */}
             <button
-              className="md:hidden p-2 rounded-lg hover:bg-black/10 transition-colors"
+              className="md:hidden p-2 rounded-lg hover:bg-white/20 transition-colors"
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
-              {isMobileMenuOpen ? (
-                <X className="w-6 h-6 text-black" />
-              ) : (
-                <Menu className="w-6 h-6 text-black" />
-              )}
+              {isMobileMenuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu Dropdown */}
         {isMobileMenuOpen && (
           <div
             className="md:hidden rounded-b-2xl"
-            style={{ backgroundColor: "rgb(16, 42, 99)" }}
+            style={{
+              backgroundColor: "rgba(236, 76, 47, 0.98)",
+              borderTop: "1px solid rgba(255, 255, 255, 0.1)",
+            }}
           >
             <div className="px-6 py-4 space-y-2">
               <Link
-                href="/#features"
-                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
-                style={{
-                  color: "rgba(255, 255, 255, 0.9)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#D7F4F2";
-                  e.currentTarget.style.color = "rgb(16, 42, 99)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
-                }}
+                href="/#games"
+                className="block font-semibold text-sm py-3 px-4 rounded-lg transition-all text-white/90 hover:bg-white/10 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Features
+                Games
               </Link>
               <Link
-                href="/#how-it-works"
-                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
-                style={{
-                  color: "rgba(255, 255, 255, 0.9)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#D7F4F2";
-                  e.currentTarget.style.color = "rgb(16, 42, 99)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
-                }}
+                href="/#tournaments"
+                className="block font-semibold text-sm py-3 px-4 rounded-lg transition-all text-white/90 hover:bg-white/10 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                How It Works
+                Tournaments
               </Link>
               <Link
-                href="/#testimonials"
-                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
-                style={{
-                  color: "rgba(255, 255, 255, 0.9)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#D7F4F2";
-                  e.currentTarget.style.color = "rgb(16, 42, 99)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
-                }}
+                href="/#leaderboard"
+                className="block font-semibold text-sm py-3 px-4 rounded-lg transition-all text-white/90 hover:bg-white/10 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Testimonials
+                Leaderboard
               </Link>
               <Link
-                href="/create"
-                className="block btn-primary px-4 py-2 text-sm text-center mt-4"
+                href="/#strategies"
+                className="block font-semibold text-sm py-3 px-4 rounded-lg transition-all text-white/90 hover:bg-white/10 hover:text-white"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                Get Started
+                Strategies
+              </Link>
+              <Link
+                href="/play"
+                className="block bg-white text-[#EC4C2F] px-4 py-2 text-sm font-bold text-center rounded-lg mt-4 hover:shadow-lg hover:scale-105 transition-all"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                Play Now
               </Link>
             </div>
           </div>
         )}
       </div>
     </nav>
-  );
+  )
 }
