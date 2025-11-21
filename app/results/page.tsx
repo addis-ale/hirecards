@@ -32,11 +32,77 @@ export default function ResultsPage() {
         setIsSubscribed(false);
       }
 
+      // Auto-save to dashboard
+      saveToLibrary();
+
       setLoading(false);
     };
 
     checkSubscription();
   }, [router]);
+
+  const saveToLibrary = () => {
+    try {
+      // Get current form data and cards
+      // Try heroAnalysisData first (from Hero section), then formData (from chatbot/form)
+      const formData = sessionStorage.getItem("formData") || sessionStorage.getItem("heroAnalysisData");
+      const battleCards = sessionStorage.getItem("battleCards");
+
+      if (!formData) return;
+
+      const parsed = JSON.parse(formData);
+      const cards = battleCards ? JSON.parse(battleCards) : null;
+
+      // Create save object
+      const savedCard = {
+        id: Date.now().toString(),
+        roleTitle: parsed.roleTitle || "Untitled Role",
+        experienceLevel: parsed.experienceLevel || "N/A",
+        location: parsed.location || "N/A",
+        workModel: parsed.workModel || "N/A",
+        salaryRange: parsed.salaryRange || parsed.minSalary && parsed.maxSalary 
+          ? `${parsed.minSalary} - ${parsed.maxSalary}`
+          : "N/A",
+        createdAt: new Date().toISOString(),
+        cards: cards,
+        formData: parsed,
+      };
+
+      // Load existing saved cards
+      const existing = localStorage.getItem("savedHireCards");
+      let savedCards = [];
+
+      if (existing) {
+        try {
+          savedCards = JSON.parse(existing);
+        } catch (err) {
+          savedCards = [];
+        }
+      }
+
+      // Check if this card already exists (avoid duplicates)
+      const isDuplicate = savedCards.some((card: any) => 
+        card.roleTitle === savedCard.roleTitle &&
+        card.location === savedCard.location &&
+        new Date(card.createdAt).toDateString() === new Date(savedCard.createdAt).toDateString()
+      );
+
+      if (!isDuplicate) {
+        // Add new card at the beginning
+        savedCards.unshift(savedCard);
+
+        // Keep only last 50 cards
+        if (savedCards.length > 50) {
+          savedCards = savedCards.slice(0, 50);
+        }
+
+        // Save back to localStorage
+        localStorage.setItem("savedHireCards", JSON.stringify(savedCards));
+      }
+    } catch (err) {
+      console.error("Failed to save to library:", err);
+    }
+  };
 
   if (loading) {
     return (

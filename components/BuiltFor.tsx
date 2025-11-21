@@ -2,64 +2,36 @@
 
 import { motion } from "framer-motion";
 import {
-  Code,
   Briefcase,
-  Coffee,
   Target,
-  TrendingUp,
   Users,
-  Zap,
-  Rocket,
+  Building2,
 } from "lucide-react";
 
 const personas = [
   {
     icon: Briefcase,
     title: "Startup Founder",
-    description: "Hiring is hard. Doing it wrong is expensive.",
+    description: "Hiring is hard. Doing it wrong is expensive. You need to move fast, but you can't afford to hire the wrong person. Get strategic hiring insights without the overhead of a full talent team.",
     color: "bg-blue-600",
   },
   {
     icon: Users,
-    title: "Head of Talent",
-    description: "Drowning in reqs. This is your life raft.",
+    title: "Talent Acquisition Manager",
+    description: "Drowning in reqs. Doing the work of 5 people. Juggling multiple roles while hiring managers expect magic. This is your life raft - instant battle cards that make you look like a strategic genius.",
     color: "bg-purple-600",
-  },
-  {
-    icon: Coffee,
-    title: "Solo Recruiter",
-    description: "You're doing the work of 5 people. We know.",
-    color: "bg-pink-600",
   },
   {
     icon: Target,
     title: "Hiring Manager",
-    description: "You just want a job description that makes sense.",
+    description: "You just want a job description that makes sense and candidates who actually fit. Stop wasting time on misaligned interviews. Get clear role definitions, realistic expectations, and a hiring plan that works.",
     color: "bg-green-600",
   },
   {
-    icon: TrendingUp,
-    title: "VP of People",
-    description: "Scaling fast. Breaking things. Need structure.",
+    icon: Building2,
+    title: "Agency and RPO",
+    description: "Move fast. Hire faster. Deliver quality at scale. Your clients expect deep market insights and strategic guidance. Stand out by delivering comprehensive battle cards that prove you understand the role better than anyone.",
     color: "bg-orange-600",
-  },
-  {
-    icon: Code,
-    title: "Tech Lead",
-    description: "If it compiles, it ships. If they can code, they're hired.",
-    color: "bg-indigo-600",
-  },
-  {
-    icon: Rocket,
-    title: "Growth Team",
-    description: "You need people yesterday. We get it.",
-    color: "bg-teal-600",
-  },
-  {
-    icon: Zap,
-    title: "Speed Demon",
-    description: "Move fast. Hire faster. No excuses.",
-    color: "bg-yellow-600",
   },
 ];
 

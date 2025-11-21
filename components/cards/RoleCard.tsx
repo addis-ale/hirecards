@@ -8,29 +8,29 @@ import { Pill } from "@/components/ui/Pill";
 
 export const RoleCard = () => {
   const outcomes = [
-    "Deliver stable, documented dbt models used across product + analytics teams.",
-    "Replace 50–70% of legacy modelling with modern, tested pipelines.",
-    "Ship two merchant-facing analytics features with measurable adoption.",
-    "Improve data quality SLAs & reduce incidents.",
-    "Mentor analysts → raise overall modelling quality.",
+    "Deliver stable dbt models",
+    "Replace legacy pipelines",
+    "Ship analytics features",
+    "Improve data quality",
+    "Mentor team members",
   ];
 
   const redFlags = [
-    "Responsibilities read like \"BI developer with nicer job title.\"",
-    "JD overloaded with buzzwords instead of outcomes.",
-    "No clear ownership area or modelling domain.",
+    "Generic job description",
+    "Buzzwords over outcomes",
+    "No clear ownership",
   ];
 
   const donts = [
-    "Copy competitor job descriptions.",
-    "Hide the real complexity of your data.",
-    "List 20+ responsibilities. It signals chaos.",
+    "Copy competitor JDs",
+    "Hide data complexity",
+    "List 20+ responsibilities",
   ];
 
   const fixes = [
-    "Show candidates exactly where the mess is. It builds trust.",
-    "Rewrite responsibilities to outcomes (not task lists).",
-    "Align hiring manager + PM on what \"success\" looks like BEFORE sourcing starts.",
+    "Show real challenges upfront",
+    "Focus on outcomes not tasks",
+    "Align stakeholders early",
   ];
 
   return (
@@ -44,9 +44,7 @@ export const RoleCard = () => {
               <div>
                 <h4 className="text-sm font-semibold mb-1" style={{ color: "#102a63" }}>Role Summary</h4>
                 <p className="text-[13px] leading-snug" style={{ color: "#102a63", opacity: 0.9 }}>
-                  Design, build, and maintain production-grade analytics models that power Mollie&apos;s merchant
-                  analytics experiences, internal and customer-facing. Own modelling standards, improve data quality,
-                  and partner with Engineering & Product to ship meaningful analytics features.
+                  Build production-grade analytics models, own modelling standards, and partner with teams to ship features.
                 </p>
               </div>
             </div>
@@ -79,8 +77,7 @@ export const RoleCard = () => {
 
           {/* Brutal Truth */}
           <Callout tone="danger" title="Brutal Truth">
-            Most companies hiring “Senior Analytics Engineers” actually want someone to clean up five years of data debt.
-            If your team isn&apos;t honest about the mess, senior candidates will smell it and run.
+            Be honest about the data debt. Seniors will discover it anyway.
           </Callout>
 
           {/* Red Flags */}
@@ -116,15 +113,6 @@ export const RoleCard = () => {
             </ul>
           </Section>
 
-          {/* Hidden Bottleneck */}
-          <Callout tone="neutral" title="Hidden Bottleneck">
-            <strong>Stakeholder alignment.</strong> If PM, Data, and Engineering want different outcomes, no candidate will pass all interviews.
-          </Callout>
-
-          {/* Timeline to Failure */}
-          <Callout tone="warning" title="Timeline to Failure">
-            If outcomes aren&apos;t aligned in week 1 → expect the search to restart around week 6.
-          </Callout>
         </div>
       </Section>
     </div>

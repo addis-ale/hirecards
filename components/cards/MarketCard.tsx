@@ -57,9 +57,9 @@ export const MarketCard = () => {
         </h3>
         <ul className="space-y-2">
           {[
-            "Top-tier talent is fully employed",
-            "Competition: Adyen, bunq, Booking, Picnic, Klarna, Revolut",
-            "Senior AEs rarely apply inbound; outbound is mandatory"
+            "Top talent is employed",
+            "High competition",
+            "Outbound required"
           ].map((condition, idx) => (
             <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: "#102a63" }}>
               <span className="text-blue-500 font-bold">•</span>
@@ -75,22 +75,22 @@ export const MarketCard = () => {
           Talent Supply
         </h3>
         <div className="space-y-3">
-          <div className="flex items-center gap-3 p-3 bg-green-50 border border-green-200 rounded-lg">
+          <div className="flex items-center gap-3 p-2 bg-green-50 border border-green-200 rounded-lg">
             <div className="w-3 h-3 rounded-full bg-green-500" />
             <div className="flex-1">
-              <p className="text-sm font-bold" style={{ color: "#102a63" }}>High for mid-level</p>
+              <p className="text-xs font-bold" style={{ color: "#102a63" }}>High for mid-level</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-center gap-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
             <div className="w-3 h-3 rounded-full bg-yellow-500" />
             <div className="flex-1">
-              <p className="text-sm font-bold" style={{ color: "#102a63" }}>Low for true senior</p>
+              <p className="text-xs font-bold" style={{ color: "#102a63" }}>Low for senior</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-center gap-3 p-2 bg-red-50 border border-red-200 rounded-lg">
             <div className="w-3 h-3 rounded-full bg-red-500" />
             <div className="flex-1">
-              <p className="text-sm font-bold" style={{ color: "#102a63" }}>Extremely low for product-minded senior</p>
+              <p className="text-xs font-bold" style={{ color: "#102a63" }}>Very low for product-minded</p>
             </div>
           </div>
         </div>
@@ -102,78 +102,7 @@ export const MarketCard = () => {
           Brutal Truth
         </h3>
         <p className="text-sm font-medium text-red-900">
-          If you insist on Amsterdam-only and mid-market comp, this search will drag for months.
-        </p>
-      </div>
-
-      {/* Red Flags */}
-      <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-        <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-          Red Flags
-        </h3>
-        <ul className="space-y-2">
-          {[
-            "Expecting inbound to carry the search",
-            "Requiring fintech experience + seniority + specific tools",
-            "On-site requirements &gt;2 days/week",
-            "Slow hiring loop"
-          ].map((flag, idx) => (
-            <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: "#102a63" }}>
-              <span className="text-orange-500 font-bold">•</span>
-              <span>{flag}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Don't Do This */}
-      <Section title="Don&apos;t Do This" Icon={TrendingUp} tone="danger">
-        <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-red-600">
-          {[
-            "Start with internal referrals only",
-            "Rely on job boards",
-            "Insist on niche location experience"
-          ].map((dont, idx) => (
-            <li key={idx} className="text-[13px] leading-snug text-red-700">
-              {dont}
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      {/* Fix This Now */}
-      <Section title="Fix This Now" Icon={TrendingUp} tone="success">
-        <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-emerald-600">
-          {[
-            "Expand geography: Lisbon, Berlin, Barcelona, Warsaw",
-            "Improve comp (paying bottom-of-market = slow hire)",
-            "Update messaging to focus on product impact, not tools"
-          ].map((fix, idx) => (
-            <li key={idx} className="text-[13px] leading-snug text-emerald-800">
-              {fix}
-            </li>
-          ))}
-        </ul>
-      </Section>
-
-      {/* Hidden Bottleneck */}
-      <div className="bg-purple-50 border-l-4 border-purple-500 p-4 rounded-r-lg">
-        <h3 className="font-bold text-lg mb-2 text-purple-700">
-          Hidden Bottleneck
-        </h3>
-        <p className="text-sm font-medium text-purple-900">
-          <strong>Your true competition isn&apos;t fintech.</strong> It&apos;s US remote companies 
-          paying above-market salaries.
-        </p>
-      </div>
-
-      {/* Timeline to Failure */}
-      <div className="bg-yellow-50 border border-yellow-300 p-4 rounded-lg">
-        <h3 className="font-bold text-lg mb-2 text-yellow-700">
-          Timeline to Failure
-        </h3>
-        <p className="text-sm font-medium text-yellow-900">
-          If search is Amsterdam-only → expect 12+ weeks minimum to find one strong finalist.
+          Strict location + low comp = long search.
         </p>
       </div>
     </div>

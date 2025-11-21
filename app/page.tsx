@@ -1,6 +1,6 @@
 import { Hero } from "@/components/Hero";
 import TrustedBy from "@/components/TrustedBy";
-import SampleOutput from "@/components/SampleOutput";
+import InteractiveResultsPreview from "@/components/InteractiveResultsPreview";
 import Features from "@/components/Features";
 import HowItWorks from "@/components/HowItWorks";
 import BattleCardPreview from "@/components/BattleCardPreview";
@@ -19,11 +19,11 @@ export default function Home() {
       <main className="min-h-screen content-wrapper">
         <Navbar />
         <Hero />
-        <TrustedBy />
-        <SampleOutput />
+        {/* <TrustedBy /> */}
+        <InteractiveResultsPreview />
         <Features />
         <HowItWorks />
-        <BattleCardPreview />
+        {/* <BattleCardPreview /> */}
         <BuiltFor />
         <Testimonials />
         <FAQ />

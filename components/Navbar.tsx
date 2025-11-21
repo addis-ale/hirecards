@@ -95,6 +95,12 @@ export default function Navbar() {
               >
                 Testimonials
               </Link>
+              <Link
+                href="/dashboard"
+                className="text-black/80 hover:text-black transition-colors font-medium text-sm"
+              >
+                My HireCards
+              </Link>
               <Link href="/create" className="btn-primary px-4 py-2 text-sm">
                 Get Started
               </Link>
@@ -174,6 +180,24 @@ export default function Navbar() {
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 Testimonials
+              </Link>
+              <Link
+                href="/dashboard"
+                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
+                style={{
+                  color: "rgba(255, 255, 255, 0.9)",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#D7F4F2";
+                  e.currentTarget.style.color = "rgb(16, 42, 99)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "transparent";
+                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
+                }}
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
+                My HireCards
               </Link>
               <Link
                 href="/create"
