@@ -52,7 +52,7 @@ export const Hero = () => {
         score,
         category: "Extremely Low",
         message:
-          "Your chances of hiring the right person for this role, with your likely budget and location, are extremely low. Most teams lose 8–12 weeks only to restart from scratch. You need a clear hiring strategy before opening this role.",
+          "Your chances of hiring the right person for this role, with your likely budget and location, are extremely low. Most teams lose 8-12 weeks only to restart from scratch. You need a clear hiring strategy before opening this role.",
         icon: <XCircle className="w-12 h-12" />,
       };
     } else if (score <= 40) {
@@ -95,17 +95,19 @@ export const Hero = () => {
       new URL(text);
       return true;
     } catch {
-      return text.toLowerCase().includes('http') || text.includes('www.');
+      return text.toLowerCase().includes("http") || text.includes("www.");
     }
   };
 
-  const getURLQuality = (url: string): 'poor' | 'well' | 'good' | 'great' | 'default' => {
+  const getURLQuality = (
+    url: string
+  ): "poor" | "well" | "good" | "great" | "default" => {
     const lowerURL = url.toLowerCase();
-    if (lowerURL.endsWith('/poor')) return 'poor';
-    if (lowerURL.endsWith('/well')) return 'well';
-    if (lowerURL.endsWith('/good')) return 'good';
-    if (lowerURL.endsWith('/great')) return 'great';
-    return 'default';
+    if (lowerURL.endsWith("/poor")) return "poor";
+    if (lowerURL.endsWith("/well")) return "well";
+    if (lowerURL.endsWith("/good")) return "good";
+    if (lowerURL.endsWith("/great")) return "great";
+    return "default";
   };
 
   const handleAnalyze = async () => {
@@ -114,10 +116,10 @@ export const Hero = () => {
 
       try {
         // Call AI-powered parsing API
-        const parseResponse = await fetch('/api/parse-role', {
-          method: 'POST',
+        const parseResponse = await fetch("/api/parse-role", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({ input: roleDescription }),
         });
@@ -125,23 +127,26 @@ export const Hero = () => {
         const parseResult = await parseResponse.json();
 
         if (!parseResult.success) {
-          throw new Error('Failed to parse role');
+          throw new Error("Failed to parse role");
         }
 
         const parsedData = parseResult.data;
         const inputIsURL = parsedData.isURL;
-        
+
         // Build extracted fields from AI parsing
         let extractedFields: any = {
           roleTitle: parsedData.jobTitle,
         };
 
         if (parsedData.location) extractedFields.location = parsedData.location;
-        if (parsedData.workModel) extractedFields.workModel = parsedData.workModel;
-        if (parsedData.experienceLevel) extractedFields.experienceLevel = parsedData.experienceLevel;
-        if (parsedData.department) extractedFields.department = parsedData.department;
+        if (parsedData.workModel)
+          extractedFields.workModel = parsedData.workModel;
+        if (parsedData.experienceLevel)
+          extractedFields.experienceLevel = parsedData.experienceLevel;
+        if (parsedData.department)
+          extractedFields.department = parsedData.department;
         if (parsedData.skills && parsedData.skills.length > 0) {
-          extractedFields.criticalSkills = parsedData.skills.join(', ');
+          extractedFields.criticalSkills = parsedData.skills.join(", ");
         }
 
         // Determine missing fields
@@ -149,7 +154,8 @@ export const Hero = () => {
         if (!parsedData.experienceLevel) missing.push("Experience Level");
         if (!parsedData.location) missing.push("Location");
         if (!parsedData.workModel) missing.push("Work Model");
-        if (!parsedData.skills || parsedData.skills.length === 0) missing.push("Critical Skills");
+        if (!parsedData.skills || parsedData.skills.length === 0)
+          missing.push("Critical Skills");
         missing.push("Budget/Salary Range");
         missing.push("Non-Negotiables");
         missing.push("Timeline");
@@ -163,32 +169,56 @@ export const Hero = () => {
         // Adjust score based on quality
         score = Math.max(16, Math.min(85, score));
 
-        let category = "Low Feasibility";
+        let category = "Low Clarity";
         let message = "";
         let isIncomplete = missing.length > 0;
 
         if (missing.length === 0) {
           // Complete information (from URL)
           score = Math.max(score, 70);
-          category = "Moderate-High Feasibility";
-          message = `Well, well, look at you with ${inputIsURL ? 'a complete job description URL' : 'detailed information'}! We found: role, location, experience level, work model, and skills. Here's the reality check: we still need salary range, timeline, and non-negotiables to give you the full picture. Your score of ${score} is solid, but could swing ±15 points based on compensation and urgency. Fill in the missing pieces for an accurate assessment.`;
+          category = "Moderate-High Clarity";
+          message = `Well, well, look at you with ${
+            inputIsURL
+              ? "a complete job description URL"
+              : "detailed information"
+          }! We found: role, location, experience level, work model, and skills. Here's the reality check: we still need salary range, timeline, and non-negotiables to give you the full picture. Your score of ${score} is solid, but could swing ±15 points based on compensation and urgency. Fill in the missing pieces for an accurate assessment.`;
           isIncomplete = true; // Still missing salary, timeline, etc.
         } else if (missing.length <= 2) {
           score = Math.max(score, 60);
-          category = "Moderate Feasibility";
-          message = `Almost there! We extracted: ${Object.keys(extractedFields).map(k => k === 'roleTitle' ? 'role title' : k).join(', ')}. But you're missing the critical ones: ${missing.slice(0, 2).join(', ')}. That ${score} you're seeing? Could swing ±15 points. Give us the full picture and we'll tell you the real feasibility.`;
+          category = "Moderate Clarity";
+          message = `Almost there! We extracted: ${Object.keys(extractedFields)
+            .map((k) => (k === "roleTitle" ? "role title" : k))
+            .join(", ")}. But you're missing the critical ones: ${missing
+            .slice(0, 2)
+            .join(
+              ", "
+            )}. That ${score} you're seeing? Could swing ±15 points. Give us the full picture and we'll tell you the real clarity score.`;
         } else if (missing.length <= 5) {
           score = Math.max(score, 35);
-          category = "Low Feasibility";
-          message = `Not bad, but here's where it gets fuzzy. We found: ${Object.keys(extractedFields).map(k => k === 'roleTitle' ? 'role title' : k).join(', ')}. Missing: ${missing.slice(0, 3).join(', ')} and more. That ${score}? It's a guess. Your real score could be 70 if you're paying competitive rates, or 20 if you're lowballing. Fill in what's missing for an accurate reality check.`;
+          category = "Low Clarity";
+          message = `Not bad, but here's where it gets fuzzy. We found: ${Object.keys(
+            extractedFields
+          )
+            .map((k) => (k === "roleTitle" ? "role title" : k))
+            .join(", ")}. Missing: ${missing
+            .slice(0, 3)
+            .join(
+              ", "
+            )} and more. That ${score}? It's a guess. Your real score could be 70 if you're paying competitive rates, or 20 if you're lowballing. Fill in what's missing for an accurate reality check.`;
         } else {
           score = Math.max(score, 16);
           category = "Ghost Town";
-          message = `${inputIsURL ? 'Dropped a URL but it\'s thin on details.' : 'Just a job title?'} We found: ${parsedData.jobTitle}${parsedData.location ? ` in ${parsedData.location}` : ''}. That's it. We gave you a ${score}, but let's be real, we know almost nothing. Your actual feasibility could be 70 or it could be 10. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.`;
+          message = `${
+            inputIsURL
+              ? "Dropped a URL but it's thin on details."
+              : "Just a job title?"
+          } We found: ${parsedData.jobTitle}${
+            parsedData.location ? ` in ${parsedData.location}` : ""
+          }. That's it. We gave you a ${score}, but let's be real, we know almost nothing. Your actual clarity could be 70 or it could be 10. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.`;
         }
 
         setMissingFields(missing);
-        
+
         const incompleteData = {
           isURL: inputIsURL,
           roleDescription: roleDescription,
@@ -196,28 +226,95 @@ export const Hero = () => {
           missingFields: missing,
           parsedData: parsedData,
         };
-        
-        // Store incomplete data
-        sessionStorage.setItem("incompleteData", JSON.stringify(incompleteData));
-        
-        // Generate result
-        const result = {
-          score: score,
-          category: category,
-          message: message,
-          icon: <AlertTriangle className="w-12 h-12" />,
-          isIncomplete: isIncomplete,
+
+        // Store incomplete data for debugging
+        sessionStorage.setItem(
+          "incompleteData",
+          JSON.stringify(incompleteData)
+        );
+
+        // Convert extracted data to formData format (clean, no duplicates)
+        const formData = {
+          roleTitle: parsedData.jobTitle || "",
+          department: parsedData.department || "",
+          experienceLevel: parsedData.experienceLevel || "",
+          location: parsedData.location || "",
+          workModel: parsedData.workModel || "",
+          criticalSkills: parsedData.skills || [], // Array of skills (merged)
+          minSalary: "",
+          maxSalary: "",
+          nonNegotiables: parsedData.requirements?.slice(0, 3).join(", ") || "", // Requirements (merged)
+          flexible: "",
+          timeline: "",
         };
+
+        // Save to both locations:
+        // - heroAnalysisData: for results page (when user clicks "Generate Now")
+        // - formData: for chatbot ONLY if URL was scraped (when user clicks "Complete Details")
+        sessionStorage.setItem("heroAnalysisData", JSON.stringify(formData));
         
-        setAnalysisResult(result);
-        setShowResults(true);
+        // Only save to formData if a URL was actually scraped (has significant data)
+        // If user just typed text, don't pre-fill the chatbot
+        const hasSignificantData = parsedData.skills?.length > 0 || parsedData.experienceLevel || parsedData.location;
+        if (hasSignificantData) {
+          sessionStorage.setItem("formData", JSON.stringify(formData));
+          console.log("✅ Hero saved URL-scraped data to formData:", formData);
+        } else {
+          // Clear formData so chatbot starts fresh
+          sessionStorage.removeItem("formData");
+          console.log("✅ Hero cleared formData (user typed text, chatbot will start fresh)");
+        }
+
+
+        // Get AI-generated roast
+        try {
+          const roastResponse = await fetch("/api/roast-hiring", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              score: score,
+              category: category,
+              roleDescription: roleDescription,
+              extractedFields: extractedFields,
+              missingFields: missing,
+            }),
+          });
+
+          const roastData = await roastResponse.json();
+          const aiMessage = roastData.success ? roastData.roast : message; // Fallback to static message
+
+          // Generate result with AI-generated message
+          const result = {
+            score: score,
+            category: category,
+            message: aiMessage,
+            icon: <AlertTriangle className="w-12 h-12" />,
+            isIncomplete: isIncomplete,
+          };
+
+          setAnalysisResult(result);
+          setShowResults(true);
+        } catch (roastError) {
+          console.error("Error getting roast:", roastError);
+          // Fallback to static message if AI fails
+          const result = {
+            score: score,
+            category: category,
+            message: message,
+            icon: <AlertTriangle className="w-12 h-12" />,
+            isIncomplete: isIncomplete,
+          };
+          setAnalysisResult(result);
+          setShowResults(true);
+        }
       } catch (error) {
-        console.error('Error analyzing role:', error);
+        console.error("Error analyzing role:", error);
         // Fallback to basic analysis
         const result = {
           score: 16,
           category: "Error",
-          message: "We couldn't analyze this role properly. Please try again or provide more details.",
+          message:
+            "We couldn't analyze this role properly. Please try again or provide more details.",
           icon: <AlertTriangle className="w-12 h-12" />,
           isIncomplete: true,
         };
@@ -255,20 +352,36 @@ export const Hero = () => {
             </h1>
 
             <p
-              className="text-lg md:text-xl mb-4 max-w-3xl mx-auto leading-relaxed"
+              className="text-xl md:text-2xl mb-4 max-w-3xl mx-auto leading-relaxed"
               style={{ color: "#102a63", opacity: 0.9 }}
             >
-              Most roles fail before they even hit the market.<br />
-              Wrong scope. Wrong salary. Wrong expectations.<br />
-              Teams only find out 60–90 days later.
+              Most roles fail before they hit the market.{" "}
+              <span className="font-bold" style={{ color: "#102a63" }}>
+                Wrong scope
+              </span>
+              ,{" "}
+              <span className="font-bold" style={{ color: "#102a63" }}>
+                wrong salary
+              </span>
+              ,{" "}
+              <span className="font-bold" style={{ color: "#102a63" }}>
+                wrong expectations
+              </span>
+              .
             </p>
 
             <p
-              className="text-lg md:text-xl mb-8 max-w-3xl mx-auto leading-relaxed"
+              className="text-lg md:text-xl mb-4 max-w-3xl mx-auto leading-relaxed"
               style={{ color: "#102a63", opacity: 0.8 }}
             >
-              Paste a job URL or add a few details — HireCards shows if the role is hireable, 
-              what&apos;s off, how to fix it, and gives you a full hiring strategy in under 5 minutes.
+              Paste a job URL. Get a full hiring strategy in under{" "}
+              <span
+                className="px-2 py-1 rounded-lg font-bold"
+                style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
+              >
+                5 minutes
+              </span>
+              .
             </p>
 
             {/* Role Description Input Section */}
@@ -279,7 +392,7 @@ export const Hero = () => {
                     type="text"
                     value={roleDescription}
                     onChange={(e) => setRoleDescription(e.target.value)}
-                    placeholder="e.g., Senior Backend Engineer in Amsterdam or https://yourcompany.com/jobs/123"
+                    placeholder="e.g., Senior Backend Engineer in Amsterdam or https://company.com/jobs/123"
                     className="w-full px-4 py-3 text-sm bg-transparent border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-400"
                     onKeyPress={(e) => {
                       if (e.key === "Enter") {
@@ -291,11 +404,11 @@ export const Hero = () => {
                 <button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing || !roleDescription.trim()}
-                  className="btn-primary flex items-center justify-center space-x-2 text-sm px-6 py-3 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary flex items-center justify-center space-x-2 text-xs px-4 py-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isAnalyzing ? (
                     <>
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>Analyzing...</span>
                     </>
                   ) : (
@@ -360,22 +473,27 @@ export const Hero = () => {
                         <>
                           {/* Show uncertainty warning */}
                           <div className="mb-4 p-4 bg-orange-50 border-2 border-orange-300 rounded-lg">
-                            <p className="text-xs font-bold mb-2" style={{ color: "#102a63" }}>
+                            <p
+                              className="text-xs font-bold mb-2"
+                              style={{ color: "#102a63" }}
+                            >
                               Missing Critical Data:
                             </p>
                             <div className="flex flex-wrap gap-2 justify-center">
-                              {missingFields.map((field: string, idx: number) => (
-                                <span 
-                                  key={idx}
-                                  className="text-xs px-3 py-1 bg-white border border-orange-300 rounded-full"
-                                  style={{ color: "#102a63" }}
-                                >
-                                  {field}
-                                </span>
-                              ))}
+                              {missingFields.map(
+                                (field: string, idx: number) => (
+                                  <span
+                                    key={idx}
+                                    className="text-xs px-3 py-1 bg-white border border-orange-300 rounded-full"
+                                    style={{ color: "#102a63" }}
+                                  >
+                                    {field}
+                                  </span>
+                                )
+                              )}
                             </div>
                           </div>
-                          
+
                           <div className="mb-4">
                             {/* Two equal buttons side by side on large screens */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
@@ -385,27 +503,23 @@ export const Hero = () => {
                                 className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
                               >
                                 <Sparkles className="w-4 h-4" />
-                                <span>
-                                  Generate Now
-                                </span>
+                                <span>Generate Now</span>
                               </Link>
-                              
+
                               {/* Secondary CTA - Complete for better results */}
                               <Link
                                 href="/create"
                                 className="inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5 border-2 rounded-lg font-medium transition-all hover:bg-gray-50"
-                                style={{ 
-                                  color: "#278f8c", 
-                                  borderColor: "#278f8c"
+                                style={{
+                                  color: "#278f8c",
+                                  borderColor: "#278f8c",
                                 }}
                               >
                                 <Target className="w-4 h-4" />
-                                <span>
-                                  Complete Details
-                                </span>
+                                <span>Complete Details</span>
                               </Link>
                             </div>
-                            
+
                             <p
                               className="text-xs text-center leading-relaxed"
                               style={{ color: "#102a63", opacity: 0.7 }}
@@ -429,7 +543,7 @@ export const Hero = () => {
                             className="text-xs md:text-sm leading-relaxed font-medium"
                             style={{ color: "#102a63", opacity: 0.9 }}
                           >
-                            Complete feasibility analysis, competitor
+                            Complete clarity analysis, competitor
                             benchmarking, sourcing strategy, and battle-tested
                             reality check, tailored to your specific role. Stop
                             guessing, start hiring with confidence.
@@ -452,15 +566,16 @@ export const Hero = () => {
               )}
             </AnimatePresence>
 
+
             <p
-              className="text-sm mb-10"
+              className="text-sm mb-12 mt-6"
               style={{ color: "#102a63", opacity: 0.8 }}
             >
               No pressure. It&apos;s only your hiring budget on the line.
             </p>
 
             <div
-              className="flex flex-wrap items-center justify-center gap-8 text-base mt-8"
+              className="flex flex-wrap items-center justify-center gap-8 text-base mt-12"
               style={{ color: "#102a63" }}
             >
               <div className="flex items-center space-x-2">

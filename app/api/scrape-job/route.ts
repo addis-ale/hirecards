@@ -56,7 +56,8 @@ export async function POST(request: NextRequest) {
         // Skills and requirements
         skills: parsedData.skills || [],
         requirements: parsedData.requirements || [],
-        criticalSkill: parsedData.skills?.[0] || null,
+        criticalSkills: parsedData.skills || [],
+        criticalSkill: parsedData.skills?.[0] || null, // For backwards compatibility
         nonNegotiables: parsedData.requirements?.slice(0, 3).join(", ") || null,
         
         // Timeline

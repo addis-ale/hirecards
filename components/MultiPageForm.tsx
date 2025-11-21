@@ -6,13 +6,16 @@ import { Loader2, CheckCircle, AlertCircle, Sparkles } from "lucide-react";
 import CustomSelect from "./CustomSelect";
 import CurrencyInput from "./CurrencyInput";
 import JobURLInput from "./JobURLInput";
+import MultiSkillInput from "./MultiSkillInput";
+import DebugDataViewer from "./DebugDataViewer";
 
 interface FormData {
   roleTitle: string;
+  department: string;
   experienceLevel: string;
   location: string;
   workModel: string;
-  criticalSkill: string;
+  criticalSkills: string[];
   minSalary: string;
   maxSalary: string;
   nonNegotiables: string;
@@ -30,10 +33,11 @@ export default function MultiPageForm() {
   const [showURLInput, setShowURLInput] = useState(true);
   const [formData, setFormData] = useState<FormData>({
     roleTitle: "",
+    department: "",
     experienceLevel: "",
     location: "",
     workModel: "",
-    criticalSkill: "",
+    criticalSkills: [],
     minSalary: "",
     maxSalary: "",
     nonNegotiables: "",
@@ -59,6 +63,10 @@ export default function MultiPageForm() {
           mappedData.roleTitle = extracted.roleTitle;
           filledFields.push('roleTitle');
         }
+        if (extracted.department) {
+          mappedData.department = extracted.department;
+          filledFields.push('department');
+        }
         if (extracted.location) {
           mappedData.location = extracted.location;
           filledFields.push('location');
@@ -80,8 +88,13 @@ export default function MultiPageForm() {
           filledFields.push('workModel');
         }
         if (extracted.criticalSkills) {
-          mappedData.criticalSkill = extracted.criticalSkills;
-          filledFields.push('criticalSkill');
+          // Handle both array and string formats
+          if (Array.isArray(extracted.criticalSkills)) {
+            mappedData.criticalSkills = extracted.criticalSkills;
+          } else if (typeof extracted.criticalSkills === 'string') {
+            mappedData.criticalSkills = extracted.criticalSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+          }
+          filledFields.push('criticalSkills');
         }
         if (extracted.nonNegotiables) {
           mappedData.nonNegotiables = extracted.nonNegotiables;
@@ -126,11 +139,19 @@ export default function MultiPageForm() {
       | React.ChangeEvent<
           HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
         >
-      | { target: { name: string; value: string } }
+      | { target: { name: string; value: string | string[] } }
   ) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
+    });
+    setError("");
+  };
+
+  const handleSkillsChange = (skills: string[]) => {
+    setFormData({
+      ...formData,
+      criticalSkills: skills,
     });
     setError("");
   };
@@ -142,6 +163,10 @@ export default function MultiPageForm() {
       case 1:
         if (!formData.roleTitle.trim()) {
           setError("Role title is required");
+          return false;
+        }
+        if (!formData.department.trim()) {
+          setError("Department is required");
           return false;
         }
         if (!formData.experienceLevel) {
@@ -159,21 +184,22 @@ export default function MultiPageForm() {
         break;
 
       case 2:
-        if (!formData.criticalSkill.trim()) {
-          setError("Critical skill is required");
+        if (!formData.criticalSkills || formData.criticalSkills.length === 0) {
+          setError("At least one critical skill is required");
           return false;
         }
         if (!formData.minSalary.trim() || !formData.maxSalary.trim()) {
           setError("Budget/salary range is required");
           return false;
         }
+        if (!formData.nonNegotiables.trim()) {
+          setError("Non-negotiables (requirements) are required");
+          return false;
+        }
         break;
 
       case 3:
-        if (!formData.nonNegotiables.trim()) {
-          setError("Non-negotiables are required");
-          return false;
-        }
+        // Flexible requirements are optional
         break;
 
       case 4:
@@ -217,6 +243,7 @@ export default function MultiPageForm() {
       const submitData = {
         ...formData,
         salaryRange: `${formData.minSalary} - ${formData.maxSalary}`,
+        criticalSkill: formData.criticalSkills.join(', '), // For backwards compatibility
       };
 
       // Store form data in sessionStorage
@@ -264,6 +291,10 @@ export default function MultiPageForm() {
       updatedData.roleTitle = data.roleTitle;
       if (!newPreFilledFields.includes('roleTitle')) newPreFilledFields.push('roleTitle');
     }
+    if (data.department) {
+      updatedData.department = data.department;
+      if (!newPreFilledFields.includes('department')) newPreFilledFields.push('department');
+    }
     if (data.experienceLevel) {
       updatedData.experienceLevel = data.experienceLevel;
       if (!newPreFilledFields.includes('experienceLevel')) newPreFilledFields.push('experienceLevel');
@@ -276,9 +307,18 @@ export default function MultiPageForm() {
       updatedData.workModel = data.workModel;
       if (!newPreFilledFields.includes('workModel')) newPreFilledFields.push('workModel');
     }
-    if (data.criticalSkill) {
-      updatedData.criticalSkill = data.criticalSkill;
-      if (!newPreFilledFields.includes('criticalSkill')) newPreFilledFields.push('criticalSkill');
+    if (data.criticalSkills) {
+      // Handle both array and string formats
+      if (Array.isArray(data.criticalSkills)) {
+        updatedData.criticalSkills = data.criticalSkills;
+      } else if (typeof data.criticalSkills === 'string') {
+        updatedData.criticalSkills = data.criticalSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+      }
+      if (!newPreFilledFields.includes('criticalSkills')) newPreFilledFields.push('criticalSkills');
+    } else if (data.criticalSkill) {
+      // Fallback for old format
+      updatedData.criticalSkills = [data.criticalSkill];
+      if (!newPreFilledFields.includes('criticalSkills')) newPreFilledFields.push('criticalSkills');
     }
     if (data.minSalary) {
       updatedData.minSalary = data.minSalary;
@@ -348,6 +388,9 @@ export default function MultiPageForm() {
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Debug Data Viewer */}
+      <DebugDataViewer storageKey="formData" title="Debug: Form Data" />
+      
       {/* Job URL Input - Show at the beginning */}
       {showURLInput && currentStep === 1 && (
         <div className="mb-4">
@@ -365,7 +408,7 @@ export default function MultiPageForm() {
           {/* Step 1: Basics */}
           {currentStep === 1 && (
             <>
-              {/* Role Title & Level */}
+              {/* Role Title & Department */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
@@ -391,6 +434,44 @@ export default function MultiPageForm() {
               />
             </div>
 
+            <div>
+              <label
+                htmlFor="department"
+                className="block text-sm font-semibold mb-2"
+                style={{ color: "#102a63" }}
+              >
+                Department *
+                {preFilledFields.includes('department') && (
+                  <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
+                    ✓ Pre-filled
+                  </span>
+                )}
+              </label>
+              <CustomSelect
+                id="department"
+                name="department"
+                value={formData.department}
+                onChange={handleChange}
+                required
+                placeholder="Select department"
+                options={[
+                  { value: "Engineering", label: "Engineering" },
+                  { value: "Product", label: "Product" },
+                  { value: "Design", label: "Design" },
+                  { value: "Marketing", label: "Marketing" },
+                  { value: "Sales", label: "Sales" },
+                  { value: "Customer Success", label: "Customer Success" },
+                  { value: "Operations", label: "Operations" },
+                  { value: "Finance", label: "Finance" },
+                  { value: "Human Resources", label: "Human Resources" },
+                  { value: "Other", label: "Other" },
+                ]}
+              />
+            </div>
+          </div>
+
+          {/* Experience Level & Location */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
                 htmlFor="experienceLevel"
@@ -424,10 +505,7 @@ export default function MultiPageForm() {
                 ]}
               />
             </div>
-          </div>
 
-          {/* Location & Work Model */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label
                 htmlFor="location"
@@ -451,35 +529,36 @@ export default function MultiPageForm() {
                 placeholder="e.g., Amsterdam, Netherlands"
               />
             </div>
+          </div>
 
-            <div>
-              <label
-                htmlFor="workModel"
-                className="block text-sm font-semibold mb-2"
-                style={{ color: "#102a63" }}
-              >
-                Work Model *
-                {preFilledFields.includes('workModel') && (
-                  <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
-                    ✓ Pre-filled
-                  </span>
-                )}
-              </label>
-              <CustomSelect
-                id="workModel"
-                name="workModel"
-                value={formData.workModel}
-                onChange={handleChange}
-                required
-                placeholder="Select work model"
-                options={[
-                  { value: "Remote", label: "Remote" },
-                  { value: "Hybrid", label: "Hybrid" },
-                  { value: "On-site", label: "On-site" },
-                  { value: "Flexible", label: "Flexible" },
-                ]}
-              />
-            </div>
+          {/* Work Model */}
+          <div>
+            <label
+              htmlFor="workModel"
+              className="block text-sm font-semibold mb-2"
+              style={{ color: "#102a63" }}
+            >
+              Work Model *
+              {preFilledFields.includes('workModel') && (
+                <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
+                  ✓ Pre-filled
+                </span>
+              )}
+            </label>
+            <CustomSelect
+              id="workModel"
+              name="workModel"
+              value={formData.workModel}
+              onChange={handleChange}
+              required
+              placeholder="Select work model"
+              options={[
+                { value: "Remote", label: "Remote" },
+                { value: "Hybrid", label: "Hybrid" },
+                { value: "On-site", label: "On-site" },
+                { value: "Flexible", label: "Flexible" },
+              ]}
+            />
           </div>
             </>
           )}
@@ -487,32 +566,24 @@ export default function MultiPageForm() {
           {/* Step 2: Requirements */}
           {currentStep === 2 && (
             <>
-              {/* Critical Skill */}
+              {/* Critical Skills */}
               <div>
             <label
-              htmlFor="criticalSkill"
               className="block text-sm font-semibold mb-2"
               style={{ color: "#102a63" }}
             >
-              Critical Skill *
-              {preFilledFields.includes('criticalSkill') && (
+              Critical Skills *
+              {preFilledFields.includes('criticalSkills') && (
                 <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                   ✓ Pre-filled
                 </span>
               )}
             </label>
-            <input
-              type="text"
-              id="criticalSkill"
-              name="criticalSkill"
-              value={formData.criticalSkill}
-              onChange={handleChange}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent transition-all"
-              placeholder="e.g., Python/Django, Microservices Architecture"
+            <MultiSkillInput
+              skills={formData.criticalSkills}
+              onChange={handleSkillsChange}
+              placeholder="e.g., Python, React, AWS..."
             />
-            <p className="text-xs text-gray-500 mt-1">
-              The most important technical or domain skill for this role
-            </p>
           </div>
 
           {/* Budget/Salary Range */}
@@ -565,12 +636,7 @@ export default function MultiPageForm() {
               </div>
             </div>
           </div>
-            </>
-          )}
 
-          {/* Step 3: Details */}
-          {currentStep === 3 && (
-            <>
           {/* Non-Negotiables */}
           <div>
             <label
@@ -578,7 +644,7 @@ export default function MultiPageForm() {
               className="block text-sm font-semibold mb-2"
               style={{ color: "#102a63" }}
             >
-              Non-Negotiables *
+              Non-Negotiables (Requirements) *
               {preFilledFields.includes('nonNegotiables') && (
                 <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded-full" style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}>
                   ✓ Pre-filled
@@ -598,7 +664,12 @@ export default function MultiPageForm() {
               Must-have requirements that cannot be compromised
             </p>
           </div>
+            </>
+          )}
 
+          {/* Step 3: Details */}
+          {currentStep === 3 && (
+            <>
           {/* What Could Be Flexible */}
           <div>
             <label

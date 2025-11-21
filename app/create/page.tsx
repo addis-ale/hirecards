@@ -28,13 +28,15 @@ export default function CreatePage() {
                 HireCard Strategy
               </span>
             </h1>
-            <p className="text-lg md:text-xl mb-6" style={{ color: "#102a63", opacity: 0.8 }}>
-              {useChatbot 
+            <p
+              className="text-lg md:text-xl mb-6"
+              style={{ color: "#102a63", opacity: 0.8 }}
+            >
+              {useChatbot
                 ? "Chat with our AI assistant to create your strategy"
-                : "Fill out the form to create your strategy"
-              }
+                : "Fill out the form to create your strategy"}
             </p>
-            
+
             {/* Mode Toggle */}
             <div className="flex items-center justify-center gap-2 mb-8">
               <button
@@ -51,7 +53,7 @@ export default function CreatePage() {
                   ChatGPT
                 </span>
               </button>
-              <button
+              {/* <button
                 onClick={() => setUseChatbot(false)}
                 className={`flex items-center space-x-2 px-6 py-3 rounded-lg font-medium transition-all ${
                   !useChatbot
@@ -61,10 +63,10 @@ export default function CreatePage() {
               >
                 <List className="w-5 h-5" />
                 <span>Form Mode</span>
-              </button>
+              </button> */}
             </div>
           </div>
-          
+
           {useChatbot ? <ConversationalChatbot /> : <MultiPageForm />}
         </div>
       </div>

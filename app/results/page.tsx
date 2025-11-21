@@ -44,7 +44,8 @@ export default function ResultsPage() {
   const saveToLibrary = () => {
     try {
       // Get current form data and cards
-      const formData = sessionStorage.getItem("formData");
+      // Try heroAnalysisData first (from Hero section), then formData (from chatbot/form)
+      const formData = sessionStorage.getItem("formData") || sessionStorage.getItem("heroAnalysisData");
       const battleCards = sessionStorage.getItem("battleCards");
 
       if (!formData) return;

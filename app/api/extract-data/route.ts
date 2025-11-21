@@ -33,10 +33,11 @@ ${conversationText}
 
 Extract the following fields (use null if not mentioned):
 - roleTitle: The job title/role (string)
+- department: The department (e.g., Engineering, Product, Design, Marketing, Sales, etc.) (string)
 - experienceLevel: One of: "Junior", "Mid-Level", "Senior", "Lead/Staff", "Principal/Architect", "Executive" (or null)
 - location: City/country or work location (string)
 - workModel: One of: "Remote", "Hybrid", "On-site", "Flexible" (or null)
-- criticalSkill: The most important skill/requirement (string)
+- criticalSkills: Array of the most important skills/requirements (array of strings)
 - minSalary: Minimum salary as a number (no currency symbols)
 - maxSalary: Maximum salary as a number (no currency symbols)
 - nonNegotiables: Must-have requirements (string)
@@ -48,15 +49,16 @@ IMPORTANT:
 - If a field wasn't discussed, use null
 - For salary, extract just the numbers (e.g., "120000" from "$120,000" or "120k")
 - Be smart about variations (e.g., "We're fully remote" = workModel: "Remote")
-- Combine related information (e.g., multiple skills mentioned can be in criticalSkill)
+- For criticalSkills, extract multiple skills as an array (e.g., ["Python", "React", "AWS"])
 
 Return ONLY valid JSON in this exact format:
 {
   "roleTitle": "string or null",
+  "department": "string or null",
   "experienceLevel": "string or null",
   "location": "string or null",
   "workModel": "string or null",
-  "criticalSkill": "string or null",
+  "criticalSkills": ["array of strings or empty array"],
   "minSalary": "string or null",
   "maxSalary": "string or null",
   "nonNegotiables": "string or null",
@@ -102,10 +104,11 @@ Return ONLY valid JSON in this exact format:
     // Calculate completeness
     const fields = [
       "roleTitle",
+      "department",
       "experienceLevel",
       "location",
       "workModel",
-      "criticalSkill",
+      "criticalSkills",
       "minSalary",
       "maxSalary",
       "nonNegotiables",
@@ -113,12 +116,16 @@ Return ONLY valid JSON in this exact format:
       "timeline",
     ];
     
-    const filledFields = fields.filter(
-      (field) => extractedData[field] !== null && extractedData[field] !== ""
-    );
+    const filledFields = fields.filter((field) => {
+      const value = extractedData[field];
+      if (field === "criticalSkills") {
+        return Array.isArray(value) && value.length > 0;
+      }
+      return value !== null && value !== "";
+    });
     
     const completeness = Math.round((filledFields.length / fields.length) * 100);
-    const isComplete = completeness >= 90; // 9 out of 10 fields
+    const isComplete = completeness >= 90; // 10 out of 11 fields
 
     return NextResponse.json({
       success: true,

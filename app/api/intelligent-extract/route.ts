@@ -41,22 +41,23 @@ export async function POST(request: NextRequest) {
 
 Given a user's message, extract ANY relevant job information they mention:
 - Job title/role (e.g., "backend engineer", "product manager", "designer")
+- Department (Engineering, Product, Design, Marketing, Sales, etc.)
 - Location (city, country, "remote", "hybrid", "on-site")
 - Work model ("Remote", "Hybrid", "On-site")
 - Experience level ("Entry Level", "Mid-Level", "Senior", "Lead", "Principal")
-- Skills (programming languages, tools, technologies)
+- Skills (programming languages, tools, technologies) - extract as an array
 - Salary information (numbers mentioned with $ or salary/compensation keywords)
 - Timeline/urgency ("ASAP", "2 weeks", "next month")
 - Must-haves/requirements (things they say are "required", "must have", "critical")
 - Nice-to-haves/flexible items
-- Department (Engineering, Product, Design, Marketing, Sales, etc.)
 
 Be intelligent about context:
-- "We're hiring a senior React developer" → role: "Senior React Developer", skill: "React", level: "Senior"
+- "We're hiring a senior React developer" → role: "Senior React Developer", criticalSkills: ["React"], level: "Senior"
 - "Looking for someone in SF or remote" → location: "San Francisco", workModel: "Remote"
 - "Need someone ASAP" → timeline: "ASAP"
 - "Budget is 120-150k" → minSalary: "120000", maxSalary: "150000"
-- "Must know Python and AWS" → skills: ["Python", "AWS"], requirements: "Python, AWS"
+- "Must know Python and AWS" → criticalSkills: ["Python", "AWS"], requirements: "Python, AWS"
+- "Engineering team needs help" → department: "Engineering"
 
 ONLY extract information that is EXPLICITLY mentioned. Don't infer or guess.
 Return null for fields not mentioned.
@@ -66,12 +67,11 @@ Current data already captured: ${JSON.stringify(currentData)}
 Return ONLY valid JSON:
 {
   "roleTitle": "string or null",
+  "department": "string or null",
   "location": "string or null",
   "workModel": "Remote/Hybrid/On-site or null",
   "experienceLevel": "Entry Level/Mid-Level/Senior/Lead/Principal or null",
-  "department": "string or null",
-  "criticalSkill": "string or null",
-  "skills": ["array of strings"],
+  "criticalSkills": ["array of strings"],
   "minSalary": "string number or null",
   "maxSalary": "string number or null",
   "nonNegotiables": "string or null",

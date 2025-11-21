@@ -6,7 +6,6 @@ import {
   Loader2, 
   Send, 
   Bot,
-  CheckCircle2,
   AlertCircle,
   MessageSquareIcon
 } from "lucide-react";
@@ -17,6 +16,8 @@ import {
   ConversationScrollButton,
 } from "@/components/ai-elements/conversation";
 import { Message, MessageContent } from "@/components/ai-elements/message";
+import JobURLInput from "./JobURLInput";
+import DebugDataViewer from "./DebugDataViewer";
 
 interface Message {
   id: string;
@@ -27,10 +28,11 @@ interface Message {
 
 interface ExtractedData {
   roleTitle: string | null;
+  department: string | null;
   experienceLevel: string | null;
   location: string | null;
   workModel: string | null;
-  criticalSkill: string | null;
+  criticalSkills: string[] | null;
   minSalary: string | null;
   maxSalary: string | null;
   nonNegotiables: string | null;
@@ -45,10 +47,11 @@ export default function ConversationalChatbot() {
   const [isLoading, setIsLoading] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractedData>({
     roleTitle: null,
+    department: null,
     experienceLevel: null,
     location: null,
     workModel: null,
-    criticalSkill: null,
+    criticalSkills: null,
     minSalary: null,
     maxSalary: null,
     nonNegotiables: null,
@@ -58,23 +61,118 @@ export default function ConversationalChatbot() {
   const [completeness, setCompleteness] = useState(0);
   const [conversationComplete, setConversationComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const [showURLInput, setShowURLInput] = useState(true);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const conversationMessages = useRef<Array<{ role: string; content: string }>>([]);
   const greetingAdded = useRef(false);
 
-  // Initial greeting
+  // Load any pre-existing data from storage on mount
   useEffect(() => {
-    // Only add greeting once
+    const loadExistingData = () => {
+      // Check sessionStorage first (from form mode or previous session)
+      const sessionData = sessionStorage.getItem("formData");
+      if (sessionData) {
+        try {
+          const parsed = JSON.parse(sessionData);
+          const newExtractedData: ExtractedData = {
+            roleTitle: parsed.roleTitle || null,
+            department: parsed.department || null,
+            experienceLevel: parsed.experienceLevel || null,
+            location: parsed.location || null,
+            workModel: parsed.workModel || null,
+            criticalSkills: (Array.isArray(parsed.criticalSkills) && parsed.criticalSkills.length > 0) ? parsed.criticalSkills : null,
+            minSalary: parsed.minSalary || null,
+            maxSalary: parsed.maxSalary || null,
+            nonNegotiables: parsed.nonNegotiables || null,
+            flexible: parsed.flexible || null,
+            timeline: parsed.timeline || null,
+          };
+          setExtractedData(newExtractedData);
+          
+          // Calculate completeness
+          const filledCount = Object.values(newExtractedData).filter(v => {
+            if (Array.isArray(v)) return v.length > 0;
+            return v !== null && v !== "";
+          }).length;
+          setCompleteness(Math.round((filledCount / 11) * 100));
+          
+          // Hide URL input if data already exists
+          if (filledCount > 0) {
+            setShowURLInput(false);
+          }
+        } catch (err) {
+          console.error("Failed to load session data:", err);
+        }
+      }
+      
+      setDataLoaded(true);
+    };
+
+    loadExistingData();
+  }, []);
+
+  // Initial greeting - Smart and context-aware
+  useEffect(() => {
+    // Wait for data to be loaded first
+    if (!dataLoaded) return;
+    
+    // Only add greeting once (unless manually reset by URL extraction)
     if (!greetingAdded.current) {
       greetingAdded.current = true;
       setTimeout(() => {
-        const greeting = "Hey there! 👋 I'm your AI hiring assistant. I'm here to help you create a perfect HireCard strategy.\n\nJust tell me about the role you're hiring for, and I'll guide you through the process with a few quick questions.\n\nLet's get started! What role are you looking to hire for?";
+        // Check what data is already available
+        const filledFields = Object.entries(extractedData).filter(([_, value]) => {
+          if (Array.isArray(value)) return value.length > 0;
+          return value !== null && value !== "";
+        });
+        const filledCount = filledFields.length;
+        
+        let greeting = "Hey there! 👋 I'm your AI hiring assistant. I'm here to help you create a perfect HireCard strategy.\n\n";
+        
+        if (filledCount === 0) {
+          // No data yet - ask for the role
+          greeting += "Just tell me about the role you're hiring for, and I'll guide you through the process with a few quick questions.\n\nLet's get started! What role are you looking to hire for?";
+        } else if (filledCount < 11) {
+          // Some data exists - acknowledge it and ask about what's missing
+          greeting += `I can see you've already provided some information (${filledCount}/11 fields). Great start! 🎉\n\nLet me ask you about the remaining details to complete your HireCard strategy.`;
+          
+          // Intelligently ask about the first missing field
+          if (!extractedData.roleTitle) {
+            greeting += "\n\nFirst, what role are you hiring for?";
+          } else if (!extractedData.department) {
+            greeting += "\n\nWhat department is this role for?";
+          } else if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) {
+            greeting += "\n\nWhat are the critical technical skills this person must have?";
+          } else if (!extractedData.experienceLevel) {
+            greeting += "\n\nWhat experience level are you looking for?";
+          } else if (!extractedData.nonNegotiables) {
+            greeting += "\n\nWhat are the must-have requirements for this role?";
+          } else if (!extractedData.minSalary || !extractedData.maxSalary) {
+            greeting += "\n\nWhat's your salary range for this position?";
+          } else if (!extractedData.location) {
+            greeting += "\n\nWhere is this position located?";
+          } else if (!extractedData.workModel) {
+            greeting += "\n\nIs this role remote, hybrid, or on-site?";
+          } else if (!extractedData.timeline) {
+            greeting += "\n\nWhat's your timeline for filling this position?";
+          } else if (!extractedData.flexible) {
+            greeting += "\n\nAny nice-to-have skills or flexible requirements?";
+          }
+        } else {
+          // All data is filled!
+          greeting += "Wow! I can see all your information is already filled in. Perfect! 🎉\n\nLet me generate your HireCard strategy now!";
+          setTimeout(() => {
+            handleComplete();
+          }, 2000);
+        }
+        
         addAssistantMessage(greeting);
       }, 500);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [dataLoaded, extractedData]);
 
 
   // Focus input without scrolling
@@ -187,9 +285,12 @@ export default function ConversationalChatbot() {
         // Update extracted data with new information
         Object.keys(extractionResult.extracted).forEach((key) => {
           if (extractionResult.extracted[key]) {
-            // For skills array, merge with existing
-            if (key === "skills" && Array.isArray(extractionResult.extracted[key])) {
-              updatedExtractedData.criticalSkill = extractionResult.extracted[key][0] || updatedExtractedData.criticalSkill;
+            // For criticalSkills array, merge with existing
+            if (key === "criticalSkills" && Array.isArray(extractionResult.extracted[key])) {
+              const existingSkills = updatedExtractedData.criticalSkills || [];
+              const newSkills = extractionResult.extracted[key];
+              // Merge and deduplicate
+              updatedExtractedData.criticalSkills = [...new Set([...existingSkills, ...newSkills])];
             } else {
               (updatedExtractedData as any)[key] = extractionResult.extracted[key];
             }
@@ -200,8 +301,11 @@ export default function ConversationalChatbot() {
         setExtractedData(updatedExtractedData);
 
         // Update completeness
-        const newFilledCount = Object.values(updatedExtractedData).filter((v) => v !== null && v !== "").length;
-        setCompleteness(Math.round((newFilledCount / 10) * 100));
+        const newFilledCount = Object.values(updatedExtractedData).filter((v) => {
+          if (Array.isArray(v)) return v.length > 0;
+          return v !== null && v !== "";
+        }).length;
+        setCompleteness(Math.round((newFilledCount / 11) * 100));
       }
 
       // STEP 2: Get AI response with the LATEST extracted data
@@ -245,20 +349,124 @@ export default function ConversationalChatbot() {
     }
   };
 
+  const handleURLDataExtracted = (data: any) => {
+    // Update extracted data with scraped information
+    const updatedData: Partial<ExtractedData> = {};
+
+    if (data.roleTitle) updatedData.roleTitle = data.roleTitle;
+    if (data.department) updatedData.department = data.department;
+    if (data.experienceLevel) updatedData.experienceLevel = data.experienceLevel;
+    if (data.location) updatedData.location = data.location;
+    if (data.workModel) updatedData.workModel = data.workModel;
+    if (data.criticalSkills) {
+      // Handle both array and string formats
+      if (Array.isArray(data.criticalSkills)) {
+        updatedData.criticalSkills = data.criticalSkills;
+      } else if (typeof data.criticalSkills === 'string') {
+        updatedData.criticalSkills = data.criticalSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+      }
+    } else if (data.criticalSkill) {
+      // Fallback for old format
+      updatedData.criticalSkills = [data.criticalSkill];
+    }
+    if (data.minSalary) updatedData.minSalary = data.minSalary;
+    if (data.maxSalary) updatedData.maxSalary = data.maxSalary;
+    if (data.nonNegotiables) updatedData.nonNegotiables = data.nonNegotiables;
+    if (data.flexible) updatedData.flexible = data.flexible;
+    if (data.timeline) updatedData.timeline = data.timeline;
+
+    // Create new extracted data by merging with existing
+    const newExtractedData = { ...extractedData, ...updatedData };
+    
+    // Update state immediately
+    setExtractedData(newExtractedData);
+
+    // Update completeness
+    const filledCount = Object.values(newExtractedData).filter(v => {
+      if (Array.isArray(v)) return v.length > 0;
+      return v !== null && v !== "";
+    }).length;
+    setCompleteness(Math.round((filledCount / 11) * 100));
+
+    // Save to sessionStorage (clean structure, no duplicates)
+    const formData = {
+      roleTitle: newExtractedData.roleTitle || "",
+      department: newExtractedData.department || "",
+      experienceLevel: newExtractedData.experienceLevel || "",
+      location: newExtractedData.location || "",
+      workModel: newExtractedData.workModel || "",
+      criticalSkills: newExtractedData.criticalSkills || [], // Array of skills (merged)
+      minSalary: newExtractedData.minSalary || "",
+      maxSalary: newExtractedData.maxSalary || "",
+      nonNegotiables: newExtractedData.nonNegotiables || "", // Requirements (merged)
+      flexible: newExtractedData.flexible || "",
+      timeline: newExtractedData.timeline || "",
+    };
+    sessionStorage.setItem("formData", JSON.stringify(formData));
+    console.log("✅ Chatbot saved to sessionStorage:", formData);
+
+    // Hide URL input after successful extraction
+    setShowURLInput(false);
+
+    // Always trigger greeting after URL extraction
+    setTimeout(() => {
+      const filledFields = Object.entries(newExtractedData).filter(([_, value]) => {
+        if (Array.isArray(value)) return value.length > 0;
+        return value !== null && value !== "";
+      });
+      const filledCount = filledFields.length;
+      
+      let greeting = "Great! I've extracted information from that job posting. 🎉\n\n";
+      greeting += `I found ${filledCount}/11 fields. `;
+      
+      if (filledCount < 11) {
+        greeting += "Let me ask you about the remaining details to complete your HireCard strategy.";
+        
+        // Intelligently ask about the first missing field
+        if (!newExtractedData.roleTitle) {
+          greeting += "\n\nFirst, what role are you hiring for?";
+        } else if (!newExtractedData.department) {
+          greeting += "\n\nWhat department is this role for?";
+        } else if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) {
+          greeting += "\n\nWhat are the critical technical skills this person must have?";
+        } else if (!newExtractedData.experienceLevel) {
+          greeting += "\n\nWhat experience level are you looking for?";
+        } else if (!newExtractedData.nonNegotiables) {
+          greeting += "\n\nWhat are the must-have requirements for this role?";
+        } else if (!newExtractedData.minSalary || !newExtractedData.maxSalary) {
+          greeting += "\n\nWhat's your salary range for this position?";
+        } else if (!newExtractedData.location) {
+          greeting += "\n\nWhere is this position located?";
+        } else if (!newExtractedData.workModel) {
+          greeting += "\n\nIs this role remote, hybrid, or on-site?";
+        } else if (!newExtractedData.timeline) {
+          greeting += "\n\nWhat's your timeline for filling this position?";
+        } else if (!newExtractedData.flexible) {
+          greeting += "\n\nAny nice-to-have skills or flexible requirements?";
+        }
+      } else {
+        greeting += "Perfect! I have everything I need. Let me generate your HireCard strategy now! 🎉";
+        setTimeout(() => {
+          handleComplete();
+        }, 2000);
+      }
+      
+      addAssistantMessage(greeting);
+    }, 500);
+  };
+
   const handleComplete = async () => {
-    // Prepare form data
+    // Prepare form data (clean structure)
     const formData = {
       roleTitle: extractedData.roleTitle || "",
+      department: extractedData.department || "",
       experienceLevel: extractedData.experienceLevel || "",
       location: extractedData.location || "",
       workModel: extractedData.workModel || "",
-      criticalSkill: extractedData.criticalSkill || "",
+      criticalSkills: extractedData.criticalSkills || [], // Array only (no criticalSkill string)
       minSalary: extractedData.minSalary || "",
       maxSalary: extractedData.maxSalary || "",
-      salaryRange: extractedData.minSalary && extractedData.maxSalary 
-        ? `${extractedData.minSalary} - ${extractedData.maxSalary}`
-        : "",
-      nonNegotiables: extractedData.nonNegotiables || "",
+      nonNegotiables: extractedData.nonNegotiables || "", // Single field (no requirements duplicate)
       flexible: extractedData.flexible || "",
       timeline: extractedData.timeline || "",
     };
@@ -289,26 +497,23 @@ export default function ConversationalChatbot() {
     router.push("/results");
   };
 
-  const getFieldLabel = (field: string): string => {
-    const labels: { [key: string]: string } = {
-      roleTitle: "Role",
-      experienceLevel: "Experience",
-      location: "Location",
-      workModel: "Work Model",
-      criticalSkill: "Critical Skill",
-      minSalary: "Min Salary",
-      maxSalary: "Max Salary",
-      nonNegotiables: "Must-Haves",
-      flexible: "Nice-to-Haves",
-      timeline: "Timeline",
-    };
-    return labels[field] || field;
-  };
-
-  const filledFieldsCount = Object.values(extractedData).filter(v => v !== null && v !== "").length;
+  const filledFieldsCount = Object.values(extractedData).filter(v => {
+    if (Array.isArray(v)) return v.length > 0;
+    return v !== null && v !== "";
+  }).length;
 
   return (
     <div className="max-w-4xl mx-auto">
+      {/* Debug Data Viewer */}
+      <DebugDataViewer storageKey="formData" title="Debug: Chat Data" />
+      
+      {/* Job URL Input - Show at the beginning */}
+      {showURLInput && (
+        <div className="mb-4">
+          <JobURLInput onDataExtracted={handleURLDataExtracted} />
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col" style={{ height: "700px" }}>
         {/* Chat Header - Fixed at top */}
         <div className="bg-gradient-to-r from-[#278f8c] to-[#20706e] text-white px-6 py-4 flex-shrink-0">
@@ -324,7 +529,7 @@ export default function ConversationalChatbot() {
             </div>
             <div className="text-right">
               <div className="text-xs text-white/80">Information Collected</div>
-              <div className="text-lg font-bold">{filledFieldsCount}/10</div>
+              <div className="text-lg font-bold">{filledFieldsCount}/11</div>
             </div>
           </div>
         </div>
@@ -406,40 +611,6 @@ export default function ConversationalChatbot() {
               )}
             </button>
           </form>
-
-          {/* Progress Bar */}
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex-1 bg-gray-200 rounded-full h-2">
-              <div
-                className="bg-[#278f8c] h-2 rounded-full transition-all duration-500"
-                style={{ width: `${completeness}%` }}
-              />
-            </div>
-            <span className="text-xs text-gray-600 font-medium min-w-[40px] text-right">
-              {completeness}%
-            </span>
-          </div>
-
-          {/* Extracted Data Preview (Collapsible) */}
-          {filledFieldsCount > 0 && (
-            <details className="mt-3">
-              <summary className="text-xs text-gray-600 cursor-pointer hover:text-gray-800 flex items-center gap-1">
-                <CheckCircle2 className="w-3 h-3" />
-                <span>Captured Information ({filledFieldsCount}/10)</span>
-              </summary>
-              <div className="mt-2 p-3 bg-white rounded-lg border border-gray-200 text-xs space-y-1">
-                {Object.entries(extractedData).map(([key, value]) => {
-                  if (!value) return null;
-                  return (
-                    <div key={key} className="flex justify-between">
-                      <span className="text-gray-600">{getFieldLabel(key)}:</span>
-                      <span className="text-gray-900 font-medium">{value}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </details>
-          )}
         </div>
       </div>
     </div>
