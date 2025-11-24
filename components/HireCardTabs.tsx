@@ -6,8 +6,16 @@ import { OverviewCard } from "./cards/OverviewCard";
 import { RoleCard } from "./cards/RoleCard";
 import { SkillCard } from "./cards/SkillCard";
 import { MarketCard } from "./cards/MarketCard";
+import { TalentMapCard } from "./cards/TalentMapCard";
 import { PayCard } from "./cards/PayCard";
 import { RealityCard } from "./cards/RealityCard";
+import { FunnelCard } from "./cards/FunnelCard";
+import { FitCard } from "./cards/FitCard";
+import { MessageCard } from "./cards/MessageCard";
+import { OutreachCard } from "./cards/OutreachCard";
+import { InterviewCard } from "./cards/InterviewCard";
+import { ScorecardCard } from "./cards/ScorecardCard";
+import { PlanCard } from "./cards/PlanCard";
 
 interface HireCardTabsProps {
   isSubscribed?: boolean;
@@ -71,11 +79,35 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
       case "market":
         content = <MarketCard />;
         break;
+      case "talentmap":
+        content = <TalentMapCard />;
+        break;
       case "pay":
         content = <PayCard />;
         break;
       case "reality":
         content = <RealityCard />;
+        break;
+      case "funnel":
+        content = <FunnelCard />;
+        break;
+      case "fit":
+        content = <FitCard />;
+        break;
+      case "message":
+        content = <MessageCard />;
+        break;
+      case "outreach":
+        content = <OutreachCard />;
+        break;
+      case "interview":
+        content = <InterviewCard />;
+        break;
+      case "scorecard":
+        content = <ScorecardCard />;
+        break;
+      case "plan":
+        content = <PlanCard />;
         break;
       // Add other cards here as we build them
       default:

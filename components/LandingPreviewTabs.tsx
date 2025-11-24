@@ -7,8 +7,16 @@ import { OverviewCard } from "./cards/OverviewCard";
 import { RoleCard } from "./cards/RoleCard";
 import { SkillCard } from "./cards/SkillCard";
 import { MarketCard } from "./cards/MarketCard";
+import { TalentMapCard } from "./cards/TalentMapCard";
 import { PayCard } from "./cards/PayCard";
 import { RealityCard } from "./cards/RealityCard";
+import { FunnelCard } from "./cards/FunnelCard";
+import { FitCard } from "./cards/FitCard";
+import { MessageCard } from "./cards/MessageCard";
+import { OutreachCard } from "./cards/OutreachCard";
+import { InterviewCard } from "./cards/InterviewCard";
+import { ScorecardCard } from "./cards/ScorecardCard";
+import { PlanCard } from "./cards/PlanCard";
 
 export const LandingPreviewTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -44,263 +52,22 @@ export const LandingPreviewTabs: React.FC = () => {
         return <PayCard />;
       case "reality":
         return <RealityCard />;
-      // Placeholder cards for the rest
       case "talentmap":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <Map className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  Talent Map
-                </h2>
-                <p className="text-sm text-gray-600">Where to find candidates</p>
-              </div>
-            </div>
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
-              <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-                Top Talent Sources
-              </h3>
-              <ul className="space-y-2">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 font-bold">•</span>
-                  <span className="text-sm" style={{ color: "#102a63" }}>LinkedIn Outbound</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 font-bold">•</span>
-                  <span className="text-sm" style={{ color: "#102a63" }}>GitHub Activity</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-500 font-bold">•</span>
-                  <span className="text-sm" style={{ color: "#102a63" }}>Community Channels</span>
-                </li>
-              </ul>
-            </div>
-          </div>
-        );
+        return <TalentMapCard />;
       case "funnel":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <BarChart3 className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  Funnel Strategy
-                </h2>
-                <p className="text-sm text-gray-600">Conversion rates & planning</p>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div className="bg-white border-2 border-blue-200 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold mb-1" style={{ color: "#278f8c" }}>100</div>
-                <p className="text-xs font-medium text-gray-600">Outreach</p>
-              </div>
-              <div className="bg-white border-2 border-blue-200 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold mb-1" style={{ color: "#278f8c" }}>15</div>
-                <p className="text-xs font-medium text-gray-600">Responses</p>
-              </div>
-              <div className="bg-white border-2 border-blue-200 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold mb-1" style={{ color: "#278f8c" }}>5</div>
-                <p className="text-xs font-medium text-gray-600">Interviews</p>
-              </div>
-              <div className="bg-white border-2 border-green-200 rounded-lg p-3 text-center">
-                <div className="text-2xl font-bold mb-1" style={{ color: "#278f8c" }}>1-2</div>
-                <p className="text-xs font-medium text-gray-600">Offers</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <FunnelCard />;
       case "fit":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <UserCheck className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  Fit Assessment
-                </h2>
-                <p className="text-sm text-gray-600">Candidate scoring framework</p>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-6">
-              <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-                Must-Have Criteria
-              </h3>
-              <ul className="space-y-2">
-                {[
-                  "3+ years experience",
-                  "Proven ownership",
-                  "Product-minded approach",
-                  "Strong communication"
-                ].map((item, idx) => (
-                  <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: "#102a63" }}>
-                    <span className="text-green-500 font-bold">✓</span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        );
+        return <FitCard />;
       case "message":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <MessageSquare className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  Messaging Strategy
-                </h2>
-                <p className="text-sm text-gray-600">Positioning to attract talent</p>
-              </div>
-            </div>
-            <div className="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-r-lg">
-              <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-                Key Message Points
-              </h3>
-              <ul className="space-y-2">
-                <li className="text-sm" style={{ color: "#102a63" }}>
-                  <strong>Lead with impact</strong>
-                </li>
-                <li className="text-sm" style={{ color: "#102a63" }}>
-                  <strong>Highlight autonomy</strong>
-                </li>
-                <li className="text-sm" style={{ color: "#102a63" }}>
-                  <strong>Show the tech stack</strong>
-                </li>
-              </ul>
-            </div>
-          </div>
-        );
+        return <MessageCard />;
       case "outreach":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <Send className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  Outreach Playbook
-                </h2>
-                <p className="text-sm text-gray-600">Templates that convert</p>
-              </div>
-            </div>
-            <div className="bg-white border-2 border-gray-200 rounded-lg p-6">
-              <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-                Sample Template Preview
-              </h3>
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-sm">
-                <p className="mb-2 text-gray-700">Hi [Name],</p>
-                <p className="mb-2 text-gray-700">
-                  Saw your work on [project]...
-                </p>
-                <p className="text-blue-600 font-medium">[View full template]</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <OutreachCard />;
       case "interview":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <Mic className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  Interview Guide
-                </h2>
-                <p className="text-sm text-gray-600">Structured interview process</p>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <h4 className="font-bold text-sm mb-1" style={{ color: "#102a63" }}>Stage 1: Technical Screen</h4>
-                <p className="text-xs text-gray-600">45 min - SQL & modelling</p>
-              </div>
-              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                <h4 className="font-bold text-sm mb-1" style={{ color: "#102a63" }}>Stage 2: System Design</h4>
-                <p className="text-xs text-gray-600">60 min - Analytics system</p>
-              </div>
-              <div className="bg-green-50 border border-green-200 rounded-lg p-3">
-                <h4 className="font-bold text-sm mb-1" style={{ color: "#102a63" }}>Stage 3: Culture Fit</h4>
-                <p className="text-xs text-gray-600">30 min - Team alignment</p>
-              </div>
-            </div>
-          </div>
-        );
+        return <InterviewCard />;
       case "scorecard":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <ClipboardList className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  Scorecard Template
-                </h2>
-                <p className="text-sm text-gray-600">Evaluation rubric</p>
-              </div>
-            </div>
-            <div className="bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200 rounded-lg p-6">
-              <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-                Scoring Dimensions
-              </h3>
-              <div className="space-y-2">
-                {[
-                  { name: "Technical Skills", weight: "40%" },
-                  { name: "Product Thinking", weight: "25%" },
-                  { name: "Communication", weight: "20%" },
-                  { name: "Culture Fit", weight: "15%" }
-                ].map((dim, idx) => (
-                  <div key={idx} className="flex justify-between items-center bg-white rounded-lg p-2 border border-gray-200">
-                    <span className="text-sm font-medium" style={{ color: "#102a63" }}>{dim.name}</span>
-                    <span className="text-sm font-bold" style={{ color: "#278f8c" }}>{dim.weight}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        );
+        return <ScorecardCard />;
       case "plan":
-        return (
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-                <CalendarCheck className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-                  30-Day Action Plan
-                </h2>
-                <p className="text-sm text-gray-600">Execution roadmap</p>
-              </div>
-            </div>
-            <div className="space-y-3">
-              {[
-                { week: "Week 1", tasks: "Align & prep" },
-                { week: "Week 2", tasks: "Launch outreach" },
-                { week: "Week 3", tasks: "Screen candidates" },
-                { week: "Week 4", tasks: "Interview & offer" }
-              ].map((item, idx) => (
-                <div key={idx} className="bg-white border-l-4 border-blue-500 rounded-r-lg p-3">
-                  <h4 className="font-bold text-sm mb-1" style={{ color: "#102a63" }}>{item.week}</h4>
-                  <p className="text-xs text-gray-600">{item.tasks}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        );
+        return <PlanCard />;
       default:
         return (
           <div className="text-center py-12">
@@ -344,27 +111,22 @@ export const LandingPreviewTabs: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="relative z-10 h-full overflow-y-auto custom-scrollbar pr-2"
+            className="relative z-10 h-full overflow-y-auto pr-2"
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch'
+            } as React.CSSProperties}
           >
             {renderCardContent()}
           </motion.div>
         </AnimatePresence>
       </div>
 
-      {/* Custom Scrollbar Styles */}
-      <style jsx>{`
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: #278f8c;
-          border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: #1a6764;
+      {/* Global style to hide scrollbar */}
+      <style jsx global>{`
+        .overflow-y-auto::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </div>

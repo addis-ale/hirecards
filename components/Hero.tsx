@@ -9,9 +9,19 @@ import {
   TrendingUp,
   CheckCircle,
   XCircle,
+  Search,
+  BarChart3,
+  Globe,
+  Briefcase,
+  Crosshair,
+  LineChart,
+  Microscope,
+  Shield,
+  GraduationCap,
+  Star,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface AnalysisResult {
   score: number;
@@ -29,6 +39,73 @@ export const Hero = () => {
   );
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [missingFields, setMissingFields] = useState<string[]>([]);
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
+  const [loadingProgress, setLoadingProgress] = useState(0);
+
+  const loadingMessages = [
+    { icon: Search, text: "Scanning 1,200+ trusted job market sources..." },
+    { icon: BarChart3, text: "Analyzing real-time salary data from verified databases..." },
+    { icon: Globe, text: "Cross-referencing international market standards..." },
+    { icon: Briefcase, text: "Comparing with similar roles across 50+ industries..." },
+    { icon: Crosshair, text: "Evaluating skill requirements against market demand..." },
+    { icon: LineChart, text: "Processing compensation trends from top companies..." },
+    { icon: Microscope, text: "Running deep analysis on job description clarity..." },
+    { icon: Shield, text: "Validating data accuracy from multiple sources..." },
+    { icon: GraduationCap, text: "Matching requirements with industry certifications..." },
+    { icon: Star, text: "Calculating your competitive positioning score..." },
+  ];
+
+  // Cycle through loading messages every 3 seconds
+  useEffect(() => {
+    if (isAnalyzing) {
+      const interval = setInterval(() => {
+        setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
+      }, 3000);
+      return () => clearInterval(interval);
+    } else {
+      setLoadingMessageIndex(0);
+    }
+  }, [isAnalyzing, loadingMessages.length]);
+
+  // Progress bar animation - synced with actual analysis
+  useEffect(() => {
+    if (isAnalyzing) {
+      setLoadingProgress(5); // Start at 5% immediately
+      const startTime = Date.now();
+      
+      const timer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        
+        // Progress curve: fast at start, slower towards end
+        // 0-10s: reach 50%
+        // 10-30s: reach 85%
+        // 30s+: slowly approach 95%
+        let progress;
+        if (elapsed < 10000) {
+          // First 10 seconds: 5% -> 50%
+          progress = 5 + (elapsed / 10000) * 45;
+        } else if (elapsed < 30000) {
+          // 10-30 seconds: 50% -> 85%
+          progress = 50 + ((elapsed - 10000) / 20000) * 35;
+        } else {
+          // After 30s: slowly approach 95%
+          progress = 85 + Math.min(((elapsed - 30000) / 60000) * 10, 10);
+        }
+        
+        setLoadingProgress(Math.min(progress, 95));
+      }, 200); // Update every 200ms
+      
+      return () => clearInterval(timer);
+    } else {
+      // When analysis completes, set to 100%
+      setLoadingProgress((prev) => {
+        if (prev > 0 && prev < 100) {
+          return 100;
+        }
+        return prev;
+      });
+    }
+  }, [isAnalyzing]);
 
   const getAnalysisResult = (role: string): AnalysisResult => {
     // Simple analysis logic - in production, this would call an AI API
@@ -123,6 +200,20 @@ export const Hero = () => {
           },
           body: JSON.stringify({ input: roleDescription }),
         });
+
+        // Check if response is OK
+        if (!parseResponse.ok) {
+          console.error("API Error:", parseResponse.status, parseResponse.statusText);
+          throw new Error(`API returned ${parseResponse.status}: ${parseResponse.statusText}`);
+        }
+
+        // Check content type before parsing
+        const contentType = parseResponse.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+          const text = await parseResponse.text();
+          console.error("Non-JSON response:", text);
+          throw new Error("Server returned non-JSON response");
+        }
 
         const parseResult = await parseResponse.json();
 
@@ -384,9 +475,197 @@ export const Hero = () => {
               .
             </p>
 
+            {/* Full Screen Loading Dialog */}
+            <AnimatePresence>
+              {isAnalyzing && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto"
+                  style={{ height: '100vh', width: '100vw', backgroundColor: '#f5f5f5' }}
+                >
+                  {/* Prevent body scrolling but allow dialog scrolling */}
+                  <style jsx global>{`
+                    body {
+                      overflow: hidden !important;
+                    }
+                    @keyframes shimmer {
+                      0% { transform: translateX(-100%); }
+                      100% { transform: translateX(100%); }
+                    }
+                  `}</style>
+
+                  <div className="max-w-xl mx-auto px-4 text-center py-8 w-full">
+                    {/* Main Heading */}
+                    <motion.div
+                      initial={{ y: -20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.2 }}
+                      className="mb-3"
+                    >
+                      <h2 className="text-2xl md:text-3xl font-bold mb-1" style={{ color: '#102a63' }}>
+                        KEEP THIS PAGE OPEN
+                      </h2>
+                      <p className="text-base md:text-lg" style={{ color: '#102a63', opacity: 0.8 }}>
+                        Keep this page open to see your personalized hiring analysis!
+                      </p>
+                    </motion.div>
+
+                    {/* Progress Bar */}
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.3 }}
+                      className="mb-3 w-full max-w-md mx-auto"
+                    >
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          <Sparkles className="w-5 h-5 animate-pulse" style={{ color: '#278f8c' }} />
+                          <span className="text-sm font-medium" style={{ color: '#102a63' }}>
+                            Analyzing...
+                          </span>
+                        </div>
+                        <span className="text-lg font-bold" style={{ color: '#278f8c' }}>
+                          {Math.round(loadingProgress)}%
+                        </span>
+                      </div>
+                      {/* Progress bar container */}
+                      <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                        <motion.div
+                          className="h-full rounded-full relative"
+                          style={{ 
+                            width: `${loadingProgress}%`,
+                            backgroundColor: '#278f8c',
+                          }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${loadingProgress}%` }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                        >
+                          {/* Shimmer effect */}
+                          <div 
+                            className="absolute inset-0 opacity-50"
+                            style={{
+                              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)',
+                              animation: 'shimmer 2s infinite',
+                            }}
+                          />
+                        </motion.div>
+                      </div>
+                    </motion.div>
+
+                    {/* Time Estimate */}
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.4 }}
+                      className="mb-3 space-y-1"
+                    >
+                      <div className="inline-block px-3 py-1.5 rounded-full border-2 shadow-sm" style={{ backgroundColor: '#d7f4f2', borderColor: '#278f8c' }}>
+                        <p className="text-sm font-semibold" style={{ color: '#102a63' }}>
+                          Initial generation takes 30–45 seconds
+                        </p>
+                      </div>
+                      <p className="text-sm" style={{ color: '#102a63', opacity: 0.7 }}>
+                        This is completely normal — we&apos;re doing deep market research for you
+                      </p>
+                    </motion.div>
+
+                    {/* Status Messages */}
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.5 }}
+                      className="mb-3"
+                    >
+                      <p className="text-base md:text-lg font-medium mb-2" style={{ color: '#102a63' }}>
+                        We&apos;re analyzing opportunities for you
+                      </p>
+                      
+                      {/* Progress Steps */}
+                      <div className="flex items-center justify-center space-x-1.5 text-sm mb-3">
+                        <motion.span
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          style={{ color: '#278f8c' }}
+                          className="font-medium"
+                        >
+                          Starting
+                        </motion.span>
+                        <span style={{ color: '#102a63', opacity: 0.4 }}>→</span>
+                        <motion.span
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity, delay: 0.5 }}
+                          style={{ color: '#278f8c' }}
+                          className="font-medium"
+                        >
+                          Searching
+                        </motion.span>
+                        <span style={{ color: '#102a63', opacity: 0.4 }}>→</span>
+                        <motion.span
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity, delay: 1 }}
+                          style={{ color: '#278f8c' }}
+                          className="font-medium"
+                        >
+                          Analyzing
+                        </motion.span>
+                        <span style={{ color: '#102a63', opacity: 0.4 }}>→</span>
+                        <motion.span
+                          animate={{ opacity: [0.5, 1, 0.5] }}
+                          transition={{ duration: 2, repeat: Infinity, delay: 1.5 }}
+                          style={{ color: '#278f8c' }}
+                          className="font-medium"
+                        >
+                          Complete
+                        </motion.span>
+                      </div>
+
+                      {/* Rotating Trust Messages */}
+                      <motion.div
+                        key={loadingMessageIndex}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.5 }}
+                        className="min-h-[45px] flex items-center justify-center px-2"
+                      >
+                        <div className="px-3 py-2 rounded-lg bg-white shadow-md border flex items-center space-x-2 max-w-full" style={{ borderColor: '#d7f4f2' }}>
+                          {(() => {
+                            const IconComponent = loadingMessages[loadingMessageIndex].icon;
+                            return <IconComponent className="w-4 h-4 flex-shrink-0" style={{ color: '#278f8c' }} />;
+                          })()}
+                          <p className="text-sm font-medium" style={{ color: '#278f8c' }}>
+                            {loadingMessages[loadingMessageIndex].text}
+                          </p>
+                        </div>
+                      </motion.div>
+                    </motion.div>
+
+                    {/* Inspiration Section */}
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 0.6 }}
+                      className="mt-4 p-3 rounded-lg bg-white shadow-md border-2"
+                      style={{ borderColor: '#d7f4f2' }}
+                    >
+                      <p className="text-sm font-semibold mb-1" style={{ color: '#278f8c' }}>
+                        Hiring Wisdom
+                      </p>
+                      <p className="text-sm leading-relaxed" style={{ color: '#102a63', opacity: 0.8 }}>
+                        While we work, remember: The best hires aren&apos;t always the ones with the most experience — 
+                        they&apos;re the ones who understand your mission and bring the energy to execute it.
+                      </p>
+                    </motion.div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
             {/* Role Description Input Section */}
             <div className="max-w-3xl mx-auto mb-4">
-              <div className="flex flex-col sm:flex-row gap-3 p-2 bg-white rounded-xl shadow-lg border border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-3 p-2 bg-white rounded-xl shadow-lg border border-gray-200 relative">
                 <div className="flex-1 relative">
                   <input
                     type="text"
@@ -394,6 +673,7 @@ export const Hero = () => {
                     onChange={(e) => setRoleDescription(e.target.value)}
                     placeholder="e.g., Senior Backend Engineer in Amsterdam or https://company.com/jobs/123"
                     className="w-full px-4 py-3 text-sm bg-transparent border-0 focus:outline-none focus:ring-0 text-gray-900 placeholder-gray-400"
+                    disabled={isAnalyzing}
                     onKeyPress={(e) => {
                       if (e.key === "Enter") {
                         handleAnalyze();
@@ -404,7 +684,7 @@ export const Hero = () => {
                 <button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing || !roleDescription.trim()}
-                  className="btn-primary flex items-center justify-center space-x-2 text-xs px-4 py-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="btn-primary flex items-center justify-center space-x-2 text-xs px-4 py-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {isAnalyzing ? (
                     <>
@@ -503,7 +783,7 @@ export const Hero = () => {
                                 className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
                               >
                                 <Sparkles className="w-4 h-4" />
-                                <span>Generate Now</span>
+                                <span>Generate Full Cards Now</span>
                               </Link>
 
                               {/* Secondary CTA - Complete for better results */}
@@ -554,6 +834,7 @@ export const Hero = () => {
                         onClick={() => {
                           setShowResults(false);
                           setRoleDescription("");
+                          setLoadingProgress(0);
                         }}
                         className="text-xs font-medium underline hover:no-underline transition-all"
                         style={{ color: "#278f8c" }}
