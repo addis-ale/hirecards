@@ -31,8 +31,8 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
   try {
     console.log("🚀 Starting Puppeteer scrape for:", url);
 
-    // Launch browser
-    browser = await puppeteer.launch({
+    // Try to find system-installed browser (Edge on Windows, Chrome on others)
+    const launchOptions: any = {
       headless: true,
       args: [
         "--no-sandbox",
@@ -40,7 +40,81 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
         "--disable-web-security",
         "--disable-features=IsolateOrigins,site-per-process"
       ],
-    });
+    };
+
+    // Try to find system-installed browsers
+    const fs = require('fs');
+    let browserFound = false;
+
+    if (process.platform === 'win32') {
+      // Windows: Try Edge first (most commonly pre-installed), then Chrome
+      const browserPaths = [
+        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+        'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+      ];
+      
+      for (const browserPath of browserPaths) {
+        try {
+          if (fs.existsSync(browserPath)) {
+            console.log(`✅ Found system browser at: ${browserPath}`);
+            launchOptions.executablePath = browserPath;
+            browserFound = true;
+            break;
+          }
+        } catch (e) {
+          // Continue to next path
+        }
+      }
+    } else if (process.platform === 'darwin') {
+      // macOS: Try Chrome, then Edge
+      const browserPaths = [
+        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+        '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+      ];
+      
+      for (const browserPath of browserPaths) {
+        try {
+          if (fs.existsSync(browserPath)) {
+            console.log(`✅ Found system browser at: ${browserPath}`);
+            launchOptions.executablePath = browserPath;
+            browserFound = true;
+            break;
+          }
+        } catch (e) {
+          // Continue to next path
+        }
+      }
+    } else {
+      // Linux: Try common Chrome/Chromium locations
+      const browserPaths = [
+        '/usr/bin/google-chrome',
+        '/usr/bin/chromium-browser',
+        '/usr/bin/chromium',
+        '/snap/bin/chromium',
+      ];
+      
+      for (const browserPath of browserPaths) {
+        try {
+          if (fs.existsSync(browserPath)) {
+            console.log(`✅ Found system browser at: ${browserPath}`);
+            launchOptions.executablePath = browserPath;
+            browserFound = true;
+            break;
+          }
+        } catch (e) {
+          // Continue to next path
+        }
+      }
+    }
+
+    if (!browserFound) {
+      console.log('⚠️ No system browser found, will use Puppeteer\'s bundled Chrome (requires installation)');
+    }
+
+    // Launch browser (will use Edge if found, otherwise fall back to Puppeteer's Chrome)
+    browser = await puppeteer.launch(launchOptions);
 
     const page = await browser.newPage();
 
