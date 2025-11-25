@@ -23,7 +23,6 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Textarea } from "./ui/textarea";
-import ConversationalChatbot from "./ConversationalChatbot";
 
 interface AnalysisResult {
   score: number;
@@ -43,26 +42,6 @@ export const Hero = () => {
   const [missingFields, setMissingFields] = useState<string[]>([]);
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(0);
-  const [showChatModal, setShowChatModal] = useState(false);
-
-  // Prevent body scroll and hide navbar when modal is open
-  useEffect(() => {
-    if (showChatModal) {
-      // Save current overflow value
-      const originalOverflow = document.body.style.overflow;
-      // Prevent scrolling
-      document.body.style.overflow = "hidden";
-      
-      // Hide navbar by adding a class to body
-      document.body.classList.add("modal-open");
-      
-      // Cleanup: restore original overflow and remove class when modal closes
-      return () => {
-        document.body.style.overflow = originalOverflow;
-        document.body.classList.remove("modal-open");
-      };
-    }
-  }, [showChatModal]);
 
   const loadingMessages = [
     { icon: Search, text: "Scanning 1,200+ trusted job market sources..." },
@@ -274,12 +253,9 @@ export const Hero = () => {
         const inputIsURL = parsedData.isURL;
 
         // Build extracted fields from AI parsing
-        let extractedFields: any = {};
-
-        // Only add roleTitle if it's not the generic fallback
-        if (parsedData.jobTitle && parsedData.jobTitle !== "Job Position") {
-          extractedFields.roleTitle = parsedData.jobTitle;
-        }
+        let extractedFields: any = {
+          roleTitle: parsedData.jobTitle,
+        };
 
         if (parsedData.location) extractedFields.location = parsedData.location;
         if (parsedData.workModel)
@@ -292,28 +268,20 @@ export const Hero = () => {
           extractedFields.criticalSkills = parsedData.skills.join(", ");
         }
 
-        // Determine missing fields (all 10 fields)
+        // Determine missing fields
         let missing: string[] = [];
-        // Treat "Job Position" (generic fallback) as missing title
-        if (!parsedData.jobTitle || parsedData.jobTitle === "Job Position")
-          missing.push("Role Title");
-        if (!parsedData.department) missing.push("Department");
         if (!parsedData.experienceLevel) missing.push("Experience Level");
         if (!parsedData.location) missing.push("Location");
         if (!parsedData.workModel) missing.push("Work Model");
         if (!parsedData.skills || parsedData.skills.length === 0)
           missing.push("Critical Skills");
-        if (!parsedData.minSalary || !parsedData.maxSalary)
-          missing.push("Budget/Salary Range");
-        if (!parsedData.requirements || parsedData.requirements.length === 0)
-          missing.push("Non-Negotiables");
-        if (!parsedData.timeline) missing.push("Timeline");
-        // Flexible field is rarely in job postings, so always consider it missing from URL scraping
-        missing.push("Nice-to-Have Skills");
+        missing.push("Budget/Salary Range");
+        missing.push("Non-Negotiables");
+        missing.push("Timeline");
 
         // Calculate score based on completeness and confidence
-        const fieldsProvided = 10 - missing.length;
-        const completenessScore = (fieldsProvided / 10) * 100;
+        const fieldsProvided = 8 - missing.length;
+        const completenessScore = (fieldsProvided / 8) * 100;
         const confidenceWeight = parsedData.confidence || 0.5;
         let score = Math.round(completenessScore * confidenceWeight);
 
@@ -359,29 +327,13 @@ export const Hero = () => {
         } else {
           score = Math.max(score, 16);
           category = "Ghost Town";
-
-          // Check if we have any meaningful data at all
-          const hasAnyData = Object.keys(extractedFields).length > 0;
-
-          if (!hasAnyData) {
-            message = `${
-              inputIsURL
-                ? "That URL doesn't look like a job posting."
-                : "We need more details."
-            } We couldn't extract any meaningful information. Your score of ${score} is basically a coin flip. This could be a great opportunity or a disaster—we simply don't know. Give us actual job details (role, skills, location, salary, etc.) and we'll give you a real assessment.`;
-          } else {
-            message = `${
-              inputIsURL
-                ? "Dropped a URL but it's thin on details."
-                : "Just a job title?"
-            } We found: ${Object.keys(extractedFields)
-              .map((k) =>
-                k === "roleTitle" ? parsedData.jobTitle : extractedFields[k]
-              )
-              .join(
-                ", "
-              )}. That's it. We gave you a ${score}, but let's be real, we know almost nothing. Your actual clarity could be 70 or it could be 10. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.`;
-          }
+          message = `${
+            inputIsURL
+              ? "Dropped a URL but it's thin on details."
+              : "Just a job title?"
+          } We found: ${parsedData.jobTitle}${
+            parsedData.location ? ` in ${parsedData.location}` : ""
+          }. That's it. We gave you a ${score}, but let's be real, we know almost nothing. Your actual clarity could be 70 or it could be 10. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.`;
         }
 
         setMissingFields(missing);
@@ -402,10 +354,7 @@ export const Hero = () => {
 
         // Convert extracted data to formData format (clean, no duplicates)
         const formData = {
-          roleTitle:
-            parsedData.jobTitle && parsedData.jobTitle !== "Job Position"
-              ? parsedData.jobTitle
-              : "",
+          roleTitle: parsedData.jobTitle || "",
           department: parsedData.department || "",
           experienceLevel: parsedData.experienceLevel || "",
           location: parsedData.location || "",
@@ -952,13 +901,13 @@ export const Hero = () => {
                             {/* Two equal buttons side by side on large screens */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
                               {/* Primary CTA - Complete for better results */}
-                              <button
-                                onClick={() => setShowChatModal(true)}
+                              <Link
+                                href="/create"
                                 className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
                               >
                                 <Target className="w-4 h-4" />
                                 <span>Complete Missing Fields</span>
-                              </button>
+                              </Link>
 
                               {/* Secondary CTA - Generate with what we have (for people in a hurry) */}
                               <Link
@@ -1018,76 +967,6 @@ export const Hero = () => {
                       </button>
                     </div>
                   </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Chatbot Modal */}
-            <AnimatePresence>
-              {showChatModal && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-                  onClick={() => setShowChatModal(false)}
-                >
-                  <motion.div
-                    initial={{ scale: 0.9, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.9, opacity: 0 }}
-                    transition={{ duration: 0.3 }}
-                    className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col"
-                    style={{ height: "85vh", maxHeight: "700px" }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {/* Modal Header */}
-                    <div
-                      className="flex items-center justify-between p-4 border-b"
-                      style={{ backgroundColor: "#f5f5f5" }}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <Sparkles
-                          className="w-5 h-5"
-                          style={{ color: "#278f8c" }}
-                        />
-                        <h2
-                          className="text-lg font-bold"
-                          style={{ color: "#102a63" }}
-                        >
-                          Complete Your Hiring Strategy
-                        </h2>
-                      </div>
-                      <button
-                        onClick={() => setShowChatModal(false)}
-                        className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
-                        aria-label="Close"
-                      >
-                        <svg
-                          className="w-5 h-5"
-                          style={{ color: "#102a63" }}
-                          fill="none"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth="2"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path d="M6 18L18 6M6 6l12 12"></path>
-                        </svg>
-                      </button>
-                    </div>
-
-                    {/* Modal Content - Chatbot */}
-                    <div
-                      className="flex-1 min-h-0 flex flex-col"
-                      style={{ backgroundColor: "#f5f5f5" }}
-                    >
-                      <div className="p-4 flex-1 flex flex-col min-h-0">
-                        <ConversationalChatbot />
-                      </div>
-                    </div>
-                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>

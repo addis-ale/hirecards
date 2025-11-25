@@ -55,7 +55,7 @@ export function MessageContent({ children, className, isUser }: MessageContentPr
   return (
     <div
       className={cn(
-        "rounded-2xl px-4 py-3 text-sm leading-relaxed",
+        "rounded-2xl px-4 py-3 text-sm leading-relaxed text-left",
         isUser
           ? "bg-[#278f8c] text-white"
           : "bg-gray-100 text-gray-800",

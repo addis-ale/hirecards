@@ -20,6 +20,7 @@ This guide explains how to implement talent scraping based on job descriptions u
 X-Ray search uses search engine operators to find candidate profiles on public websites. Instead of using LinkedIn's internal search, you use Google/Bing with specific query parameters.
 
 ### Example X-Ray Search Query:
+
 ```
 site:linkedin.com/in/ "Software Engineer" "React" "TypeScript" "San Francisco"
 ```
@@ -107,25 +108,25 @@ export class XRaySearchGenerator {
    */
   static generateLinkedInQuery(requirements: JobRequirements): string {
     const { title, skills, location } = requirements;
-    
-    let query = 'site:linkedin.com/in/';
-    
+
+    let query = "site:linkedin.com/in/";
+
     // Add title
     if (title) {
       query += ` "${title}"`;
     }
-    
+
     // Add skills (use OR for flexibility)
     if (skills && skills.length > 0) {
-      const skillsQuery = skills.map(skill => `"${skill}"`).join(' OR ');
+      const skillsQuery = skills.map((skill) => `"${skill}"`).join(" OR ");
       query += ` (${skillsQuery})`;
     }
-    
+
     // Add location
     if (location) {
       query += ` "${location}"`;
     }
-    
+
     return query;
   }
 
@@ -134,20 +135,23 @@ export class XRaySearchGenerator {
    */
   static generateGitHubQuery(requirements: JobRequirements): string {
     const { skills, location } = requirements;
-    
-    let query = 'site:github.com';
-    
+
+    let query = "site:github.com";
+
     // Add programming languages/skills
     if (skills && skills.length > 0) {
-      const skillsQuery = skills.slice(0, 3).map(skill => `"${skill}"`).join(' ');
+      const skillsQuery = skills
+        .slice(0, 3)
+        .map((skill) => `"${skill}"`)
+        .join(" ");
       query += ` ${skillsQuery}`;
     }
-    
+
     // Add location if available
     if (location) {
       query += ` location:"${location}"`;
     }
-    
+
     return query;
   }
 
@@ -156,15 +160,15 @@ export class XRaySearchGenerator {
    */
   static generateStackOverflowQuery(requirements: JobRequirements): string {
     const { skills } = requirements;
-    
-    let query = 'site:stackoverflow.com/users';
-    
+
+    let query = "site:stackoverflow.com/users";
+
     // Add top skills as tags
     if (skills && skills.length > 0) {
-      const topSkills = skills.slice(0, 3).join(' ');
+      const topSkills = skills.slice(0, 3).join(" ");
       query += ` ${topSkills}`;
     }
-    
+
     return query;
   }
 
@@ -186,7 +190,7 @@ export class XRaySearchGenerator {
 Create file: `lib/jobDescriptionParser.ts`
 
 ```typescript
-import OpenAI from 'openai';
+import OpenAI from "openai";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -215,22 +219,23 @@ Return as JSON with this structure:
 `;
 
   const response = await openai.chat.completions.create({
-    model: 'gpt-4',
+    model: "gpt-4",
     messages: [
       {
-        role: 'system',
-        content: 'You are a recruitment expert that extracts structured data from job descriptions.',
+        role: "system",
+        content:
+          "You are a recruitment expert that extracts structured data from job descriptions.",
       },
       {
-        role: 'user',
+        role: "user",
         content: prompt,
       },
     ],
-    response_format: { type: 'json_object' },
+    response_format: { type: "json_object" },
   });
 
   const content = response.choices[0].message.content;
-  return JSON.parse(content || '{}');
+  return JSON.parse(content || "{}");
 }
 ```
 
@@ -239,7 +244,7 @@ Return as JSON with this structure:
 Create file: `lib/talentSearch.ts`
 
 ```typescript
-import axios from 'axios';
+import axios from "axios";
 
 const GOOGLE_API_KEY = process.env.GOOGLE_CUSTOM_SEARCH_API_KEY;
 const GOOGLE_SEARCH_ENGINE_ID = process.env.GOOGLE_SEARCH_ENGINE_ID;
@@ -260,7 +265,7 @@ export async function performXRaySearch(
 ): Promise<SearchResult[]> {
   try {
     const response = await axios.get(
-      'https://www.googleapis.com/customsearch/v1',
+      "https://www.googleapis.com/customsearch/v1",
       {
         params: {
           key: GOOGLE_API_KEY,
@@ -282,7 +287,7 @@ export async function performXRaySearch(
       displayLink: item.displayLink,
     }));
   } catch (error) {
-    console.error('Error performing X-Ray search:', error);
+    console.error("Error performing X-Ray search:", error);
     return [];
   }
 }
@@ -293,7 +298,7 @@ export async function performXRaySearch(
 Create file: `lib/profileScraper.ts`
 
 ```typescript
-import puppeteer from 'puppeteer';
+import puppeteer from "puppeteer";
 
 /**
  * Scrape LinkedIn profiles using Puppeteer
@@ -302,40 +307,42 @@ import puppeteer from 'puppeteer';
 export async function scrapeLinkedInProfiles(searchQuery: string) {
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
   try {
     const page = await browser.newPage();
-    
+
     // Set user agent to avoid detection
     await page.setUserAgent(
-      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
     );
 
     // Navigate to Google search with X-Ray query
-    const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(searchQuery)}`;
-    await page.goto(googleSearchUrl, { waitUntil: 'networkidle2' });
+    const googleSearchUrl = `https://www.google.com/search?q=${encodeURIComponent(
+      searchQuery
+    )}`;
+    await page.goto(googleSearchUrl, { waitUntil: "networkidle2" });
 
     // Extract search results
     const results = await page.evaluate(() => {
-      const items = Array.from(document.querySelectorAll('.g'));
+      const items = Array.from(document.querySelectorAll(".g"));
       return items.map((item) => {
-        const titleElement = item.querySelector('h3');
-        const linkElement = item.querySelector('a');
-        const snippetElement = item.querySelector('.VwiC3b');
+        const titleElement = item.querySelector("h3");
+        const linkElement = item.querySelector("a");
+        const snippetElement = item.querySelector(".VwiC3b");
 
         return {
-          title: titleElement?.textContent || '',
-          link: linkElement?.getAttribute('href') || '',
-          snippet: snippetElement?.textContent || '',
+          title: titleElement?.textContent || "",
+          link: linkElement?.getAttribute("href") || "",
+          snippet: snippetElement?.textContent || "",
         };
       });
     });
 
     return results;
   } catch (error) {
-    console.error('Error scraping profiles:', error);
+    console.error("Error scraping profiles:", error);
     return [];
   } finally {
     await browser.close();
@@ -350,8 +357,10 @@ export async function scrapeLinkedInProfile(profileUrl: string) {
   // This would require LinkedIn authentication
   // and may violate their Terms of Service
   // Consider using LinkedIn's official API instead
-  
-  throw new Error('Direct LinkedIn profile scraping not recommended. Use LinkedIn API.');
+
+  throw new Error(
+    "Direct LinkedIn profile scraping not recommended. Use LinkedIn API."
+  );
 }
 ```
 
@@ -360,10 +369,10 @@ export async function scrapeLinkedInProfile(profileUrl: string) {
 Create file: `app/api/xray-search/route.ts`
 
 ```typescript
-import { NextRequest, NextResponse } from 'next/server';
-import { parseJobDescription } from '@/lib/jobDescriptionParser';
-import { XRaySearchGenerator } from '@/lib/xraySearchGenerator';
-import { performXRaySearch } from '@/lib/talentSearch';
+import { NextRequest, NextResponse } from "next/server";
+import { parseJobDescription } from "@/lib/jobDescriptionParser";
+import { XRaySearchGenerator } from "@/lib/xraySearchGenerator";
+import { performXRaySearch } from "@/lib/talentSearch";
 
 export async function POST(req: NextRequest) {
   try {
@@ -371,7 +380,7 @@ export async function POST(req: NextRequest) {
 
     if (!jobDescription) {
       return NextResponse.json(
-        { error: 'Job description is required' },
+        { error: "Job description is required" },
         { status: 400 }
       );
     }
@@ -406,9 +415,9 @@ export async function POST(req: NextRequest) {
         stackOverflowResults.length,
     });
   } catch (error: any) {
-    console.error('X-Ray search error:', error);
+    console.error("X-Ray search error:", error);
     return NextResponse.json(
-      { error: error.message || 'Failed to perform X-Ray search' },
+      { error: error.message || "Failed to perform X-Ray search" },
       { status: 500 }
     );
   }
@@ -422,11 +431,11 @@ Create file: `components/XRayTalentSearch.tsx`
 ```typescript
 "use client";
 
-import { useState } from 'react';
-import { Search, Users, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { Search, Users, Loader2 } from "lucide-react";
 
 export default function XRayTalentSearch() {
-  const [jobDescription, setJobDescription] = useState('');
+  const [jobDescription, setJobDescription] = useState("");
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<any>(null);
 
@@ -435,16 +444,16 @@ export default function XRayTalentSearch() {
 
     setLoading(true);
     try {
-      const response = await fetch('/api/xray-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/xray-search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ jobDescription }),
       });
 
       const data = await response.json();
       setResults(data);
     } catch (error) {
-      console.error('Search failed:', error);
+      console.error("Search failed:", error);
     } finally {
       setLoading(false);
     }
@@ -499,8 +508,8 @@ export default function XRayTalentSearch() {
                 <strong>Location:</strong> {results.requirements.location}
               </div>
               <div className="col-span-2">
-                <strong>Skills:</strong>{' '}
-                {results.requirements.skills.join(', ')}
+                <strong>Skills:</strong>{" "}
+                {results.requirements.skills.join(", ")}
               </div>
             </div>
           </div>
@@ -569,11 +578,13 @@ export default function XRayTalentSearch() {
 ### ⚠️ Important Warnings:
 
 1. **LinkedIn Terms of Service**: LinkedIn explicitly prohibits scraping in their ToS. Violating this can result in:
+
    - IP bans
    - Legal action
    - Account termination
 
 2. **Google Custom Search**: Has rate limits and usage quotas
+
    - Free tier: 100 queries/day
    - Paid tier required for production use
 
@@ -585,11 +596,13 @@ export default function XRayTalentSearch() {
 ### Legal Alternatives:
 
 1. **LinkedIn Recruiter API** (Paid)
+
    - Official API access
    - Legal and compliant
    - Better data quality
 
 2. **LinkedIn Recruiter Lite/Full** (Subscription)
+
    - Direct platform access
    - Advanced search features
    - InMail credits
@@ -606,15 +619,15 @@ export default function XRayTalentSearch() {
 
 ```typescript
 // LinkedIn API (requires Recruiter license)
-import { LinkedInAPI } from 'linkedin-api-client';
+import { LinkedInAPI } from "linkedin-api-client";
 
 const linkedin = new LinkedInAPI({
   accessToken: process.env.LINKEDIN_ACCESS_TOKEN,
 });
 
 const searchResults = await linkedin.search({
-  keywords: 'Software Engineer React TypeScript',
-  location: 'San Francisco',
+  keywords: "Software Engineer React TypeScript",
+  location: "San Francisco",
 });
 ```
 
@@ -622,16 +635,16 @@ const searchResults = await linkedin.search({
 
 ```typescript
 // Example: Apollo.io API
-const apolloResponse = await fetch('https://api.apollo.io/v1/people/search', {
-  method: 'POST',
+const apolloResponse = await fetch("https://api.apollo.io/v1/people/search", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json',
-    'X-Api-Key': process.env.APOLLO_API_KEY,
+    "Content-Type": "application/json",
+    "X-Api-Key": process.env.APOLLO_API_KEY,
   },
   body: JSON.stringify({
-    q_keywords: 'Software Engineer',
-    person_titles: ['Software Engineer', 'Senior Developer'],
-    person_locations: ['San Francisco, CA'],
+    q_keywords: "Software Engineer",
+    person_titles: ["Software Engineer", "Senior Developer"],
+    person_locations: ["San Francisco, CA"],
   }),
 });
 ```
@@ -639,18 +652,21 @@ const apolloResponse = await fetch('https://api.apollo.io/v1/people/search', {
 ### Option 3: Google Custom Search API Setup
 
 1. **Create a Programmable Search Engine**:
+
    - Go to: https://programmablesearchengine.google.com/
    - Create new search engine
    - Add sites: linkedin.com, github.com, etc.
    - Get Search Engine ID
 
 2. **Get API Key**:
+
    - Go to: https://console.cloud.google.com/
    - Enable Custom Search API
    - Create credentials
    - Get API key
 
 3. **Add to Environment Variables**:
+
 ```env
 GOOGLE_CUSTOM_SEARCH_API_KEY=your_api_key
 GOOGLE_SEARCH_ENGINE_ID=your_search_engine_id

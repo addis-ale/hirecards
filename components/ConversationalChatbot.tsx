@@ -24,6 +24,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  suggestions?: string[];
 }
 
 interface ExtractedData {
@@ -63,10 +64,57 @@ export default function ConversationalChatbot() {
   const [error, setError] = useState<string | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [showURLInput, setShowURLInput] = useState(true);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatingMessageIndex, setGeneratingMessageIndex] = useState(0);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const conversationMessages = useRef<Array<{ role: string; content: string }>>([]);
   const greetingAdded = useRef(false);
+
+  // Helper function to count filled fields (treat salary range as one field)
+  const countFilledFields = (data: ExtractedData): number => {
+    let count = 0;
+    
+    // Individual fields
+    if (data.roleTitle) count++;
+    if (data.department) count++;
+    if (data.experienceLevel) count++;
+    if (data.location) count++;
+    if (data.workModel) count++;
+    if (data.criticalSkills && data.criticalSkills.length > 0) count++;
+    if (data.nonNegotiables) count++;
+    if (data.flexible) count++;
+    if (data.timeline) count++;
+    
+    // Salary range as ONE field (both min and max needed)
+    if (data.minSalary && data.maxSalary) count++;
+    
+    return count;
+  };
+
+  // Total fields = 10 (salary range counts as 1)
+  const TOTAL_FIELDS = 10;
+
+  const generatingMessages = [
+    "🎯 Analyzing your role requirements...",
+    "💼 Scanning market data for similar positions...",
+    "📊 Calculating competitive salary ranges...",
+    "🔍 Identifying key skill gaps in the market...",
+    "🌐 Cross-referencing with global hiring trends...",
+    "✨ Crafting your personalized HireCard strategy...",
+    "🎨 Generating battle cards and insights...",
+    "🚀 Finalizing your hiring roadmap..."
+  ];
+
+  // Cycle through generating messages
+  useEffect(() => {
+    if (isGenerating) {
+      const interval = setInterval(() => {
+        setGeneratingMessageIndex((prev) => (prev + 1) % generatingMessages.length);
+      }, 2000);
+      return () => clearInterval(interval);
+    }
+  }, [isGenerating, generatingMessages.length]);
 
   // Load any pre-existing data from storage on mount
   useEffect(() => {
@@ -92,15 +140,13 @@ export default function ConversationalChatbot() {
           setExtractedData(newExtractedData);
           
           // Calculate completeness
-          const filledCount = Object.values(newExtractedData).filter(v => {
-            if (Array.isArray(v)) return v.length > 0;
-            return v !== null && v !== "";
-          }).length;
-          setCompleteness(Math.round((filledCount / 11) * 100));
+          const filledCount = countFilledFields(newExtractedData);
+          setCompleteness(Math.round((filledCount / TOTAL_FIELDS) * 100));
           
           // Hide URL input if data already exists
           if (filledCount > 0) {
             setShowURLInput(false);
+            console.log("✅ Loaded existing data, hiding URL input. Fields:", filledCount);
           }
         } catch (err) {
           console.error("Failed to load session data:", err);
@@ -123,20 +169,17 @@ export default function ConversationalChatbot() {
       greetingAdded.current = true;
       setTimeout(() => {
         // Check what data is already available
-        const filledFields = Object.entries(extractedData).filter(([_, value]) => {
-          if (Array.isArray(value)) return value.length > 0;
-          return value !== null && value !== "";
-        });
-        const filledCount = filledFields.length;
+        const filledCount = countFilledFields(extractedData);
         
         let greeting = "Hey there! 👋 I'm your AI hiring assistant. I'm here to help you create a perfect HireCard strategy.\n\n";
+        let suggestions: string[] | undefined = undefined;
         
         if (filledCount === 0) {
           // No data yet - ask for the role
           greeting += "Just tell me about the role you're hiring for, and I'll guide you through the process with a few quick questions.\n\nLet's get started! What role are you looking to hire for?";
-        } else if (filledCount < 11) {
+        } else if (filledCount < TOTAL_FIELDS) {
           // Some data exists - acknowledge it and ask about what's missing
-          greeting += `I can see you've already provided some information (${filledCount}/11 fields). Great start! 🎉\n\nLet me ask you about the remaining details to complete your HireCard strategy.`;
+          greeting += `I can see you've already provided some information (${filledCount}/${TOTAL_FIELDS} fields). Great start! 🎉\n\nLet me ask you about the remaining details to complete your HireCard strategy.`;
           
           // Intelligently ask about the first missing field
           if (!extractedData.roleTitle) {
@@ -153,10 +196,13 @@ export default function ConversationalChatbot() {
             greeting += "\n\nWhat's your salary range for this position?";
           } else if (!extractedData.location) {
             greeting += "\n\nWhere is this position located?";
+            suggestions = ["Remote", "New York, NY", "San Francisco, CA", "London, UK"];
           } else if (!extractedData.workModel) {
             greeting += "\n\nIs this role remote, hybrid, or on-site?";
+            suggestions = ["Remote", "Hybrid", "On-site"];
           } else if (!extractedData.timeline) {
             greeting += "\n\nWhat's your timeline for filling this position?";
+            suggestions = ["Urgent (1-2 weeks)", "Standard (1 month)", "Flexible (2-3 months)"];
           } else if (!extractedData.flexible) {
             greeting += "\n\nAny nice-to-have skills or flexible requirements?";
           }
@@ -168,7 +214,7 @@ export default function ConversationalChatbot() {
           }, 2000);
         }
         
-        addAssistantMessage(greeting);
+        addAssistantMessage(greeting, suggestions);
       }, 500);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -182,7 +228,7 @@ export default function ConversationalChatbot() {
     }
   }, [isLoading]);
 
-  const addAssistantMessage = (content: string) => {
+  const addAssistantMessage = (content: string, suggestions?: string[]) => {
     // Check if this exact message already exists (prevent duplicates)
     setMessages((prev) => {
       const isDuplicate = prev.some(
@@ -197,6 +243,7 @@ export default function ConversationalChatbot() {
         role: "assistant",
         content,
         timestamp: new Date(),
+        suggestions,
       };
       
       conversationMessages.current.push({
@@ -232,14 +279,50 @@ export default function ConversationalChatbot() {
         },
         body: JSON.stringify({
           messages: conversationMessages.current,
+          currentData: extractedData, // Pass current data to prevent resets
         }),
       });
 
       const result = await response.json();
 
       if (result.success) {
-        setExtractedData(result.data);
-        setCompleteness(result.completeness);
+        // IMPORTANT: Merge with existing data, never overwrite with null/empty
+        setExtractedData(prevData => {
+          const mergedData = { ...prevData };
+          
+          // Only update fields that have new non-empty values
+          Object.keys(result.data).forEach((key) => {
+            const newValue = result.data[key];
+            const existingValue = prevData[key as keyof ExtractedData];
+            
+            // Only update if new value is not null/empty
+            if (newValue !== null && newValue !== "" && newValue !== undefined) {
+              if (Array.isArray(newValue) && newValue.length > 0) {
+                // For arrays (like criticalSkills), merge and deduplicate
+                if (Array.isArray(existingValue)) {
+                  mergedData[key as keyof ExtractedData] = [...new Set([...existingValue, ...newValue])] as any;
+                } else {
+                  mergedData[key as keyof ExtractedData] = newValue as any;
+                }
+              } else if (!Array.isArray(newValue)) {
+                // For non-arrays, only update if we don't have a value yet
+                if (!existingValue) {
+                  mergedData[key as keyof ExtractedData] = newValue as any;
+                }
+              }
+            }
+          });
+          
+          return mergedData;
+        });
+        
+        // Recalculate completeness based on merged data
+        setCompleteness(prevCompleteness => {
+          const newFilledCount = countFilledFields(extractedData);
+          const newCompleteness = Math.round((newFilledCount / TOTAL_FIELDS) * 100);
+          // Only update if completeness increased, never decrease
+          return Math.max(prevCompleteness, newCompleteness);
+        });
         
         // Check if conversation is complete
         if (result.isComplete) {
@@ -301,11 +384,8 @@ export default function ConversationalChatbot() {
         setExtractedData(updatedExtractedData);
 
         // Update completeness
-        const newFilledCount = Object.values(updatedExtractedData).filter((v) => {
-          if (Array.isArray(v)) return v.length > 0;
-          return v !== null && v !== "";
-        }).length;
-        setCompleteness(Math.round((newFilledCount / 11) * 100));
+        const newFilledCount = countFilledFields(updatedExtractedData);
+        setCompleteness(Math.round((newFilledCount / TOTAL_FIELDS) * 100));
       }
 
       // STEP 2: Get AI response with the LATEST extracted data
@@ -327,6 +407,23 @@ export default function ConversationalChatbot() {
         
         // Stop loading immediately after adding message
         setIsLoading(false);
+
+        // Save updated data to sessionStorage to prevent any resets
+        const formData = {
+          roleTitle: updatedExtractedData.roleTitle || "",
+          department: updatedExtractedData.department || "",
+          experienceLevel: updatedExtractedData.experienceLevel || "",
+          location: updatedExtractedData.location || "",
+          workModel: updatedExtractedData.workModel || "",
+          criticalSkills: updatedExtractedData.criticalSkills || [],
+          minSalary: updatedExtractedData.minSalary || "",
+          maxSalary: updatedExtractedData.maxSalary || "",
+          nonNegotiables: updatedExtractedData.nonNegotiables || "",
+          flexible: updatedExtractedData.flexible || "",
+          timeline: updatedExtractedData.timeline || "",
+        };
+        sessionStorage.setItem("formData", JSON.stringify(formData));
+        console.log("✅ Updated sessionStorage after user input:", formData);
 
         // Extract data in background (don't block UI)
         extractDataFromConversation();
@@ -410,16 +507,12 @@ export default function ConversationalChatbot() {
 
     // Always trigger greeting after URL extraction
     setTimeout(() => {
-      const filledFields = Object.entries(newExtractedData).filter(([_, value]) => {
-        if (Array.isArray(value)) return value.length > 0;
-        return value !== null && value !== "";
-      });
-      const filledCount = filledFields.length;
+      const filledCount = countFilledFields(newExtractedData);
       
       let greeting = "Great! I've extracted information from that job posting. 🎉\n\n";
-      greeting += `I found ${filledCount}/11 fields. `;
+      greeting += `I found ${filledCount}/${TOTAL_FIELDS} fields. `;
       
-      if (filledCount < 11) {
+      if (filledCount < TOTAL_FIELDS) {
         greeting += "Let me ask you about the remaining details to complete your HireCard strategy.";
         
         // Intelligently ask about the first missing field
@@ -456,6 +549,9 @@ export default function ConversationalChatbot() {
   };
 
   const handleComplete = async () => {
+    // Show generating screen
+    setIsGenerating(true);
+
     // Prepare form data (clean structure)
     const formData = {
       roleTitle: extractedData.roleTitle || "",
@@ -474,47 +570,60 @@ export default function ConversationalChatbot() {
     // Save to sessionStorage
     sessionStorage.setItem("formData", JSON.stringify(formData));
 
-    // Generate cards in background
-    fetch("/api/generate-cards", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    })
-      .then((response) => response.json())
-      .then((result) => {
-        if (result.success) {
-          sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
-          sessionStorage.setItem("sessionId", result.sessionId);
-        }
-      })
-      .catch(() => {
-        // Silently fail
+    try {
+      // Generate cards
+      const response = await fetch("/api/generate-cards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       });
 
-    // Redirect to results
+      const result = await response.json();
+      
+      if (result.success) {
+        sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
+        sessionStorage.setItem("sessionId", result.sessionId);
+      }
+    } catch (error) {
+      console.error("Error generating cards:", error);
+    }
+
+    // Always navigate to results after generation (success or fail)
     router.push("/results");
   };
 
-  const filledFieldsCount = Object.values(extractedData).filter(v => {
-    if (Array.isArray(v)) return v.length > 0;
-    return v !== null && v !== "";
-  }).length;
+  const filledFieldsCount = countFilledFields(extractedData);
 
   return (
-    <div className="max-w-4xl mx-auto">
-      {/* Debug Data Viewer */}
-      <DebugDataViewer storageKey="formData" title="Debug: Chat Data" />
+    <div className="flex flex-col h-full relative">
+      {/* Generating Loading Screen */}
+      {isGenerating && (
+        <div className="absolute inset-0 bg-white z-50 flex items-center justify-center">
+          <div className="text-center">
+            <Loader2 className="w-16 h-16 animate-spin mx-auto mb-6 text-[#278f8c]" />
+            <h3 className="text-2xl font-bold text-[#102a63] mb-2">
+              Generating Your HireCard Strategy
+            </h3>
+            <p className="text-lg text-gray-600 animate-pulse">
+              {generatingMessages[generatingMessageIndex]}
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* Debug Data Viewer - Hidden in modal */}
+      {/* <DebugDataViewer storageKey="formData" title="Debug: Chat Data" /> */}
       
       {/* Job URL Input - Show at the beginning */}
       {showURLInput && (
-        <div className="mb-4">
+        <div className="mb-4 flex-shrink-0">
           <JobURLInput onDataExtracted={handleURLDataExtracted} />
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col" style={{ height: "700px" }}>
+      <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col flex-1 min-h-0">
         {/* Chat Header - Fixed at top */}
         <div className="bg-gradient-to-r from-[#278f8c] to-[#20706e] text-white px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
@@ -529,14 +638,14 @@ export default function ConversationalChatbot() {
             </div>
             <div className="text-right">
               <div className="text-xs text-white/80">Information Collected</div>
-              <div className="text-lg font-bold">{filledFieldsCount}/11</div>
+              <div className="text-lg font-bold">{filledFieldsCount}/{TOTAL_FIELDS}</div>
             </div>
           </div>
         </div>
 
         {/* Messages Container - Scrollable area */}
-        <Conversation className="flex-1 overflow-hidden">
-          <ConversationContent className="data-[conversation-content]" data-conversation-content>
+        <Conversation className="flex-1 min-h-0">
+          <ConversationContent>
             {messages.length === 0 ? (
               <ConversationEmptyState
                 description="Start chatting to create your HireCard strategy. I'll guide you through the process!"
@@ -546,11 +655,30 @@ export default function ConversationalChatbot() {
             ) : (
               <>
                 {messages.map((message) => (
-                  <Message from={message.role} key={message.id}>
-                    <MessageContent isUser={message.role === "user"}>
-                      {message.content}
-                    </MessageContent>
-                  </Message>
+                  <div key={message.id}>
+                    <Message from={message.role}>
+                      <MessageContent isUser={message.role === "user"}>
+                        {message.content}
+                      </MessageContent>
+                    </Message>
+                    {/* Suggestion chips */}
+                    {message.suggestions && message.suggestions.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mt-2 ml-11">
+                        {message.suggestions.map((suggestion, idx) => (
+                          <button
+                            key={idx}
+                            onClick={() => {
+                              setCurrentInput(suggestion);
+                              inputRef.current?.focus();
+                            }}
+                            className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-full hover:bg-[#278f8c] hover:text-white hover:border-[#278f8c] transition-colors duration-200"
+                          >
+                            {suggestion}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                 ))}
 
                 {/* Typing Indicator */}
@@ -589,20 +717,21 @@ export default function ConversationalChatbot() {
 
         {/* Input Area - Fixed at bottom */}
         <div className="border-t border-gray-200 p-4 bg-gray-50 flex-shrink-0">
-          <form onSubmit={handleSendMessage} className="flex gap-2">
+          <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
             <input
               ref={inputRef}
               type="text"
               value={currentInput}
               onChange={(e) => setCurrentInput(e.target.value)}
               placeholder="Type your message..."
-              disabled={isLoading || conversationComplete}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              disabled={isLoading}
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
+              style={{ minHeight: "48px", maxHeight: "48px" }}
             />
             <button
               type="submit"
-              disabled={!currentInput.trim() || isLoading || conversationComplete}
-              className="btn-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+              disabled={!currentInput.trim() || isLoading}
+              className="btn-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-12 flex-shrink-0"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { ArrowDown } from "lucide-react";
-import { ReactNode, useEffect, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState, useCallback } from "react";
 
 interface ConversationProps {
   children: ReactNode;
@@ -26,30 +26,114 @@ interface ConversationContentProps {
 export function ConversationContent({ children, className }: ConversationContentProps) {
   const contentRef = useRef<HTMLDivElement>(null);
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true);
+  const previousChildrenRef = useRef(children);
+  const isUserScrollingRef = useRef(false);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const childCountRef = useRef(0);
 
-  // Scroll to bottom on mount and when children change
-  useEffect(() => {
-    if (shouldAutoScroll && contentRef.current) {
-      // Use setTimeout to ensure DOM is updated
-      setTimeout(() => {
-        if (contentRef.current) {
-          contentRef.current.scrollTop = contentRef.current.scrollHeight;
-        }
-      }, 0);
+  // Robust scroll to bottom function
+  const scrollToBottom = useCallback((smooth = false) => {
+    if (contentRef.current && shouldAutoScroll && !isUserScrollingRef.current) {
+      contentRef.current.scrollTo({
+        top: contentRef.current.scrollHeight,
+        behavior: smooth ? 'smooth' : 'auto',
+      });
     }
-  }, [children, shouldAutoScroll]);
+  }, [shouldAutoScroll]);
+
+  // Scroll to bottom whenever children change (new messages)
+  useEffect(() => {
+    // Count the number of child elements
+    const currentChildCount = React.Children.count(children);
+    const childrenChanged = previousChildrenRef.current !== children || currentChildCount !== childCountRef.current;
+    
+    // Check if children actually changed
+    if (childrenChanged) {
+      previousChildrenRef.current = children;
+      childCountRef.current = currentChildCount;
+      
+      // Immediate scroll
+      scrollToBottom(false);
+      
+      // Use multiple RAF and timeouts to ensure scroll after content renders
+      requestAnimationFrame(() => {
+        scrollToBottom(false);
+        
+        requestAnimationFrame(() => {
+          scrollToBottom(false);
+          
+          // Additional delayed scrolls for slow-rendering content
+          setTimeout(() => scrollToBottom(false), 50);
+          setTimeout(() => scrollToBottom(false), 100);
+          setTimeout(() => scrollToBottom(false), 200);
+          setTimeout(() => scrollToBottom(false), 300);
+        });
+      });
+    }
+  }, [children, shouldAutoScroll, scrollToBottom]);
 
   // Initial scroll to bottom on mount
   useEffect(() => {
-    if (contentRef.current) {
-      contentRef.current.scrollTop = contentRef.current.scrollHeight;
-    }
-  }, []);
+    scrollToBottom(false);
+    
+    // Also scroll after a short delay in case content loads
+    const timeout1 = setTimeout(() => scrollToBottom(false), 100);
+    const timeout2 = setTimeout(() => scrollToBottom(false), 300);
+    
+    return () => {
+      clearTimeout(timeout1);
+      clearTimeout(timeout2);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [scrollToBottom]);
+
+  // Use MutationObserver to detect DOM changes (most reliable for chat messages)
+  useEffect(() => {
+    if (!contentRef.current) return;
+
+    const observer = new MutationObserver(() => {
+      // DOM content changed, scroll to bottom immediately
+      if (shouldAutoScroll && !isUserScrollingRef.current) {
+        // Multiple scroll attempts for reliability
+        scrollToBottom(false);
+        requestAnimationFrame(() => {
+          scrollToBottom(false);
+          setTimeout(() => scrollToBottom(false), 50);
+          setTimeout(() => scrollToBottom(false), 150);
+          setTimeout(() => scrollToBottom(false), 250);
+        });
+      }
+    });
+
+    observer.observe(contentRef.current, {
+      childList: true,      // Watch for added/removed child nodes
+      subtree: true,        // Watch all descendants
+      characterData: true,  // Watch for text content changes
+      attributes: false,    // Don't watch attributes to reduce noise
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [shouldAutoScroll, scrollToBottom]);
 
   const handleScroll = () => {
     if (contentRef.current) {
       const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
       const isAtBottom = Math.abs(scrollHeight - scrollTop - clientHeight) < 50;
+      
+      // Detect if user is manually scrolling
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      
+      isUserScrollingRef.current = true;
+      scrollTimeoutRef.current = setTimeout(() => {
+        isUserScrollingRef.current = false;
+      }, 150);
+      
       setShouldAutoScroll(isAtBottom);
     }
   };
