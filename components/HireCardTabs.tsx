@@ -26,19 +26,19 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
 
   const tabs = [
     { id: "overview", label: "Overview", Icon: LayoutDashboard },
-    { id: "role", label: "Role", Icon: Briefcase, locked: !isSubscribed },
-    { id: "skill", label: "Skills", Icon: Code, locked: !isSubscribed },
-    { id: "market", label: "Market", Icon: TrendingUp, locked: !isSubscribed },
-    { id: "talentmap", label: "Talent Map", Icon: Map, locked: !isSubscribed },
-    { id: "pay", label: "Pay", Icon: DollarSign, locked: !isSubscribed },
-    { id: "reality", label: "Reality", Icon: Target, locked: !isSubscribed },
-    { id: "funnel", label: "Funnel", Icon: BarChart3, locked: !isSubscribed },
-    { id: "fit", label: "Fit", Icon: UserCheck, locked: !isSubscribed },
-    { id: "message", label: "Message", Icon: MessageSquare, locked: !isSubscribed },
-    { id: "outreach", label: "Outreach", Icon: Send, locked: !isSubscribed },
-    { id: "interview", label: "Interview", Icon: Mic, locked: !isSubscribed },
-    { id: "scorecard", label: "Scorecard", Icon: ClipboardList, locked: !isSubscribed },
-    { id: "plan", label: "Plan", Icon: CalendarCheck, locked: !isSubscribed },
+    { id: "role", label: "Role", Icon: Briefcase },
+    { id: "skill", label: "Skills", Icon: Code },
+    { id: "market", label: "Market", Icon: TrendingUp },
+    { id: "talentmap", label: "Talent Map", Icon: Map },
+    { id: "pay", label: "Pay", Icon: DollarSign },
+    { id: "reality", label: "Reality", Icon: Target },
+    { id: "funnel", label: "Funnel", Icon: BarChart3 },
+    { id: "fit", label: "Fit", Icon: UserCheck },
+    { id: "message", label: "Message", Icon: MessageSquare },
+    { id: "outreach", label: "Outreach", Icon: Send },
+    { id: "interview", label: "Interview", Icon: Mic },
+    { id: "scorecard", label: "Scorecard", Icon: ClipboardList },
+    { id: "plan", label: "Plan", Icon: CalendarCheck },
   ];
 
   const handleDownload = () => {
@@ -62,97 +62,43 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   };
 
   const renderCardContent = () => {
-    // Check if current tab is locked (not subscribed and not overview)
-    const isCurrentTabLocked = !isSubscribed && activeTab !== "overview";
-    
-    let content;
     switch (activeTab) {
       case "overview":
-        content = <OverviewCard isSubscribed={isSubscribed} />;
-        break;
+        return <OverviewCard isSubscribed={isSubscribed} />;
       case "role":
-        content = <RoleCard />;
-        break;
+        return <RoleCard />;
       case "skill":
-        content = <SkillCard />;
-        break;
+        return <SkillCard />;
       case "market":
-        content = <MarketCard />;
-        break;
+        return <MarketCard />;
       case "talentmap":
-        content = <TalentMapCard />;
-        break;
+        return <TalentMapCard />;
       case "pay":
-        content = <PayCard />;
-        break;
+        return <PayCard />;
       case "reality":
-        content = <RealityCard />;
-        break;
+        return <RealityCard />;
       case "funnel":
-        content = <FunnelCard />;
-        break;
+        return <FunnelCard />;
       case "fit":
-        content = <FitCard />;
-        break;
+        return <FitCard />;
       case "message":
-        content = <MessageCard />;
-        break;
+        return <MessageCard />;
       case "outreach":
-        content = <OutreachCard />;
-        break;
+        return <OutreachCard />;
       case "interview":
-        content = <InterviewCard />;
-        break;
+        return <InterviewCard />;
       case "scorecard":
-        content = <ScorecardCard />;
-        break;
+        return <ScorecardCard />;
       case "plan":
-        content = <PlanCard />;
-        break;
-      // Add other cards here as we build them
+        return <PlanCard />;
       default:
-        content = (
+        return (
           <div className="text-center py-12">
             <p className="text-gray-500 mb-4">This card is under construction</p>
             <p className="text-sm text-gray-400">More detailed content coming soon...</p>
           </div>
         );
     }
-
-    // If locked, wrap content in blur overlay
-    if (isCurrentTabLocked) {
-      return (
-        <div className="relative min-h-[400px]">
-          {/* Blurred content in background */}
-          <div className="blur-sm pointer-events-none select-none opacity-30">
-            {content}
-          </div>
-          
-          {/* Lock overlay in center */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center bg-white/95 backdrop-blur-sm rounded-3xl p-12 md:p-16 shadow-2xl max-w-2xl mx-4">
-              <Lock className="w-24 h-24 md:w-32 md:h-32 mx-auto mb-6 text-gray-400" />
-              <h3 className="text-3xl md:text-4xl font-bold mb-4" style={{ color: "#102a63" }}>
-                This Card is Locked
-              </h3>
-              <p className="text-lg md:text-xl text-gray-600 mb-8 leading-relaxed">
-                Subscribe to unlock all 13 strategic hiring cards with detailed analysis, 
-                market insights, and actionable strategies.
-              </p>
-              <a
-                href="/pricing"
-                className="inline-flex items-center gap-3 px-8 py-4 text-lg md:text-xl bg-[#278f8c] text-white rounded-xl hover:bg-[#1a6764] transition-all font-semibold shadow-lg hover:shadow-xl"
-              >
-                <Lock className="w-6 h-6" />
-                <span>Unlock All Cards</span>
-              </a>
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return content;
   };
 
   return (
@@ -176,40 +122,56 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
         </button>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden mb-6">
-        <div className="flex overflow-x-auto scrollbar-hide border-b border-gray-200">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              className={`
-                relative flex-shrink-0 px-4 py-3 text-sm font-medium whitespace-nowrap transition-all
-                ${activeTab === tab.id
-                  ? "bg-[#278f8c] text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-50"
-                }
-              `}
-            >
-              <div className="flex items-center gap-2">
-                <tab.Icon className="w-4 h-4" />
-                <span>{tab.label}</span>
-                {tab.locked && (
-                  <Lock className="w-3 h-3" aria-label="locked" />
-                )}
-              </div>
-              {activeTab === tab.id && (
-                <div className="absolute bottom-0 left-0 right-0 h-1 bg-white" />
-              )}
-            </button>
-          ))}
+      {/* Container with border */}
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="flex h-[800px]">
+          {/* Sidebar Navigation */}
+          <div className="w-64 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto">
+            <div className="p-2 space-y-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg text-left
+                    ${activeTab === tab.id
+                      ? "bg-[#278f8c] text-white shadow-md"
+                      : "text-gray-700 hover:bg-gray-50"
+                    }
+                  `}
+                >
+                  <tab.Icon className="w-5 h-5 flex-shrink-0" />
+                  <span className="flex-1">{tab.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Card Content */}
+          <div className="flex-1 min-w-0 h-full overflow-y-auto">
+            <div className="p-6 md:p-8">
+              {renderCardContent()}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Card Content */}
-      <div className="bg-white rounded-lg shadow-lg p-6 md:p-8">
-        {renderCardContent()}
-      </div>
+      
+      {/* Hide scrollbar styling */}
+      <style jsx global>{`
+        .overflow-y-auto::-webkit-scrollbar {
+          width: 6px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .overflow-y-auto::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 3px;
+        }
+        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+      `}</style>
     </div>
   );
 };

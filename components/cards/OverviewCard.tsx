@@ -83,60 +83,6 @@ export const OverviewCard: React.FC<OverviewCardProps> = ({ isSubscribed = false
         </ul>
       </div>
 
-      {/* Locked Cards Preview - Only show when not subscribed */}
-      {!isSubscribed && (
-        <div className="bg-gradient-to-br from-gray-50 to-gray-100 border-2 border-dashed border-gray-300 rounded-xl p-8">
-          <div className="text-center mb-6">
-            <Lock className="w-12 h-12 mx-auto mb-3 text-gray-400" />
-            <h3 className="font-bold text-xl mb-2" style={{ color: "#102a63" }}>
-              Unlock Full Strategy (13 Cards)
-            </h3>
-            <p className="text-sm text-gray-600">
-              Get detailed insights on Role, Skills, Market, Talent Mapping, Compensation, 
-              and 8 more critical cards
-            </p>
-          </div>
-
-          {/* Cards Grid Preview */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-            {[
-              "Role Card",
-              "Skill Card",
-              "Market Card",
-              "Talent Map",
-              "Pay Card",
-              "Reality Card",
-              "Funnel",
-              "Fit"
-            ].map((card, idx) => (
-              <div
-                key={idx}
-                className="bg-white border border-gray-200 rounded-lg p-3 text-center relative overflow-hidden"
-              >
-                <div className="absolute inset-0 bg-gradient-to-t from-gray-200 to-transparent opacity-50" />
-                <div className="relative blur-sm">
-                  <p className="text-xs font-bold text-gray-500">{card}</p>
-                </div>
-                <Lock className="w-4 h-4 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-gray-400" />
-              </div>
-            ))}
-          </div>
-
-          {/* CTA Button */}
-          <div className="text-center">
-            <Link
-              href="/pricing"
-              className="btn-primary inline-flex items-center justify-center space-x-2 px-8 py-4 text-base"
-            >
-              <Sparkles className="w-5 h-5" />
-              <span>Unlock Full HireCard Strategy</span>
-            </Link>
-            <p className="text-xs text-gray-500 mt-3">
-              Complete feasibility analysis, sourcing strategy, and actionable playbook
-            </p>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

@@ -273,41 +273,57 @@ export const Hero = () => {
         const parsedData = parseResult.data;
         const inputIsURL = parsedData.isURL;
 
+        // Helper function to check if a value is valid (not null, not empty, not "Not specified")
+        const isValidValue = (value: any): boolean => {
+          if (!value) return false;
+          if (typeof value === 'string') {
+            const normalized = value.toLowerCase().trim();
+            return normalized !== 'not specified' && 
+                   normalized !== 'n/a' && 
+                   normalized !== 'unknown' &&
+                   normalized !== 'tbd' &&
+                   normalized !== '';
+          }
+          if (Array.isArray(value)) {
+            return value.length > 0 && value.some(v => isValidValue(v));
+          }
+          return true;
+        };
+
         // Build extracted fields from AI parsing
         let extractedFields: any = {};
 
-        // Only add roleTitle if it's not the generic fallback
-        if (parsedData.jobTitle && parsedData.jobTitle !== "Job Position") {
+        // Only add roleTitle if it's not the generic fallback and is valid
+        if (parsedData.jobTitle && 
+            parsedData.jobTitle !== "Job Position" && 
+            isValidValue(parsedData.jobTitle)) {
           extractedFields.roleTitle = parsedData.jobTitle;
         }
 
-        if (parsedData.location) extractedFields.location = parsedData.location;
-        if (parsedData.workModel)
-          extractedFields.workModel = parsedData.workModel;
-        if (parsedData.experienceLevel)
-          extractedFields.experienceLevel = parsedData.experienceLevel;
-        if (parsedData.department)
-          extractedFields.department = parsedData.department;
-        if (parsedData.skills && parsedData.skills.length > 0) {
+        if (isValidValue(parsedData.location)) extractedFields.location = parsedData.location;
+        if (isValidValue(parsedData.workModel)) extractedFields.workModel = parsedData.workModel;
+        if (isValidValue(parsedData.experienceLevel)) extractedFields.experienceLevel = parsedData.experienceLevel;
+        if (isValidValue(parsedData.department)) extractedFields.department = parsedData.department;
+        if (parsedData.skills && parsedData.skills.length > 0 && isValidValue(parsedData.skills)) {
           extractedFields.criticalSkills = parsedData.skills.join(", ");
         }
 
-        // Determine missing fields (all 10 fields)
+        // Determine missing fields (all 10 fields) - use isValidValue to check
         let missing: string[] = [];
-        // Treat "Job Position" (generic fallback) as missing title
-        if (!parsedData.jobTitle || parsedData.jobTitle === "Job Position")
+        // Treat "Job Position" (generic fallback) or invalid values as missing title
+        if (!parsedData.jobTitle || parsedData.jobTitle === "Job Position" || !isValidValue(parsedData.jobTitle))
           missing.push("Role Title");
-        if (!parsedData.department) missing.push("Department");
-        if (!parsedData.experienceLevel) missing.push("Experience Level");
-        if (!parsedData.location) missing.push("Location");
-        if (!parsedData.workModel) missing.push("Work Model");
-        if (!parsedData.skills || parsedData.skills.length === 0)
+        if (!isValidValue(parsedData.department)) missing.push("Department");
+        if (!isValidValue(parsedData.experienceLevel)) missing.push("Experience Level");
+        if (!isValidValue(parsedData.location)) missing.push("Location");
+        if (!isValidValue(parsedData.workModel)) missing.push("Work Model");
+        if (!parsedData.skills || parsedData.skills.length === 0 || !isValidValue(parsedData.skills))
           missing.push("Critical Skills");
-        if (!parsedData.minSalary || !parsedData.maxSalary)
+        if (!isValidValue(parsedData.minSalary) || !isValidValue(parsedData.maxSalary))
           missing.push("Budget/Salary Range");
-        if (!parsedData.requirements || parsedData.requirements.length === 0)
+        if (!parsedData.requirements || parsedData.requirements.length === 0 || !isValidValue(parsedData.requirements))
           missing.push("Non-Negotiables");
-        if (!parsedData.timeline) missing.push("Timeline");
+        if (!isValidValue(parsedData.timeline)) missing.push("Timeline");
         // Flexible field is rarely in job postings, so always consider it missing from URL scraping
         missing.push("Nice-to-Have Skills");
 
@@ -403,17 +419,17 @@ export const Hero = () => {
         // Convert extracted data to formData format (clean, no duplicates)
         const formData = {
           roleTitle:
-            parsedData.jobTitle && parsedData.jobTitle !== "Job Position"
+            parsedData.jobTitle && parsedData.jobTitle !== "Job Position" && isValidValue(parsedData.jobTitle)
               ? parsedData.jobTitle
               : "",
-          department: parsedData.department || "",
-          experienceLevel: parsedData.experienceLevel || "",
-          location: parsedData.location || "",
-          workModel: parsedData.workModel || "",
-          criticalSkills: parsedData.skills || [], // Array of skills (merged)
+          department: isValidValue(parsedData.department) ? parsedData.department : "",
+          experienceLevel: isValidValue(parsedData.experienceLevel) ? parsedData.experienceLevel : "",
+          location: isValidValue(parsedData.location) ? parsedData.location : "",
+          workModel: isValidValue(parsedData.workModel) ? parsedData.workModel : "",
+          criticalSkills: (parsedData.skills && isValidValue(parsedData.skills)) ? parsedData.skills : [], // Array of skills (merged)
           minSalary: "",
           maxSalary: "",
-          nonNegotiables: parsedData.requirements?.slice(0, 3).join(", ") || "", // Requirements (merged)
+          nonNegotiables: (parsedData.requirements && isValidValue(parsedData.requirements)) ? parsedData.requirements.slice(0, 3).join(", ") : "", // Requirements (merged)
           flexible: "",
           timeline: "",
         };
@@ -426,17 +442,35 @@ export const Hero = () => {
         // Only save to formData if a URL was actually scraped (has significant data)
         // If user just typed text, don't pre-fill the chatbot
         const hasSignificantData =
-          parsedData.skills?.length > 0 ||
-          parsedData.experienceLevel ||
-          parsedData.location;
+          (parsedData.skills?.length > 0 && isValidValue(parsedData.skills)) ||
+          isValidValue(parsedData.experienceLevel) ||
+          isValidValue(parsedData.location) ||
+          isValidValue(parsedData.workModel) ||
+          isValidValue(parsedData.department);
         if (hasSignificantData) {
           sessionStorage.setItem("formData", JSON.stringify(formData));
           console.log("✅ Hero saved URL-scraped data to formData:", formData);
         } else {
-          // Clear formData so chatbot starts fresh
+          // Clear formData so chatbot starts fresh with 0/10
           sessionStorage.removeItem("formData");
+          // Also ensure missing fields shows all 10 fields
+          if (missing.length < 10) {
+            missing = [
+              "Role Title",
+              "Department",
+              "Experience Level",
+              "Location",
+              "Work Model",
+              "Critical Skills",
+              "Budget/Salary Range",
+              "Non-Negotiables",
+              "Timeline",
+              "Nice-to-Have Skills"
+            ];
+            setMissingFields(missing);
+          }
           console.log(
-            "✅ Hero cleared formData (user typed text, chatbot will start fresh)"
+            "✅ Hero cleared formData (irrelevant URL or no data, chatbot will start fresh with 0/10)"
           );
         }
 
@@ -513,15 +547,16 @@ export const Hero = () => {
             transition={{ duration: 0.6 }}
           >
             <h1
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-tight mt-16 md:mt-20"
+              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-relaxed mt-8 md:mt-12"
               style={{ color: "#102a63" }}
             >
-              Instant{" "}
+              YOUR HIRING PROCESS<br />
+              IS PROBABLY TRASH ANYWAY.<br />
               <span
-                className="px-3 py-1 rounded-lg"
+                className="px-2 py-0.5 rounded-lg"
                 style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
               >
-                Hiring Reality Check
+                PROVE US WRONG.
               </span>
             </h1>
 
@@ -545,13 +580,13 @@ export const Hero = () => {
             </p>
 
             <p
-              className="text-lg md:text-xl mb-4 max-w-3xl mx-auto leading-relaxed"
+              className="text-base md:text-lg mb-4 max-w-3xl mx-auto leading-relaxed"
               style={{ color: "#102a63", opacity: 0.8 }}
             >
               Paste a job URL or add a few role details. Get a full hiring
               strategy in under{" "}
               <span
-                className="px-2 py-1 rounded-lg font-bold"
+                className="px-1.5 py-0.5 rounded-lg font-bold"
                 style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
               >
                 5 minutes

@@ -55,8 +55,7 @@ export default function InteractiveResultsPreview() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg text-slate-600 leading-relaxed"
           >
-            Explore 13 distinct hiring strategies tailored to your constraints. 
-            Instantly compare costs, risks, and timelines in one unified view.
+            See a live example below — a clear, data-driven view of your best hiring options, including cost, timing, and risk tradeoffs.
           </motion.p>
         </div>
 

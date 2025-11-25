@@ -175,11 +175,28 @@ export default function ConversationalChatbot() {
         let suggestions: string[] | undefined = undefined;
         
         if (filledCount === 0) {
-          // No data yet - ask for the role
-          greeting += "Just tell me about the role you're hiring for, and I'll guide you through the process with a few quick questions.\n\nLet's get started! What role are you looking to hire for?";
+          // No data yet - ask for the role (could be from irrelevant URL or fresh start)
+          greeting += "Let's build your HireCard from scratch. I'll guide you through the process with a few quick questions.\n\nWhat role are you looking to hire for?";
         } else if (filledCount < TOTAL_FIELDS) {
           // Some data exists - acknowledge it and ask about what's missing
-          greeting += `I can see you've already provided some information (${filledCount}/${TOTAL_FIELDS} fields). Great start! 🎉\n\nLet me ask you about the remaining details to complete your HireCard strategy.`;
+          greeting += `I've collected the following information so far:\n\n`;
+          
+          // List what we have
+          let collectedInfo: string[] = [];
+          if (extractedData.roleTitle) collectedInfo.push(`✓ Role Title: ${extractedData.roleTitle}`);
+          if (extractedData.department) collectedInfo.push(`✓ Department: ${extractedData.department}`);
+          if (extractedData.experienceLevel) collectedInfo.push(`✓ Experience Level: ${extractedData.experienceLevel}`);
+          if (extractedData.location) collectedInfo.push(`✓ Location: ${extractedData.location}`);
+          if (extractedData.workModel) collectedInfo.push(`✓ Work Model: ${extractedData.workModel}`);
+          if (extractedData.criticalSkills && extractedData.criticalSkills.length > 0) {
+            collectedInfo.push(`✓ Critical Skills: ${Array.isArray(extractedData.criticalSkills) ? extractedData.criticalSkills.join(", ") : extractedData.criticalSkills}`);
+          }
+          if (extractedData.minSalary && extractedData.maxSalary) collectedInfo.push(`✓ Salary Range: ${extractedData.minSalary} - ${extractedData.maxSalary}`);
+          if (extractedData.nonNegotiables) collectedInfo.push(`✓ Non-Negotiables: ${extractedData.nonNegotiables}`);
+          if (extractedData.timeline) collectedInfo.push(`✓ Timeline: ${extractedData.timeline}`);
+          if (extractedData.flexible) collectedInfo.push(`✓ Nice-to-Haves: ${extractedData.flexible}`);
+          
+          greeting += collectedInfo.join("\n") + `\n\n**Progress: ${filledCount}/${TOTAL_FIELDS} fields complete** 🎉\n\nLet me ask you about the remaining details to complete your HireCard strategy.`;
           
           // Intelligently ask about the first missing field
           if (!extractedData.roleTitle) {
