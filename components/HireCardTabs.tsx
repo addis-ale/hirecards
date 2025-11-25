@@ -19,10 +19,18 @@ import { PlanCard } from "./cards/PlanCard";
 
 interface HireCardTabsProps {
   isSubscribed?: boolean;
+  onCardChange?: () => void;
 }
 
-export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false }) => {
+export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false, onCardChange }) => {
   const [activeTab, setActiveTab] = useState("overview");
+  
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    if (onCardChange) {
+      onCardChange();
+    }
+  };
 
   const tabs = [
     { id: "overview", label: "Overview", Icon: LayoutDashboard },
@@ -131,7 +139,7 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
               {tabs.map((tab) => (
                 <button
                   key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`
                     w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg text-left
                     ${activeTab === tab.id

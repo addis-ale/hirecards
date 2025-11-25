@@ -178,25 +178,8 @@ export default function ConversationalChatbot() {
           // No data yet - ask for the role (could be from irrelevant URL or fresh start)
           greeting += "Let's build your HireCard from scratch. I'll guide you through the process with a few quick questions.\n\nWhat role are you looking to hire for?";
         } else if (filledCount < TOTAL_FIELDS) {
-          // Some data exists - acknowledge it and ask about what's missing
-          greeting += `I've collected the following information so far:\n\n`;
-          
-          // List what we have
-          let collectedInfo: string[] = [];
-          if (extractedData.roleTitle) collectedInfo.push(`✓ Role Title: ${extractedData.roleTitle}`);
-          if (extractedData.department) collectedInfo.push(`✓ Department: ${extractedData.department}`);
-          if (extractedData.experienceLevel) collectedInfo.push(`✓ Experience Level: ${extractedData.experienceLevel}`);
-          if (extractedData.location) collectedInfo.push(`✓ Location: ${extractedData.location}`);
-          if (extractedData.workModel) collectedInfo.push(`✓ Work Model: ${extractedData.workModel}`);
-          if (extractedData.criticalSkills && extractedData.criticalSkills.length > 0) {
-            collectedInfo.push(`✓ Critical Skills: ${Array.isArray(extractedData.criticalSkills) ? extractedData.criticalSkills.join(", ") : extractedData.criticalSkills}`);
-          }
-          if (extractedData.minSalary && extractedData.maxSalary) collectedInfo.push(`✓ Salary Range: ${extractedData.minSalary} - ${extractedData.maxSalary}`);
-          if (extractedData.nonNegotiables) collectedInfo.push(`✓ Non-Negotiables: ${extractedData.nonNegotiables}`);
-          if (extractedData.timeline) collectedInfo.push(`✓ Timeline: ${extractedData.timeline}`);
-          if (extractedData.flexible) collectedInfo.push(`✓ Nice-to-Haves: ${extractedData.flexible}`);
-          
-          greeting += collectedInfo.join("\n") + `\n\n**Progress: ${filledCount}/${TOTAL_FIELDS} fields complete** 🎉\n\nLet me ask you about the remaining details to complete your HireCard strategy.`;
+          // Some data exists - acknowledge it briefly
+          greeting += `${filledCount}/${TOTAL_FIELDS} fields filled. Not terrible. But we're not done dissecting this yet.`;
           
           // Intelligently ask about the first missing field
           if (!extractedData.roleTitle) {
@@ -446,8 +429,20 @@ export default function ConversationalChatbot() {
         extractDataFromConversation();
 
         // Check if assistant says it's complete
-        if (chatResult.message.toLowerCase().includes("i have everything") ||
-            chatResult.message.toLowerCase().includes("generate your hirecard")) {
+        const completionPhrases = [
+          "i have everything",
+          "generate your hirecard",
+          "*generate* your hirecard",
+          "generating your hirecard",
+          "you actually finished",
+          "alright, you actually finished",
+          "let me roast"
+        ];
+        
+        const messageLower = chatResult.message.toLowerCase();
+        const isComplete = completionPhrases.some(phrase => messageLower.includes(phrase));
+        
+        if (isComplete) {
           setTimeout(() => {
             handleComplete();
           }, 2000);
@@ -496,11 +491,8 @@ export default function ConversationalChatbot() {
     setExtractedData(newExtractedData);
 
     // Update completeness
-    const filledCount = Object.values(newExtractedData).filter(v => {
-      if (Array.isArray(v)) return v.length > 0;
-      return v !== null && v !== "";
-    }).length;
-    setCompleteness(Math.round((filledCount / 11) * 100));
+    const filledCount = countFilledFields(newExtractedData);
+    setCompleteness(Math.round((filledCount / TOTAL_FIELDS) * 100));
 
     // Save to sessionStorage (clean structure, no duplicates)
     const formData = {
@@ -526,36 +518,39 @@ export default function ConversationalChatbot() {
     setTimeout(() => {
       const filledCount = countFilledFields(newExtractedData);
       
-      let greeting = "Great! I've extracted information from that job posting. 🎉\n\n";
-      greeting += `I found ${filledCount}/${TOTAL_FIELDS} fields. `;
+      let greeting = "";
       
-      if (filledCount < TOTAL_FIELDS) {
-        greeting += "Let me ask you about the remaining details to complete your HireCard strategy.";
+      // Check if this was an irrelevant URL (0 fields extracted)
+      if (filledCount === 0) {
+        greeting = "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
+      } else if (filledCount < TOTAL_FIELDS) {
+        greeting = `Pulled ${filledCount}/${TOTAL_FIELDS} fields. Could be worse.\n\n`;
+        greeting += "Time to fill the gaps. No excuses.";
         
-        // Intelligently ask about the first missing field
+        // Intelligently ask about the first missing field with maximum sass
         if (!newExtractedData.roleTitle) {
-          greeting += "\n\nFirst, what role are you hiring for?";
+          greeting += "\n\nJob title? And if you're about to type 'Rockstar Ninja,' save us both the pain and don't.";
         } else if (!newExtractedData.department) {
-          greeting += "\n\nWhat department is this role for?";
+          greeting += "\n\nDepartment? Engineering? Marketing? Or is this one of those 'cross-functional vibes-only' roles?";
         } else if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) {
-          greeting += "\n\nWhat are the critical technical skills this person must have?";
+          greeting += "\n\nMust-have skills? Not the fantasy wishlist. The actual deal-breakers.";
         } else if (!newExtractedData.experienceLevel) {
-          greeting += "\n\nWhat experience level are you looking for?";
+          greeting += "\n\nExperience level? Entry, mid, senior? Or the illegal combo: '10 years experience, entry-level pay'?";
         } else if (!newExtractedData.nonNegotiables) {
-          greeting += "\n\nWhat are the must-have requirements for this role?";
+          greeting += "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
         } else if (!newExtractedData.minSalary || !newExtractedData.maxSalary) {
-          greeting += "\n\nWhat's your salary range for this position?";
+          greeting += "\n\nTime to talk numbers. Salary range? And saying 'competitive' is the corporate equivalent of 'it's complicated.'";
         } else if (!newExtractedData.location) {
-          greeting += "\n\nWhere is this position located?";
+          greeting += "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
         } else if (!newExtractedData.workModel) {
-          greeting += "\n\nIs this role remote, hybrid, or on-site?";
+          greeting += "\n\nRemote, hybrid, or office? Choose wisely. Office-only mandates are basically self-sabotage at this point.";
         } else if (!newExtractedData.timeline) {
-          greeting += "\n\nWhat's your timeline for filling this position?";
+          greeting += "\n\nHow fast do you need this filled? ASAP? Normal pace? Or 'we'll know it when we see it' mode?";
         } else if (!newExtractedData.flexible) {
-          greeting += "\n\nAny nice-to-have skills or flexible requirements?";
+          greeting += "\n\nNice-to-haves? The bonus skills that won't torpedo the hire if missing.";
         }
       } else {
-        greeting += "Perfect! I have everything I need. Let me generate your HireCard strategy now! 🎉";
+        greeting = "Okay, that URL was actually legit. Shocked. Pleasantly. 🎯\n\nAlright, let's roast this thing. Generating your HireCard...";
         setTimeout(() => {
           handleComplete();
         }, 2000);
@@ -653,9 +648,17 @@ export default function ConversationalChatbot() {
                 <p className="text-sm text-white/80">Powered by ChatGPT</p>
               </div>
             </div>
-            <div className="text-right">
-              <div className="text-xs text-white/80">Information Collected</div>
-              <div className="text-lg font-bold">{filledFieldsCount}/{TOTAL_FIELDS}</div>
+            <div className="flex flex-col items-end">
+              <div className="text-xs text-white/80 mb-1">Progress</div>
+              <div className="flex items-center gap-2">
+                <div className="w-32 h-2 bg-white/20 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-white transition-all duration-500 ease-out rounded-full"
+                    style={{ width: `${completeness}%` }}
+                  />
+                </div>
+                <span className="text-sm font-semibold">{completeness}%</span>
+              </div>
             </div>
           </div>
         </div>

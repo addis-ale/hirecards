@@ -31,6 +31,9 @@ interface AnalysisResult {
   message: string;
   icon: JSX.Element;
   isIncomplete?: boolean;
+  hasAnyData?: boolean;
+  isInvalidURL?: boolean;
+  isProfileURL?: boolean;
 }
 
 export const Hero = () => {
@@ -204,7 +207,7 @@ export const Hero = () => {
         score,
         category: "Strong",
         message:
-          "You have a realistic shot at hiring well, but even strong setups fail without clarity on must-haves vs. nice-to-haves. The best hiring processes still lose great candidates to poor coordination or unclear selling points.",
+          "You have a realistic shot at hiring well, but even strong setups fail without clarity on must-haves vs. nice-to-haves. The best hiring strategies still lose great candidates to poor coordination or unclear selling points.",
         icon: <CheckCircle className="w-12 h-12" />,
       };
     }
@@ -329,21 +332,33 @@ export const Hero = () => {
 
         // Calculate score based on completeness and confidence
         const fieldsProvided = 10 - missing.length;
-        const completenessScore = (fieldsProvided / 10) * 100;
-        const confidenceWeight = parsedData.confidence || 0.5;
-        let score = Math.round(completenessScore * confidenceWeight);
+        
+        // Check if we have any meaningful data at all
+        const hasAnyData = Object.keys(extractedFields).length > 0;
+        
+        // Check if this is explicitly marked as NOT a job posting or has 0 confidence
+        const isInvalidURL = parsedData.isJobPosting === false || parsedData.confidence === 0;
+        
+        // Check if URL is a profile page (LinkedIn, etc) - profiles are not job postings
+        const urlLower = (typeof roleDescription === 'string' ? roleDescription : '').toLowerCase();
+        const isProfileURL = urlLower.includes('/in/') || urlLower.includes('/profile/');
+        
+        // If all 10 fields are missing OR invalid URL OR no data OR profile page, score = 0
+        let score = 0;
+        if (hasAnyData && !isInvalidURL && !isProfileURL && missing.length < 10) {
+          // Only calculate score if we have valid data
+          const completenessScore = (fieldsProvided / 10) * 100;
+          const confidenceWeight = parsedData.confidence || 0.5;
+          score = Math.round(completenessScore * confidenceWeight);
+          score = Math.max(16, Math.min(85, score));
+        }
 
-        // Adjust score based on quality
-        score = Math.max(16, Math.min(85, score));
-
-        let category = "Low Clarity";
         let message = "";
         let isIncomplete = missing.length > 0;
 
         if (missing.length === 0) {
           // Complete information (from URL)
           score = Math.max(score, 70);
-          category = "Moderate-High Clarity";
           message = `Well, well, look at you with ${
             inputIsURL
               ? "a complete job description URL"
@@ -352,7 +367,6 @@ export const Hero = () => {
           isIncomplete = true; // Still missing salary, timeline, etc.
         } else if (missing.length <= 2) {
           score = Math.max(score, 60);
-          category = "Moderate Clarity";
           message = `Almost there! We extracted: ${Object.keys(extractedFields)
             .map((k) => (k === "roleTitle" ? "role title" : k))
             .join(", ")}. But you're missing the critical ones: ${missing
@@ -362,7 +376,6 @@ export const Hero = () => {
             )}. That ${score} you're seeing? Could swing ±15 points. Give us the full picture and we'll tell you the real clarity score.`;
         } else if (missing.length <= 5) {
           score = Math.max(score, 35);
-          category = "Low Clarity";
           message = `Not bad, but here's where it gets fuzzy. We found: ${Object.keys(
             extractedFields
           )
@@ -373,18 +386,13 @@ export const Hero = () => {
               ", "
             )} and more. That ${score}? It's a guess. Your real score could be 70 if you're paying competitive rates, or 20 if you're lowballing. Fill in what's missing for an accurate reality check.`;
         } else {
-          score = Math.max(score, 16);
-          category = "Ghost Town";
+          // Don't override the score if it's already 0 (all fields missing)
+          if (score !== 0) {
+            score = Math.max(score, 16);
+          }
 
-          // Check if we have any meaningful data at all
-          const hasAnyData = Object.keys(extractedFields).length > 0;
-
-          if (!hasAnyData) {
-            message = `${
-              inputIsURL
-                ? "That URL doesn't look like a job posting."
-                : "We need more details."
-            } We couldn't extract any meaningful information. Your score of ${score} is basically a coin flip. This could be a great opportunity or a disaster—we simply don't know. Give us actual job details (role, skills, location, salary, etc.) and we'll give you a real assessment.`;
+          if (!hasAnyData || isInvalidURL || isProfileURL || missing.length === 10) {
+            message = `Wow, this job posting is about as informative as a blank piece of paper! You've listed fewer details than a mystery novel with the last chapter torn out. Spoiler alert: no one's going to apply for a position when they have no idea what the hell they're getting into. Is this a job, an escape room challenge, or are we just trying to lure in some unsuspecting folks for an experiment in confusion? Let's be real: if you want to attract top talent, give them more than just a cryptic URL and a smiley face. A clarity score of 0 means we literally have nothing. Time to flesh this out before the only thing you attract is tumbleweeds. 🏜️`;
           } else {
             message = `${
               inputIsURL
@@ -398,6 +406,16 @@ export const Hero = () => {
                 ", "
               )}. That's it. We gave you a ${score}, but let's be real, we know almost nothing. Your actual clarity could be 70 or it could be 10. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.`;
           }
+        }
+        
+        // Set category based on FINAL score (after all adjustments)
+        let category = "Ghost Town";
+        if (score >= 70) {
+          category = "Moderate-High Clarity";
+        } else if (score >= 60) {
+          category = "Moderate Clarity";
+        } else if (score >= 35) {
+          category = "Low Clarity";
         }
 
         setMissingFields(missing);
@@ -498,6 +516,9 @@ export const Hero = () => {
             message: aiMessage,
             icon: <AlertTriangle className="w-12 h-12" />,
             isIncomplete: isIncomplete,
+            hasAnyData: hasAnyData,
+            isInvalidURL: isInvalidURL,
+            isProfileURL: isProfileURL,
           };
 
           setAnalysisResult(result);
@@ -511,6 +532,9 @@ export const Hero = () => {
             message: message,
             icon: <AlertTriangle className="w-12 h-12" />,
             isIncomplete: isIncomplete,
+            hasAnyData: hasAnyData,
+            isInvalidURL: isInvalidURL,
+            isProfileURL: isProfileURL,
           };
           setAnalysisResult(result);
           setShowResults(true);
@@ -905,7 +929,7 @@ export const Hero = () => {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -20, scale: 0.95 }}
                   transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="max-w-2xl mx-auto mb-8 mt-6"
+                  className="max-w-3xl mx-auto mb-8 mt-6"
                 >
                   <div
                     className="bg-white rounded-xl shadow-lg border-2 p-6 md:p-8"
@@ -913,20 +937,20 @@ export const Hero = () => {
                   >
                     {/* Score Header */}
                     <div className="flex flex-col items-center mb-4">
-                      <div className="mb-3" style={{ color: "#278f8c" }}>
+                      <div className="mb-3" style={{ color: analysisResult.score === 0 ? "#ef4444" : "#278f8c" }}>
                         {analysisResult.icon}
                       </div>
                       <div className="text-center">
                         <div
                           className="text-5xl md:text-6xl font-bold mb-1"
-                          style={{ color: "#278f8c" }}
+                          style={{ color: analysisResult.score === 0 ? "#ef4444" : "#278f8c" }}
                         >
                           {analysisResult.score}
                           <span className="text-3xl md:text-4xl">/100</span>
                         </div>
                         <div
                           className="text-xl md:text-2xl font-bold"
-                          style={{ color: "#102a63" }}
+                          style={{ color: analysisResult.score === 0 ? "#ef4444" : "#102a63" }}
                         >
                           {analysisResult.category}
                         </div>
@@ -974,48 +998,65 @@ export const Hero = () => {
                                 )
                               )}
                             </div>
-                            <p
-                              className="text-xs text-center mb-3 leading-relaxed"
-                              style={{ color: "#102a63", opacity: 0.8 }}
-                            >
-                              Choose your path: Complete fields for accuracy, or
-                              generate quickly with what we have.
-                            </p>
+                            {analysisResult.score > 0 && (
+                              <p
+                                className="text-xs text-center mb-3 leading-relaxed"
+                                style={{ color: "#102a63", opacity: 0.8 }}
+                              >
+                                Choose your path: Complete fields for accuracy, or
+                                generate quickly with what we have.
+                              </p>
+                            )}
                           </div>
 
                           <div className="mb-4">
-                            {/* Two equal buttons side by side on large screens */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
-                              {/* Primary CTA - Complete for better results */}
-                              <button
-                                onClick={() => setShowChatModal(true)}
-                                className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
-                              >
-                                <Target className="w-4 h-4" />
-                                <span>Complete Missing Fields</span>
-                              </button>
+                            {analysisResult.score > 0 ? (
+                              <>
+                                {/* Two equal buttons side by side on large screens */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
+                                  {/* Primary CTA - Complete for better results */}
+                                  <button
+                                    onClick={() => setShowChatModal(true)}
+                                    className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
+                                  >
+                                    <Target className="w-4 h-4" />
+                                    <span>Complete Missing Fields</span>
+                                  </button>
 
-                              {/* Secondary CTA - Generate with what we have (for people in a hurry) */}
-                              <Link
-                                href="/results"
-                                className="inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5 border-2 rounded-lg font-medium transition-all hover:bg-gray-50"
-                                style={{
-                                  color: "#278f8c",
-                                  borderColor: "#278f8c",
-                                }}
-                              >
-                                <Sparkles className="w-4 h-4" />
-                                <span>Generate Anyway (Quick)</span>
-                              </Link>
-                            </div>
+                                  {/* Secondary CTA - Generate with what we have (for people in a hurry) */}
+                                  <Link
+                                    href="/results"
+                                    className="inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5 border-2 rounded-lg font-medium transition-all hover:bg-gray-50"
+                                    style={{
+                                      color: "#278f8c",
+                                      borderColor: "#278f8c",
+                                    }}
+                                  >
+                                    <Sparkles className="w-4 h-4" />
+                                    <span>Generate Anyway (Quick)</span>
+                                  </Link>
+                                </div>
 
-                            <p
-                              className="text-xs text-center leading-relaxed"
-                              style={{ color: "#102a63", opacity: 0.7 }}
-                            >
-                              Complete fields for accurate results, or generate
-                              quickly with what we have
-                            </p>
+                                <p
+                                  className="text-xs text-center leading-relaxed"
+                                  style={{ color: "#102a63", opacity: 0.7 }}
+                                >
+                                  Complete fields for accurate results, or generate
+                                  quickly with what we have
+                                </p>
+                              </>
+                            ) : (
+                              <>
+                                {/* Only show Complete Fields button when score is 0 */}
+                                <button
+                                  onClick={() => setShowChatModal(true)}
+                                  className="btn-primary w-full inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
+                                >
+                                  <Target className="w-4 h-4" />
+                                  <span>Start Over - Add Job Details</span>
+                                </button>
+                              </>
+                            )}
                           </div>
                         </>
                       ) : (

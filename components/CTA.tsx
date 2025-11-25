@@ -27,16 +27,16 @@ export default function CTA() {
           <div className="inline-flex items-center space-x-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full mb-6">
             <Sparkles className="w-4 h-4" />
             <span className="text-sm font-semibold">
-              Still reading? You&apos;re dangerously curious. We like that.
+              Still scrolling? Okay, you&apos;re committed. Let&apos;s do this.
             </span>
           </div>
 
           <h2 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-            YOUR HIRING PROCESS
+            READY TO STOP
             <br />
-            IS PROBABLY TRASH ANYWAY.
+            WINGING IT?
             <br />
-            <span className="text-3xl md:text-4xl">PROVE US WRONG.</span>
+            <span className="text-3xl md:text-4xl">LET&apos;S BUILD SOMETHING BETTER.</span>
           </h2>
 
           <p className="text-xl md:text-2xl mb-10 opacity-90 leading-relaxed">

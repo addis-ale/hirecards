@@ -203,25 +203,97 @@ function scrapeWorkday($: cheerio.CheerioAPI, url: string): ScrapedJobData {
 }
 
 /**
- * Scrape Ashby job postings
+ * Scrape Ashby job postings  
  */
 function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
-  const title = $('h1.job-title, h1').first().text().trim();
-  const company = $('.company-name').first().text().trim();
-  const location = $('.job-location').first().text().trim();
-  
-  const description = $('.job-description, .description-content').text().trim();
-  
+  // Get all text from the page
   const rawText = $('body').text().replace(/\s+/g, ' ').trim();
+  
+  // Try to find title - Ashby often puts it in h1 or h2
+  let title = '';
+  
+  // Look through all headings and get the first substantial one
+  $('h1, h2, h3').each((_, elem) => {
+    const text = $(elem).text().trim();
+    if (text && text.length > 5 && text.length < 100 && !title) {
+      title = text;
+    }
+  });
+  
+  // Fallback to page title
+  if (!title) {
+    const pageTitle = $('title').text();
+    title = pageTitle.split('|')[0].split('-')[0].trim();
+  }
+  
+  // Extract structured fields from sidebar (Location, Employment Type, etc.)
+  let company = '';
+  let location = '';
+  let employmentType = '';
+  let locationType = '';
+  let department = '';
+  let salary = '';
+  
+  // Ashby often has a sidebar with labeled fields
+  // Look for patterns like "Location\nSydney Office" or "Department\nCommercial"
+  const lines = rawText.split('\n').map(l => l.trim()).filter(l => l);
+  
+  for (let i = 0; i < lines.length - 1; i++) {
+    const current = lines[i];
+    const next = lines[i + 1];
+    
+    if (current === 'Location' && !location) {
+      location = next;
+    } else if (current === 'Employment Type') {
+      employmentType = next;
+    } else if (current === 'Location Type') {
+      locationType = next;
+    } else if (current === 'Department') {
+      department = next;
+    } else if (current === 'Compensation' && i + 1 < lines.length) {
+      // Compensation might span multiple lines
+      salary = lines.slice(i + 1, i + 3).join(' ');
+    }
+  }
+  
+  // Try to find company name in the page
+  // Often appears near the top or in meta tags
+  const companyMeta = $('meta[property="og:site_name"]').attr('content');
+  if (companyMeta) {
+    company = companyMeta;
+  } else {
+    // Look for company name patterns in text
+    $('*').each((_, elem) => {
+      const text = $(elem).text().trim();
+      if (text.match(/^[A-Z][a-zA-Z\s]+$/) && text.length > 3 && text.length < 30 && !company) {
+        company = text;
+      }
+    });
+  }
+  
+  // For Ashby, the entire page text is the best we can get for description
+  // The AI is smart enough to extract the relevant parts
+  const description = rawText;
+  
+  console.log('🔍 Ashby scrape result:', {
+    title: title.substring(0, 50),
+    company,
+    location,
+    locationType,
+    department,
+    salary: salary.substring(0, 50),
+    textLength: description.length
+  });
 
   return {
     title: title || 'Job Position',
-    description: description || rawText,
+    description: description,
     location: location || undefined,
     company: company || undefined,
-    requirements: extractListItems($, 'requirements', description),
-    responsibilities: extractListItems($, 'responsibilities', description),
-    benefits: extractListItems($, 'benefits', description),
+    salary: salary || undefined,
+    requirements: [],
+    responsibilities: [],
+    benefits: [],
     rawText,
     source: 'Ashby',
   };
@@ -322,7 +394,15 @@ export async function parseScrapedJobData(scrapedData: ScrapedJobData): Promise<
   }
 
   try {
-    const prompt = `You are an expert at parsing job descriptions. Extract structured information from the following job posting.
+    console.log('📄 Sending to AI:', {
+      title: scrapedData.title,
+      company: scrapedData.company,
+      location: scrapedData.location,
+      descriptionLength: scrapedData.description.length,
+      descriptionPreview: scrapedData.description.substring(0, 200)
+    });
+    
+    const prompt = `You are an expert at parsing job descriptions. Analyze the following content and determine if it's a legitimate job posting.
 
 Job Title: ${scrapedData.title}
 Company: ${scrapedData.company || 'Not specified'}
@@ -331,7 +411,9 @@ Location: ${scrapedData.location || 'Not specified'}
 Description:
 ${scrapedData.description.substring(0, 4000)}
 
-Extract the following information:
+CRITICAL: First, determine if this is actually a job posting. If it's NOT a job posting (e.g., company homepage, random article, search page, error page), set confidence to 0.0 and return minimal data.
+
+If it IS a valid job posting, extract the following:
 - Job title (clean format)
 - Location (city/state/country or "Remote")
 - Work model (Remote, Hybrid, On-site)
@@ -344,16 +426,17 @@ Extract the following information:
 
 Return ONLY valid JSON with this exact structure:
 {
-  "jobTitle": "extracted role title",
-  "location": "city/country or Remote",
-  "workModel": "Remote/Hybrid/On-site",
-  "experienceLevel": "level",
+  "isJobPosting": true/false,
+  "jobTitle": "extracted role title or null",
+  "location": "city/country or Remote or null",
+  "workModel": "Remote/Hybrid/On-site or null",
+  "experienceLevel": "level or null",
   "minSalary": "number or null",
   "maxSalary": "number or null",
-  "skills": ["skill1", "skill2"],
-  "requirements": ["req1", "req2"],
+  "skills": ["skill1", "skill2"] or [],
+  "requirements": ["req1", "req2"] or [],
   "timeline": "timeline or null",
-  "department": "department",
+  "department": "department or null",
   "confidence": 0.0-1.0
 }`;
 
@@ -386,6 +469,14 @@ Return ONLY valid JSON with this exact structure:
 
     const data = await response.json();
     const parsed = JSON.parse(data.choices[0].message.content);
+    
+    console.log('🤖 AI parsed job data:', {
+      isJobPosting: parsed.isJobPosting,
+      confidence: parsed.confidence,
+      jobTitle: parsed.jobTitle,
+      location: parsed.location,
+      skillsCount: parsed.skills?.length || 0
+    });
 
     return {
       ...parsed,

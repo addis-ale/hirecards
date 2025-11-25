@@ -43,14 +43,29 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
       const result = await response.json();
 
       if (result.success) {
-        setSuccess(true);
-        onDataExtracted(result.data);
+        // Check if this is an irrelevant URL (confidence 0 or no data extracted)
+        const hasData = result.data && (
+          result.data.roleTitle || 
+          result.data.department || 
+          result.data.criticalSkills?.length > 0 ||
+          result.data.location ||
+          result.data.workModel
+        );
         
-        // Reset after a delay
-        setTimeout(() => {
-          setUrl('');
-          setSuccess(false);
-        }, 2000);
+        if (!hasData || result.data.confidence === 0) {
+          // Irrelevant URL detected
+          setError('⚠️ That URL doesn\'t look like a job posting. Try a different link or just type the role details.');
+          onDataExtracted(result.data); // Still pass data (will be empty) to trigger chat response
+        } else {
+          setSuccess(true);
+          onDataExtracted(result.data);
+          
+          // Reset after a delay
+          setTimeout(() => {
+            setUrl('');
+            setSuccess(false);
+          }, 2000);
+        }
       } else {
         setError(result.error || 'Failed to scrape job URL');
       }

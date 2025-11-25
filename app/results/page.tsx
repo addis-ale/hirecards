@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { HireCardTabs } from "@/components/HireCardTabs";
-import { ArrowLeft, Loader2, CheckCircle } from "lucide-react";
+import { ArrowLeft, Loader2, CheckCircle, Share2, X } from "lucide-react";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -13,6 +13,8 @@ export default function ResultsPage() {
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubscribed, setIsSubscribed] = useState(false);
+  const [showShareReminder, setShowShareReminder] = useState(false);
+  const [cardViewCount, setCardViewCount] = useState(0);
 
   useEffect(() => {
     const checkSubscription = () => {
@@ -40,6 +42,42 @@ export default function ResultsPage() {
 
     checkSubscription();
   }, [router]);
+
+  // Show share reminder twice per minute (every 30 seconds)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setShowShareReminder(true);
+      // Auto-hide after 8 seconds
+      setTimeout(() => setShowShareReminder(false), 8000);
+    }, 30000); // Show every 30 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Track card view changes (you can trigger this from HireCardTabs)
+  const handleCardView = () => {
+    setCardViewCount(prev => prev + 1);
+  };
+
+  const handleShareClick = () => {
+    const currentUrl = window.location.href;
+    if (navigator.share) {
+      navigator.share({
+        title: 'Check out my HireCard Strategy!',
+        text: 'I just created a hiring strategy with HireCard. Check it out!',
+        url: currentUrl
+      }).catch(() => {
+        // Fallback to copy to clipboard
+        navigator.clipboard.writeText(currentUrl);
+        alert('Link copied to clipboard!');
+      });
+    } else {
+      // Fallback to copy to clipboard
+      navigator.clipboard.writeText(currentUrl);
+      alert('Link copied to clipboard!');
+    }
+    setShowShareReminder(false);
+  };
 
   const saveToLibrary = () => {
     try {
@@ -181,10 +219,53 @@ export default function ResultsPage() {
 
           {/* HireCard Tabs */}
           <div className="max-w-6xl mx-auto">
-            <HireCardTabs isSubscribed={isSubscribed} />
+            <HireCardTabs isSubscribed={isSubscribed} onCardChange={handleCardView} />
           </div>
         </div>
       </div>
+
+      {/* Share Reminder Toast - Centered */}
+      {showShareReminder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm">
+          <div className="animate-slide-up">
+            <div 
+              className="bg-white rounded-xl shadow-2xl border-2 p-6 max-w-md mx-4"
+              style={{ borderColor: "#278f8c" }}
+            >
+              <button
+                onClick={() => setShowShareReminder(false)}
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+              
+              <div className="flex flex-col items-center text-center">
+                <div 
+                  className="p-4 rounded-full mb-4"
+                  style={{ backgroundColor: "#d7f4f2" }}
+                >
+                  <Share2 className="w-8 h-8" style={{ color: "#278f8c" }} />
+                </div>
+                
+                <h3 className="font-bold text-lg mb-2" style={{ color: "#102a63" }}>
+                  Love your HireCard? 🎯
+                </h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Share your hiring strategy with your team or on social media!
+                </p>
+                <button
+                  onClick={handleShareClick}
+                  className="btn-primary px-6 py-3 inline-flex items-center space-x-2"
+                >
+                  <Share2 className="w-4 h-4" />
+                  <span>Share Link</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </main>
   );
