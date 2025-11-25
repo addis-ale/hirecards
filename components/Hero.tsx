@@ -47,6 +47,7 @@ export const Hero = () => {
   const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [showChatModal, setShowChatModal] = useState(false);
+  const [parsedData, setParsedData] = useState<any>(null);
 
   // Prevent body scroll and hide navbar when modal is open
   useEffect(() => {
@@ -55,10 +56,10 @@ export const Hero = () => {
       const originalOverflow = document.body.style.overflow;
       // Prevent scrolling
       document.body.style.overflow = "hidden";
-      
+
       // Hide navbar by adding a class to body
       document.body.classList.add("modal-open");
-      
+
       // Cleanup: restore original overflow and remove class when modal closes
       return () => {
         document.body.style.overflow = originalOverflow;
@@ -274,21 +275,24 @@ export const Hero = () => {
         }
 
         const parsedData = parseResult.data;
+        setParsedData(parsedData); // Store for debug UI
         const inputIsURL = parsedData.isURL;
 
         // Helper function to check if a value is valid (not null, not empty, not "Not specified")
         const isValidValue = (value: any): boolean => {
           if (!value) return false;
-          if (typeof value === 'string') {
+          if (typeof value === "string") {
             const normalized = value.toLowerCase().trim();
-            return normalized !== 'not specified' && 
-                   normalized !== 'n/a' && 
-                   normalized !== 'unknown' &&
-                   normalized !== 'tbd' &&
-                   normalized !== '';
+            return (
+              normalized !== "not specified" &&
+              normalized !== "n/a" &&
+              normalized !== "unknown" &&
+              normalized !== "tbd" &&
+              normalized !== ""
+            );
           }
           if (Array.isArray(value)) {
-            return value.length > 0 && value.some(v => isValidValue(v));
+            return value.length > 0 && value.some((v) => isValidValue(v));
           }
           return true;
         };
@@ -297,34 +301,60 @@ export const Hero = () => {
         let extractedFields: any = {};
 
         // Only add roleTitle if it's not the generic fallback and is valid
-        if (parsedData.jobTitle && 
-            parsedData.jobTitle !== "Job Position" && 
-            isValidValue(parsedData.jobTitle)) {
+        if (
+          parsedData.jobTitle &&
+          parsedData.jobTitle !== "Job Position" &&
+          isValidValue(parsedData.jobTitle)
+        ) {
           extractedFields.roleTitle = parsedData.jobTitle;
         }
 
-        if (isValidValue(parsedData.location)) extractedFields.location = parsedData.location;
-        if (isValidValue(parsedData.workModel)) extractedFields.workModel = parsedData.workModel;
-        if (isValidValue(parsedData.experienceLevel)) extractedFields.experienceLevel = parsedData.experienceLevel;
-        if (isValidValue(parsedData.department)) extractedFields.department = parsedData.department;
-        if (parsedData.skills && parsedData.skills.length > 0 && isValidValue(parsedData.skills)) {
+        if (isValidValue(parsedData.location))
+          extractedFields.location = parsedData.location;
+        if (isValidValue(parsedData.workModel))
+          extractedFields.workModel = parsedData.workModel;
+        if (isValidValue(parsedData.experienceLevel))
+          extractedFields.experienceLevel = parsedData.experienceLevel;
+        if (isValidValue(parsedData.department))
+          extractedFields.department = parsedData.department;
+        if (
+          parsedData.skills &&
+          parsedData.skills.length > 0 &&
+          isValidValue(parsedData.skills)
+        ) {
           extractedFields.criticalSkills = parsedData.skills.join(", ");
         }
 
         // Determine missing fields (all 10 fields) - use isValidValue to check
         let missing: string[] = [];
         // Treat "Job Position" (generic fallback) or invalid values as missing title
-        if (!parsedData.jobTitle || parsedData.jobTitle === "Job Position" || !isValidValue(parsedData.jobTitle))
+        if (
+          !parsedData.jobTitle ||
+          parsedData.jobTitle === "Job Position" ||
+          !isValidValue(parsedData.jobTitle)
+        )
           missing.push("Role Title");
         if (!isValidValue(parsedData.department)) missing.push("Department");
-        if (!isValidValue(parsedData.experienceLevel)) missing.push("Experience Level");
+        if (!isValidValue(parsedData.experienceLevel))
+          missing.push("Experience Level");
         if (!isValidValue(parsedData.location)) missing.push("Location");
         if (!isValidValue(parsedData.workModel)) missing.push("Work Model");
-        if (!parsedData.skills || parsedData.skills.length === 0 || !isValidValue(parsedData.skills))
+        if (
+          !parsedData.skills ||
+          parsedData.skills.length === 0 ||
+          !isValidValue(parsedData.skills)
+        )
           missing.push("Critical Skills");
-        if (!isValidValue(parsedData.minSalary) || !isValidValue(parsedData.maxSalary))
+        if (
+          !isValidValue(parsedData.minSalary) ||
+          !isValidValue(parsedData.maxSalary)
+        )
           missing.push("Budget/Salary Range");
-        if (!parsedData.requirements || parsedData.requirements.length === 0 || !isValidValue(parsedData.requirements))
+        if (
+          !parsedData.requirements ||
+          parsedData.requirements.length === 0 ||
+          !isValidValue(parsedData.requirements)
+        )
           missing.push("Non-Negotiables");
         if (!isValidValue(parsedData.timeline)) missing.push("Timeline");
         // Flexible field is rarely in job postings, so always consider it missing from URL scraping
@@ -332,20 +362,29 @@ export const Hero = () => {
 
         // Calculate score based on completeness and confidence
         const fieldsProvided = 10 - missing.length;
-        
+
         // Check if we have any meaningful data at all
         const hasAnyData = Object.keys(extractedFields).length > 0;
-        
+
         // Check if this is explicitly marked as NOT a job posting or has 0 confidence
-        const isInvalidURL = parsedData.isJobPosting === false || parsedData.confidence === 0;
-        
+        const isInvalidURL =
+          parsedData.isJobPosting === false || parsedData.confidence === 0;
+
         // Check if URL is a profile page (LinkedIn, etc) - profiles are not job postings
-        const urlLower = (typeof roleDescription === 'string' ? roleDescription : '').toLowerCase();
-        const isProfileURL = urlLower.includes('/in/') || urlLower.includes('/profile/');
-        
+        const urlLower = (
+          typeof roleDescription === "string" ? roleDescription : ""
+        ).toLowerCase();
+        const isProfileURL =
+          urlLower.includes("/in/") || urlLower.includes("/profile/");
+
         // If all 10 fields are missing OR invalid URL OR no data OR profile page, score = 0
         let score = 0;
-        if (hasAnyData && !isInvalidURL && !isProfileURL && missing.length < 10) {
+        if (
+          hasAnyData &&
+          !isInvalidURL &&
+          !isProfileURL &&
+          missing.length < 10
+        ) {
           // Only calculate score if we have valid data
           const completenessScore = (fieldsProvided / 10) * 100;
           const confidenceWeight = parsedData.confidence || 0.5;
@@ -391,7 +430,12 @@ export const Hero = () => {
             score = Math.max(score, 16);
           }
 
-          if (!hasAnyData || isInvalidURL || isProfileURL || missing.length === 10) {
+          if (
+            !hasAnyData ||
+            isInvalidURL ||
+            isProfileURL ||
+            missing.length === 10
+          ) {
             message = `Wow, this job posting is about as informative as a blank piece of paper! You've listed fewer details than a mystery novel with the last chapter torn out. Spoiler alert: no one's going to apply for a position when they have no idea what the hell they're getting into. Is this a job, an escape room challenge, or are we just trying to lure in some unsuspecting folks for an experiment in confusion? Let's be real: if you want to attract top talent, give them more than just a cryptic URL and a smiley face. A clarity score of 0 means we literally have nothing. Time to flesh this out before the only thing you attract is tumbleweeds. 🏜️`;
           } else {
             message = `${
@@ -407,7 +451,7 @@ export const Hero = () => {
               )}. That's it. We gave you a ${score}, but let's be real, we know almost nothing. Your actual clarity could be 70 or it could be 10. This isn't an assessment, it's a coin flip. Give us actual details and we'll give you an actual answer.`;
           }
         }
-        
+
         // Set category based on FINAL score (after all adjustments)
         let category = "Ghost Town";
         if (score >= 70) {
@@ -437,17 +481,33 @@ export const Hero = () => {
         // Convert extracted data to formData format (clean, no duplicates)
         const formData = {
           roleTitle:
-            parsedData.jobTitle && parsedData.jobTitle !== "Job Position" && isValidValue(parsedData.jobTitle)
+            parsedData.jobTitle &&
+            parsedData.jobTitle !== "Job Position" &&
+            isValidValue(parsedData.jobTitle)
               ? parsedData.jobTitle
               : "",
-          department: isValidValue(parsedData.department) ? parsedData.department : "",
-          experienceLevel: isValidValue(parsedData.experienceLevel) ? parsedData.experienceLevel : "",
-          location: isValidValue(parsedData.location) ? parsedData.location : "",
-          workModel: isValidValue(parsedData.workModel) ? parsedData.workModel : "",
-          criticalSkills: (parsedData.skills && isValidValue(parsedData.skills)) ? parsedData.skills : [], // Array of skills (merged)
+          department: isValidValue(parsedData.department)
+            ? parsedData.department
+            : "",
+          experienceLevel: isValidValue(parsedData.experienceLevel)
+            ? parsedData.experienceLevel
+            : "",
+          location: isValidValue(parsedData.location)
+            ? parsedData.location
+            : "",
+          workModel: isValidValue(parsedData.workModel)
+            ? parsedData.workModel
+            : "",
+          criticalSkills:
+            parsedData.skills && isValidValue(parsedData.skills)
+              ? parsedData.skills
+              : [], // Array of skills (merged)
           minSalary: "",
           maxSalary: "",
-          nonNegotiables: (parsedData.requirements && isValidValue(parsedData.requirements)) ? parsedData.requirements.slice(0, 3).join(", ") : "", // Requirements (merged)
+          nonNegotiables:
+            parsedData.requirements && isValidValue(parsedData.requirements)
+              ? parsedData.requirements.slice(0, 3).join(", ")
+              : "", // Requirements (merged)
           flexible: "",
           timeline: "",
         };
@@ -483,7 +543,7 @@ export const Hero = () => {
               "Budget/Salary Range",
               "Non-Negotiables",
               "Timeline",
-              "Nice-to-Have Skills"
+              "Nice-to-Have Skills",
             ];
             setMissingFields(missing);
           }
@@ -574,8 +634,10 @@ export const Hero = () => {
               className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-relaxed mt-8 md:mt-12"
               style={{ color: "#102a63" }}
             >
-              YOUR HIRING STRATEGY<br />
-              IS PROBABLY TRASH ANYWAY.<br />
+              YOUR HIRING STRATEGY
+              <br />
+              IS PROBABLY TRASH ANYWAY.
+              <br />
               <span
                 className="px-2 py-0.5 rounded-lg"
                 style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
@@ -935,22 +997,66 @@ export const Hero = () => {
                     className="bg-white rounded-xl shadow-lg border-2 p-6 md:p-8"
                     style={{ borderColor: "#d7f4f2" }}
                   >
+                    {/* Debug: Scraped Data Preview */}
+                    {parsedData && (
+                      <details className="bg-gray-50 border border-gray-200 rounded p-3 mb-4 text-xs text-left w-full">
+                        <summary className="font-bold cursor-pointer text-gray-700 hover:text-gray-900">
+                          🐛 Debug: View Scraped Data
+                        </summary>
+                        <div className="mt-3 space-y-2">
+                          <div><strong>Job Title:</strong> {parsedData.jobTitle || 'None'}</div>
+                          <div><strong>Company:</strong> {parsedData.company || 'None'}</div>
+                          <div><strong>Location:</strong> {parsedData.location || 'None'}</div>
+                          <div><strong>Work Model:</strong> {parsedData.workModel || 'None'}</div>
+                          <div><strong>Experience Level:</strong> {parsedData.experienceLevel || 'None'}</div>
+                          <div><strong>Department:</strong> {parsedData.department || 'None'}</div>
+                          <div><strong>Salary:</strong> {parsedData.minSalary && parsedData.maxSalary ? `${parsedData.minSalary} - ${parsedData.maxSalary}` : 'None'}</div>
+                          <div><strong>Skills:</strong> {parsedData.skills?.length > 0 ? parsedData.skills.join(', ') : 'None'}</div>
+                          <div><strong>Requirements:</strong> {parsedData.requirements?.length > 0 ? parsedData.requirements.slice(0, 3).join(', ') : 'None'}</div>
+                          <div><strong>Confidence:</strong> {parsedData.confidence || 0}</div>
+                          <div><strong>Is Job Posting:</strong> {parsedData.isJobPosting !== undefined ? (parsedData.isJobPosting ? '✅ Yes' : '❌ No') : 'Unknown'}</div>
+                          <div className="pt-2 border-t border-gray-300">
+                            <strong>Description Preview:</strong>
+                            <div className="mt-1 p-2 bg-white rounded text-xs max-h-32 overflow-y-auto">
+                              {parsedData.description?.substring(0, 500) || 'None'}...
+                            </div>
+                          </div>
+                        </div>
+                      </details>
+                    )}
+
                     {/* Score Header */}
                     <div className="flex flex-col items-center mb-4">
-                      <div className="mb-3" style={{ color: analysisResult.score === 0 ? "#ef4444" : "#278f8c" }}>
+                      <div
+                        className="mb-3"
+                        style={{
+                          color:
+                            analysisResult.score === 0 ? "#ef4444" : "#278f8c",
+                        }}
+                      >
                         {analysisResult.icon}
                       </div>
                       <div className="text-center">
                         <div
                           className="text-5xl md:text-6xl font-bold mb-1"
-                          style={{ color: analysisResult.score === 0 ? "#ef4444" : "#278f8c" }}
+                          style={{
+                            color:
+                              analysisResult.score === 0
+                                ? "#ef4444"
+                                : "#278f8c",
+                          }}
                         >
                           {analysisResult.score}
                           <span className="text-3xl md:text-4xl">/100</span>
                         </div>
                         <div
                           className="text-xl md:text-2xl font-bold"
-                          style={{ color: analysisResult.score === 0 ? "#ef4444" : "#102a63" }}
+                          style={{
+                            color:
+                              analysisResult.score === 0
+                                ? "#ef4444"
+                                : "#102a63",
+                          }}
                         >
                           {analysisResult.category}
                         </div>
@@ -1003,8 +1109,8 @@ export const Hero = () => {
                                 className="text-xs text-center mb-3 leading-relaxed"
                                 style={{ color: "#102a63", opacity: 0.8 }}
                               >
-                                Choose your path: Complete fields for accuracy, or
-                                generate quickly with what we have.
+                                Choose your path: Complete fields for accuracy,
+                                or generate quickly with what we have.
                               </p>
                             )}
                           </div>
@@ -1041,8 +1147,8 @@ export const Hero = () => {
                                   className="text-xs text-center leading-relaxed"
                                   style={{ color: "#102a63", opacity: 0.7 }}
                                 >
-                                  Complete fields for accurate results, or generate
-                                  quickly with what we have
+                                  Complete fields for accurate results, or
+                                  generate quickly with what we have
                                 </p>
                               </>
                             ) : (
