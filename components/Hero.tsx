@@ -574,7 +574,7 @@ export const Hero = () => {
               className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-relaxed mt-8 md:mt-12"
               style={{ color: "#102a63" }}
             >
-              YOUR HIRING PROCESS<br />
+              YOUR HIRING STRATEGY<br />
               IS PROBABLY TRASH ANYWAY.<br />
               <span
                 className="px-2 py-0.5 rounded-lg"
