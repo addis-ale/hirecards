@@ -6,7 +6,8 @@
  */
 
 import * as cheerio from "cheerio";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 interface ScrapedJobData {
   title: string;
@@ -30,91 +31,121 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
 
   try {
     console.log("🚀 Starting Puppeteer scrape for:", url);
+    console.log("📍 Environment:", {
+      isVercel: !!process.env.VERCEL,
+      nodeEnv: process.env.NODE_ENV,
+      platform: process.platform,
+      arch: process.arch,
+      version: process.version,
+    });
 
-    // Try to find system-installed browser (Edge on Windows, Chrome on others)
-    const launchOptions: any = {
+    // Check if running in production (Vercel) or development
+    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production';
+    
+    let launchOptions: any = {
       headless: true,
       args: [
         "--no-sandbox",
         "--disable-setuid-sandbox",
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process"
+        "--disable-dev-shm-usage",
+        "--disable-accelerated-2d-canvas",
+        "--no-first-run",
+        "--no-zygote",
+        "--single-process",
+        "--disable-gpu",
       ],
     };
 
-    // Try to find system-installed browsers
-    const fs = require('fs');
-    let browserFound = false;
-
-    if (process.platform === 'win32') {
-      // Windows: Try Edge first (most commonly pre-installed), then Chrome
-      const browserPaths = [
-        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-        'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-      ];
-      
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
-      }
-    } else if (process.platform === 'darwin') {
-      // macOS: Try Chrome, then Edge
-      const browserPaths = [
-        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-      ];
-      
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
-      }
+    if (isProduction) {
+      // Production (Vercel): Use @sparticuz/chromium
+      console.log('🌐 Running in production mode (Vercel)');
+      launchOptions = {
+        args: chromium.args,
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+      };
     } else {
-      // Linux: Try common Chrome/Chromium locations
-      const browserPaths = [
-        '/usr/bin/google-chrome',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium',
-        '/snap/bin/chromium',
-      ];
-      
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
+      // Development: Try to find system-installed browsers
+      const fs = require('fs');
+      let browserFound = false;
+
+      if (process.platform === 'win32') {
+        // Windows: Try Edge first (most commonly pre-installed), then Chrome
+        const browserPaths = [
+          'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+          'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        ];
+        
+        for (const browserPath of browserPaths) {
+          try {
+            if (fs.existsSync(browserPath)) {
+              console.log(`✅ Found system browser at: ${browserPath}`);
+              launchOptions.executablePath = browserPath;
+              browserFound = true;
+              break;
+            }
+          } catch (e) {
+            // Continue to next path
           }
-        } catch (e) {
-          // Continue to next path
         }
+      } else if (process.platform === 'darwin') {
+        // macOS: Try Chrome, then Edge
+        const browserPaths = [
+          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+          '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+        ];
+        
+        for (const browserPath of browserPaths) {
+          try {
+            if (fs.existsSync(browserPath)) {
+              console.log(`✅ Found system browser at: ${browserPath}`);
+              launchOptions.executablePath = browserPath;
+              browserFound = true;
+              break;
+            }
+          } catch (e) {
+            // Continue to next path
+          }
+        }
+      } else {
+        // Linux: Try common Chrome/Chromium locations
+        const browserPaths = [
+          '/usr/bin/google-chrome',
+          '/usr/bin/chromium-browser',
+          '/usr/bin/chromium',
+          '/snap/bin/chromium',
+        ];
+        
+        for (const browserPath of browserPaths) {
+          try {
+            if (fs.existsSync(browserPath)) {
+              console.log(`✅ Found system browser at: ${browserPath}`);
+              launchOptions.executablePath = browserPath;
+              browserFound = true;
+              break;
+            }
+          } catch (e) {
+            // Continue to next path
+          }
+        }
+      }
+
+      if (!browserFound) {
+        console.log('⚠️ No system browser found. Please install Chrome or Edge, or use Puppeteer with Chrome.');
       }
     }
 
-    if (!browserFound) {
-      console.log('⚠️ No system browser found, will use Puppeteer\'s bundled Chrome (requires installation)');
-    }
-
-    // Launch browser (will use Edge if found, otherwise fall back to Puppeteer's Chrome)
+    // Launch browser
+    console.log("🔧 Launch options:", JSON.stringify({
+      ...launchOptions,
+      executablePath: launchOptions.executablePath ? "SET" : "DEFAULT",
+    }, null, 2));
+    
     browser = await puppeteer.launch(launchOptions);
+    console.log("✅ Browser launched successfully");
 
     const page = await browser.newPage();
 
@@ -195,13 +226,26 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
 
     console.log("✅ Scraping complete");
     return scrapedData;
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error scraping job URL:", error);
-    throw new Error("Failed to scrape job description from URL");
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      cause: error.cause,
+    });
+    
+    // Throw with detailed error information
+    throw new Error(`Failed to scrape job description: ${error.message}`);
   } finally {
     // Always close the browser
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+        console.log("🔒 Browser closed successfully");
+      } catch (closeError: any) {
+        console.error("⚠️ Error closing browser:", closeError.message);
+      }
     }
   }
 }

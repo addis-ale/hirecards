@@ -2,7 +2,10 @@
 
 ## Overview
 
-The job scraper uses Puppeteer to extract job descriptions from various job boards. Puppeteer needs a Chrome/Chromium-based browser to function.
+The job scraper uses Puppeteer to extract job descriptions from various job boards. The setup automatically adapts based on the environment:
+
+- **Production (Vercel)**: Uses `@sparticuz/chromium` - optimized for serverless
+- **Development**: Uses your system-installed browser (Edge/Chrome)
 
 ## Automatic Browser Detection
 
@@ -36,25 +39,22 @@ If you have **Microsoft Edge** or **Google Chrome** already installed on your sy
 - ✅ Smaller deployment size
 - ✅ Uses your existing browser
 
-### Option 2: Install Puppeteer's Chrome
+### Option 2: For Production Deployment
 
-If you don't have a compatible browser installed, you can install Puppeteer's bundled Chrome:
+When deploying to Vercel or other serverless platforms, the system automatically uses `@sparticuz/chromium`. Just run:
 
 ```bash
 npm install
 ```
 
-This will automatically run the postinstall script that downloads Chrome.
-
-Or manually install it:
-
-```bash
-npx puppeteer browsers install chrome
-```
+This installs:
+- `puppeteer-core` - Lightweight Puppeteer without Chrome
+- `@sparticuz/chromium` - Optimized Chrome for serverless
 
 **Advantages:**
-- ✅ Consistent version across all environments
-- ✅ Isolated from system browser updates
+- ✅ Serverless-optimized (smaller bundle)
+- ✅ Works on Vercel/AWS Lambda out of the box
+- ✅ No manual Chrome installation needed in production
 
 ## Troubleshooting
 
@@ -88,14 +88,25 @@ export PUPPETEER_EXECUTABLE_PATH=/path/to/your/browser
 
 ## Deployment Considerations
 
-### Vercel/Netlify/Other Serverless
+### Vercel (Production)
 
-Puppeteer can be heavy for serverless environments. Consider:
+✅ **Fully Configured!** The application automatically uses `@sparticuz/chromium` when deployed to Vercel.
 
-1. **Use Chrome AWS Lambda Layer** (for AWS deployments)
-2. **Use Browserless.io** - Cloud browser service
-3. **Use Playwright** - More serverless-friendly alternative
-4. **Use puppeteer-core** with external Chrome service
+The setup includes:
+- `puppeteer-core` (lightweight, no bundled Chrome)
+- `@sparticuz/chromium` (optimized Chrome binary for AWS Lambda/Vercel)
+- Automatic detection of production environment
+- Serverless-optimized launch arguments
+
+**No additional configuration needed** - just deploy to Vercel and it works!
+
+### Other Serverless Platforms
+
+For other platforms (AWS Lambda, Netlify, etc.), the current setup should work. If you encounter issues:
+
+1. **AWS Lambda**: Already compatible with `@sparticuz/chromium`
+2. **Netlify**: May need additional configuration
+3. **Alternative**: Use Browserless.io - Cloud browser service
 
 ### Docker
 

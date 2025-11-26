@@ -70,16 +70,43 @@ export async function POST(request: NextRequest) {
       },
       message: `Successfully scraped job posting from ${parsedData.source || "job board"}`,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error in scrape-job API:", error);
     
     const errorMessage = error instanceof Error ? error.message : "Failed to scrape job URL";
+    
+    // Detailed error information for debugging
+    const errorDetails: any = {
+      message: errorMessage,
+      type: error?.name || "UnknownError",
+      timestamp: new Date().toISOString(),
+      environment: {
+        isVercel: !!process.env.VERCEL,
+        nodeEnv: process.env.NODE_ENV,
+        platform: process.platform,
+        arch: process.arch,
+        nodeVersion: process.version,
+      },
+    };
+
+    // Include stack trace in development or Vercel preview
+    if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+      errorDetails.stack = error?.stack;
+      errorDetails.cause = error?.cause;
+    }
     
     return NextResponse.json(
       { 
         success: false, 
         error: errorMessage,
-        details: "The URL might be inaccessible or the job board might be blocking scraping. Try copying the job description text instead."
+        errorDetails: errorDetails,
+        hint: "Check the browser console and debug UI at /debug-scraper for detailed logs.",
+        suggestions: [
+          "The URL might be inaccessible or blocked",
+          "Puppeteer/Chrome might not be installed correctly",
+          "The serverless function might have timed out",
+          "Try copying the job description text instead"
+        ]
       },
       { status: 500 }
     );
