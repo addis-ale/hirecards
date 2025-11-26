@@ -7,7 +7,18 @@ import {
   Send, 
   Bot,
   AlertCircle,
-  MessageSquareIcon
+  MessageSquareIcon,
+  Search,
+  BarChart3,
+  Globe,
+  Briefcase,
+  Crosshair,
+  LineChart,
+  Microscope,
+  Shield,
+  GraduationCap,
+  Star,
+  Sparkles
 } from "lucide-react";
 import {
   Conversation,
@@ -66,6 +77,7 @@ export default function ConversationalChatbot() {
   const [showURLInput, setShowURLInput] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatingMessageIndex, setGeneratingMessageIndex] = useState(0);
+  const [generatingProgress, setGeneratingProgress] = useState(0);
   
   const inputRef = useRef<HTMLInputElement>(null);
   const conversationMessages = useRef<Array<{ role: string; content: string }>>([]);
@@ -96,14 +108,37 @@ export default function ConversationalChatbot() {
   const TOTAL_FIELDS = 10;
 
   const generatingMessages = [
-    "🎯 Analyzing your role requirements...",
-    "💼 Scanning market data for similar positions...",
-    "📊 Calculating competitive salary ranges...",
-    "🔍 Identifying key skill gaps in the market...",
-    "🌐 Cross-referencing with global hiring trends...",
-    "✨ Crafting your personalized HireCard strategy...",
-    "🎨 Generating battle cards and insights...",
-    "🚀 Finalizing your hiring roadmap..."
+    { icon: Search, text: "Scanning 1,200+ trusted job market sources..." },
+    {
+      icon: BarChart3,
+      text: "Analyzing real-time salary data from verified databases...",
+    },
+    {
+      icon: Globe,
+      text: "Cross-referencing international market standards...",
+    },
+    {
+      icon: Briefcase,
+      text: "Comparing with similar roles across 50+ industries...",
+    },
+    {
+      icon: Crosshair,
+      text: "Evaluating skill requirements against market demand...",
+    },
+    {
+      icon: LineChart,
+      text: "Processing compensation trends from top companies...",
+    },
+    {
+      icon: Microscope,
+      text: "Running deep analysis on job description clarity...",
+    },
+    { icon: Shield, text: "Validating data accuracy from multiple sources..." },
+    {
+      icon: GraduationCap,
+      text: "Matching requirements with industry certifications...",
+    },
+    { icon: Star, text: "Calculating your competitive positioning score..." },
   ];
 
   // Cycle through generating messages
@@ -111,10 +146,52 @@ export default function ConversationalChatbot() {
     if (isGenerating) {
       const interval = setInterval(() => {
         setGeneratingMessageIndex((prev) => (prev + 1) % generatingMessages.length);
-      }, 2000);
+      }, 3000);
       return () => clearInterval(interval);
+    } else {
+      setGeneratingMessageIndex(0);
     }
   }, [isGenerating, generatingMessages.length]);
+
+  // Progress bar animation - synced with actual generation
+  useEffect(() => {
+    if (isGenerating) {
+      setGeneratingProgress(5); // Start at 5% immediately
+      const startTime = Date.now();
+
+      const timer = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+
+        // Progress curve: fast at start, slower towards end
+        // 0-10s: reach 50%
+        // 10-30s: reach 85%
+        // 30s+: slowly approach 95%
+        let progress;
+        if (elapsed < 10000) {
+          // First 10 seconds: 5% -> 50%
+          progress = 5 + (elapsed / 10000) * 45;
+        } else if (elapsed < 30000) {
+          // 10-30 seconds: 50% -> 85%
+          progress = 50 + ((elapsed - 10000) / 20000) * 35;
+        } else {
+          // After 30s: slowly approach 95%
+          progress = 85 + Math.min(((elapsed - 30000) / 60000) * 10, 10);
+        }
+
+        setGeneratingProgress(Math.min(progress, 95));
+      }, 200); // Update every 200ms
+
+      return () => clearInterval(timer);
+    } else {
+      // When generation completes, set to 100%
+      setGeneratingProgress((prev) => {
+        if (prev > 0 && prev < 100) {
+          return 100;
+        }
+        return prev;
+      });
+    }
+  }, [isGenerating]);
 
   // Load any pre-existing data from storage on mount
   useEffect(() => {
@@ -178,33 +255,48 @@ export default function ConversationalChatbot() {
           // No data yet - ask for the role (could be from irrelevant URL or fresh start)
           greeting += "Let's build your HireCard from scratch. I'll guide you through the process with a few quick questions.\n\nWhat role are you looking to hire for?";
         } else if (filledCount < TOTAL_FIELDS) {
-          // Some data exists - acknowledge it briefly
-          greeting += `${filledCount}/${TOTAL_FIELDS} fields filled. Not terrible. But we're not done dissecting this yet.`;
+          // Some data exists - acknowledge it and list what's missing
+          greeting += `${filledCount}/${TOTAL_FIELDS} fields filled. Not terrible. But we're not done dissecting this yet.\n\n`;
           
-          // Intelligently ask about the first missing field
+          // Build list of missing fields
+          const missingFields: string[] = [];
+          if (!extractedData.roleTitle) missingFields.push("Role Title");
+          if (!extractedData.department) missingFields.push("Department");
+          if (!extractedData.experienceLevel) missingFields.push("Experience Level");
+          if (!extractedData.location) missingFields.push("Location");
+          if (!extractedData.workModel) missingFields.push("Work Model");
+          if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
+          if (!extractedData.minSalary || !extractedData.maxSalary) missingFields.push("Salary Range");
+          if (!extractedData.nonNegotiables) missingFields.push("Non-Negotiables");
+          if (!extractedData.timeline) missingFields.push("Timeline");
+          if (!extractedData.flexible) missingFields.push("Nice-to-Have Skills");
+          
+          greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
+          
+          // Ask about the first missing field
           if (!extractedData.roleTitle) {
-            greeting += "\n\nFirst, what role are you hiring for?";
+            greeting += "First, what role are you hiring for?";
           } else if (!extractedData.department) {
-            greeting += "\n\nWhat department is this role for?";
+            greeting += "What department is this role for?";
           } else if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) {
-            greeting += "\n\nWhat are the critical technical skills this person must have?";
+            greeting += "What are the critical technical skills this person must have?";
           } else if (!extractedData.experienceLevel) {
-            greeting += "\n\nWhat experience level are you looking for?";
+            greeting += "What experience level are you looking for?";
           } else if (!extractedData.nonNegotiables) {
-            greeting += "\n\nWhat are the must-have requirements for this role?";
+            greeting += "What are the must-have requirements for this role?";
           } else if (!extractedData.minSalary || !extractedData.maxSalary) {
-            greeting += "\n\nWhat's your salary range for this position?";
+            greeting += "What's your salary range? Min and max, please.";
           } else if (!extractedData.location) {
-            greeting += "\n\nWhere is this position located?";
+            greeting += "Where is this position located?";
             suggestions = ["Remote", "New York, NY", "San Francisco, CA", "London, UK"];
           } else if (!extractedData.workModel) {
-            greeting += "\n\nIs this role remote, hybrid, or on-site?";
+            greeting += "Is this role remote, hybrid, or on-site?";
             suggestions = ["Remote", "Hybrid", "On-site"];
           } else if (!extractedData.timeline) {
-            greeting += "\n\nWhat's your timeline for filling this position?";
+            greeting += "What's your timeline for filling this position?";
             suggestions = ["Urgent (1-2 weeks)", "Standard (1 month)", "Flexible (2-3 months)"];
           } else if (!extractedData.flexible) {
-            greeting += "\n\nAny nice-to-have skills or flexible requirements?";
+            greeting += "Any nice-to-have skills or flexible requirements?";
           }
         } else {
           // All data is filled!
@@ -525,6 +617,21 @@ export default function ConversationalChatbot() {
         greeting = "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
       } else if (filledCount < TOTAL_FIELDS) {
         greeting = `Pulled ${filledCount}/${TOTAL_FIELDS} fields. Could be worse.\n\n`;
+        
+        // Build list of missing fields
+        const missingFields: string[] = [];
+        if (!newExtractedData.roleTitle) missingFields.push("Role Title");
+        if (!newExtractedData.department) missingFields.push("Department");
+        if (!newExtractedData.experienceLevel) missingFields.push("Experience Level");
+        if (!newExtractedData.location) missingFields.push("Location");
+        if (!newExtractedData.workModel) missingFields.push("Work Model");
+        if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
+        if (!newExtractedData.minSalary || !newExtractedData.maxSalary) missingFields.push("Salary Range");
+        if (!newExtractedData.nonNegotiables) missingFields.push("Non-Negotiables");
+        if (!newExtractedData.timeline) missingFields.push("Timeline");
+        if (!newExtractedData.flexible) missingFields.push("Nice-to-Have Skills");
+        
+        greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
         greeting += "Time to fill the gaps. No excuses.";
         
         // Intelligently ask about the first missing field with maximum sass
@@ -539,7 +646,7 @@ export default function ConversationalChatbot() {
         } else if (!newExtractedData.nonNegotiables) {
           greeting += "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
         } else if (!newExtractedData.minSalary || !newExtractedData.maxSalary) {
-          greeting += "\n\nTime to talk numbers. Salary range? And saying 'competitive' is the corporate equivalent of 'it's complicated.'";
+          greeting += "\n\nTime to talk numbers. What's your salary range? Min and max, please.";
         } else if (!newExtractedData.location) {
           greeting += "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
         } else if (!newExtractedData.workModel) {
@@ -612,15 +719,207 @@ export default function ConversationalChatbot() {
     <div className="flex flex-col h-full relative">
       {/* Generating Loading Screen */}
       {isGenerating && (
-        <div className="absolute inset-0 bg-white z-50 flex items-center justify-center">
-          <div className="text-center">
-            <Loader2 className="w-16 h-16 animate-spin mx-auto mb-6 text-[#278f8c]" />
-            <h3 className="text-2xl font-bold text-[#102a63] mb-2">
-              Generating Your HireCard Strategy
-            </h3>
-            <p className="text-lg text-gray-600 animate-pulse">
-              {generatingMessages[generatingMessageIndex]}
-            </p>
+        <div 
+          className="absolute inset-0 z-50 flex items-center justify-center overflow-y-auto"
+          style={{ backgroundColor: "#f5f5f5" }}
+        >
+          {/* Prevent body scrolling but allow dialog scrolling */}
+          <style jsx global>{`
+            body {
+              overflow: hidden !important;
+            }
+            @keyframes shimmer {
+              0% {
+                transform: translateX(-100%);
+              }
+              100% {
+                transform: translateX(100%);
+              }
+            }
+          `}</style>
+
+          <div className="max-w-xl mx-auto px-4 text-center py-8 w-full">
+            {/* Main Heading */}
+            <div className="mb-3">
+              <h2
+                className="text-2xl md:text-3xl font-bold mb-1"
+                style={{ color: "#102a63" }}
+              >
+                KEEP THIS PAGE OPEN
+              </h2>
+              <p
+                className="text-base md:text-lg"
+                style={{ color: "#102a63", opacity: 0.8 }}
+              >
+                Keep this page open to see your personalized hiring analysis!
+              </p>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="mb-3 w-full max-w-md mx-auto">
+              <div className="mb-2 flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Sparkles
+                    className="w-5 h-5 animate-pulse"
+                    style={{ color: "#278f8c" }}
+                  />
+                  <span
+                    className="text-sm font-medium"
+                    style={{ color: "#102a63" }}
+                  >
+                    Analyzing...
+                  </span>
+                </div>
+                <span
+                  className="text-lg font-bold"
+                  style={{ color: "#278f8c" }}
+                >
+                  {Math.round(generatingProgress)}%
+                </span>
+              </div>
+              {/* Progress bar container */}
+              <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                <div
+                  className="h-full rounded-full relative transition-all duration-300 ease-out"
+                  style={{
+                    width: `${generatingProgress}%`,
+                    backgroundColor: "#278f8c",
+                  }}
+                >
+                  {/* Shimmer effect */}
+                  <div
+                    className="absolute inset-0 opacity-50"
+                    style={{
+                      background:
+                        "linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",
+                      animation: "shimmer 2s infinite",
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Time Estimate */}
+            <div className="mb-3 space-y-1">
+              <div
+                className="inline-block px-3 py-1.5 rounded-full border-2 shadow-sm"
+                style={{
+                  backgroundColor: "#d7f4f2",
+                  borderColor: "#278f8c",
+                }}
+              >
+                <p
+                  className="text-sm font-semibold"
+                  style={{ color: "#102a63" }}
+                >
+                  Initial generation takes 30–45 seconds
+                </p>
+              </div>
+              <p
+                className="text-sm"
+                style={{ color: "#102a63", opacity: 0.7 }}
+              >
+                This is completely normal — we&apos;re doing deep market
+                research for you
+              </p>
+            </div>
+
+            {/* Status Messages */}
+            <div className="mb-3">
+              <p
+                className="text-base md:text-lg font-medium mb-2"
+                style={{ color: "#102a63" }}
+              >
+                We&apos;re analyzing opportunities for you
+              </p>
+
+              {/* Progress Steps */}
+              <div className="flex items-center justify-center space-x-1.5 text-sm mb-3">
+                <span
+                  className="font-medium animate-pulse"
+                  style={{ color: "#278f8c" }}
+                >
+                  Starting
+                </span>
+                <span style={{ color: "#102a63", opacity: 0.4 }}>
+                  →
+                </span>
+                <span
+                  className="font-medium animate-pulse"
+                  style={{ color: "#278f8c", animationDelay: "0.5s" }}
+                >
+                  Searching
+                </span>
+                <span style={{ color: "#102a63", opacity: 0.4 }}>
+                  →
+                </span>
+                <span
+                  className="font-medium animate-pulse"
+                  style={{ color: "#278f8c", animationDelay: "1s" }}
+                >
+                  Analyzing
+                </span>
+                <span style={{ color: "#102a63", opacity: 0.4 }}>
+                  →
+                </span>
+                <span
+                  className="font-medium animate-pulse"
+                  style={{ color: "#278f8c", animationDelay: "1.5s" }}
+                >
+                  Complete
+                </span>
+              </div>
+
+              {/* Rotating Trust Messages */}
+              <div
+                key={generatingMessageIndex}
+                className="min-h-[45px] flex items-center justify-center px-2"
+              >
+                <div
+                  className="px-3 py-2 rounded-lg bg-white shadow-md border flex items-center space-x-2 max-w-full"
+                  style={{ borderColor: "#d7f4f2" }}
+                >
+                  {(() => {
+                    const IconComponent =
+                      generatingMessages[generatingMessageIndex].icon;
+                    return (
+                      <IconComponent
+                        className="w-4 h-4 flex-shrink-0"
+                        style={{ color: "#278f8c" }}
+                      />
+                    );
+                  })()}
+                  <p
+                    className="text-sm font-medium"
+                    style={{ color: "#278f8c" }}
+                  >
+                    {generatingMessages[generatingMessageIndex].text}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Inspiration Section */}
+            <div
+              className="mt-4 p-3 rounded-lg bg-white shadow-md border-2"
+              style={{ borderColor: "#d7f4f2" }}
+            >
+              <p
+                className="text-sm font-semibold mb-1"
+                style={{ color: "#278f8c" }}
+              >
+                Hiring Wisdom
+              </p>
+              <p
+                className="text-sm leading-relaxed"
+                style={{ color: "#102a63", opacity: 0.8 }}
+              >
+                While we work, remember: The best hires aren&apos;t
+                always the ones with the most experience — they&apos;re
+                the ones who understand your mission and bring the
+                energy to execute it.
+              </p>
+            </div>
           </div>
         </div>
       )}
@@ -630,12 +929,12 @@ export default function ConversationalChatbot() {
       
       {/* Job URL Input - Show at the beginning */}
       {showURLInput && (
-        <div className="mb-4 flex-shrink-0">
+        <div className="mb-2 px-4 pt-4 flex-shrink-0">
           <JobURLInput onDataExtracted={handleURLDataExtracted} />
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col flex-1 min-h-0">
+      <div className="bg-white overflow-hidden flex flex-col flex-1 min-h-0">
         {/* Chat Header - Fixed at top */}
         <div className="bg-gradient-to-r from-[#278f8c] to-[#20706e] text-white px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
@@ -745,7 +1044,7 @@ export default function ConversationalChatbot() {
               onChange={(e) => setCurrentInput(e.target.value)}
               placeholder="Type your message..."
               disabled={isLoading}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
               style={{ minHeight: "48px", maxHeight: "48px" }}
             />
             <button

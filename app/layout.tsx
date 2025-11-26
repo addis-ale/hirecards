@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Poppins, Space_Grotesk } from "next/font/google";
 import "./globals.css";
+import { ChatbotProvider } from "@/components/ChatbotProvider";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -38,7 +39,7 @@ export default function RootLayout({
         className="antialiased overflow-x-hidden"
         style={{ fontFamily: "var(--font-space-grotesk)" }}
       >
-        {children}
+        <ChatbotProvider>{children}</ChatbotProvider>
       </body>
     </html>
   );

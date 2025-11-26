@@ -1,10 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useChatbot } from "./ChatbotProvider";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 export default function CTA() {
+  const { openChatbot } = useChatbot();
+  
   return (
     <section
       className="py-20 md:py-32 relative overflow-hidden"
@@ -44,12 +47,12 @@ export default function CTA() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link
-              href="/create"
+            <button
+              onClick={() => openChatbot()}
               className="px-8 py-4 bg-white text-[#0B1E3F] font-bold rounded-lg shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200 text-lg"
             >
               <span>FIX MY HIRING MESS</span>
-            </Link>
+            </button>
           </div>
 
           <div className="mt-10 flex flex-wrap items-center justify-center gap-8 text-sm opacity-80">

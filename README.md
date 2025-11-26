@@ -44,6 +44,22 @@ npm run build
 npm start
 ```
 
+### Browser Setup for Job Scraping
+
+The job scraper feature uses Puppeteer and **automatically detects system browsers**:
+- ✅ **Windows**: Uses Microsoft Edge (pre-installed) or Chrome
+- ✅ **macOS**: Uses Chrome or Edge
+- ✅ **Linux**: Uses Chrome/Chromium
+
+**No additional setup needed if you have Edge or Chrome installed!**
+
+If no system browser is found, run:
+```bash
+npx puppeteer browsers install chrome
+```
+
+📖 **[See full browser setup guide](PUPPETEER_BROWSER_SETUP.md)**
+
 ## 🌐 Getting Started
 
 1. Visit the homepage at `http://localhost:3000`

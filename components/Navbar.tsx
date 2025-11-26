@@ -3,8 +3,10 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { Menu, X, Sparkles } from "lucide-react";
+import { useChatbot } from "./ChatbotProvider";
 
 export default function Navbar() {
+  const { openChatbot } = useChatbot();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
@@ -101,9 +103,12 @@ export default function Navbar() {
               >
                 My HireCards
               </Link>
-              <Link href="/create" className="btn-primary px-4 py-2 text-sm">
+              <button 
+                onClick={() => openChatbot()}
+                className="btn-primary px-4 py-2 text-sm"
+              >
                 Get Started
-              </Link>
+              </button>
             </div>
 
             {/* Mobile Menu Button */}
@@ -199,13 +204,15 @@ export default function Navbar() {
               >
                 My HireCards
               </Link>
-              <Link
-                href="/create"
-                className="block btn-primary px-4 py-2 text-sm text-center mt-4"
-                onClick={() => setIsMobileMenuOpen(false)}
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  openChatbot(); // Already wrapped, no need to change
+                }}
+                className="block btn-primary px-4 py-2 text-sm text-center mt-4 w-full"
               >
                 Get Started
-              </Link>
+              </button>
             </div>
           </div>
         )}

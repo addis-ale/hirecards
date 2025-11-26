@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useChatbot } from "./ChatbotProvider";
 import {
   DollarSign,
   AlertTriangle,
@@ -13,6 +14,7 @@ import {
 } from "lucide-react";
 
 export default function SampleOutput() {
+  const { openChatbot } = useChatbot();
   const redFlags = [
     "Salary 20% below market (good luck with that)",
     "87 competitors fighting for the same unicorns",
@@ -264,12 +266,12 @@ export default function SampleOutput() {
               <span className="text-red-600">Damage Report Card</span>, you get
               8+ more cards that&apos;ll save your hiring budget.
             </p>
-            <a
-              href="/create"
+            <button
+              onClick={() => openChatbot()}
               className="btn-primary inline-flex items-center justify-center px-6 py-3 text-sm"
             >
               <span>Try It Now</span>
-            </a>
+            </button>
           </motion.div>
         </motion.div>
       </div>

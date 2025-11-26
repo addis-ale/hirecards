@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown } from "lucide-react";
+import { useChatbot } from "./ChatbotProvider";
 
 const faqs = [
   {
@@ -38,6 +39,7 @@ const faqs = [
 ];
 
 export default function FAQ() {
+  const { openChatbot } = useChatbot();
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggleFAQ = (index: number) => {
@@ -114,9 +116,9 @@ export default function FAQ() {
           <p className="text-gray-500 italic mb-6">
             My circuits are fried. You&apos;re on your own now, champ.
           </p>
-          <a href="/create" className="btn-primary text-lg inline-block">
+          <button onClick={() => openChatbot()} className="btn-primary text-lg inline-block">
             Just Take Me to the Cards Already
-          </a>
+          </button>
         </motion.div>
       </div>
     </section>

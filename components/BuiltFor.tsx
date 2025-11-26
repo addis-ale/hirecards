@@ -7,6 +7,7 @@ import {
   Users,
   Building2,
 } from "lucide-react";
+import { useChatbot } from "./ChatbotProvider";
 
 const personas = [
   {
@@ -36,6 +37,8 @@ const personas = [
 ];
 
 export default function BuiltFor() {
+  const { openChatbot } = useChatbot();
+  
   return (
     <section
       className="py-20 md:py-32 relative overflow-hidden"
@@ -101,9 +104,9 @@ export default function BuiltFor() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="text-center mt-12"
         >
-          <a href="/create" className="btn-primary text-lg inline-block">
+          <button onClick={() => openChatbot()} className="btn-primary text-lg inline-block">
             Think You Qualify? Try It
-          </a>
+          </button>
         </motion.div>
       </div>
     </section>

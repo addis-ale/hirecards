@@ -2,6 +2,7 @@
 
 import { FileText, Sparkles, Download } from "lucide-react";
 import { motion } from "framer-motion";
+import { useChatbot } from "./ChatbotProvider";
 
 const steps = [
   {
@@ -28,6 +29,8 @@ const steps = [
 ];
 
 export default function HowItWorks() {
+  const { openChatbot } = useChatbot();
+  
   return (
     <section
       id="how-it-works"
@@ -128,9 +131,9 @@ export default function HowItWorks() {
             transition={{ duration: 0.6, delay: 0.8 }}
             className="text-center mt-16"
           >
-            <a href="/create" className="btn-primary text-lg inline-block">
+            <button onClick={() => openChatbot()} className="btn-primary text-lg inline-block">
               Let&apos;s Do This
-            </a>
+            </button>
           </motion.div>
         </div>
       </div>
