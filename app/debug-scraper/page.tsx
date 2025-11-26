@@ -243,10 +243,10 @@ export default function DebugScraperPage() {
             </h2>
             <ol className="list-decimal list-inside space-y-2 text-blue-900">
               <li>Paste a job URL from LinkedIn, Indeed, or other job boards</li>
-              <li>Click "Test Scraper" to start the scraping process</li>
+              <li>Click &quot;Test Scraper&quot; to start the scraping process</li>
               <li>Wait for the result (may take 10-30 seconds)</li>
               <li>
-                If there's an error, you'll see detailed information about what
+                If there&apos;s an error, you&apos;ll see detailed information about what
                 went wrong
               </li>
               <li>
