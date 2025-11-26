@@ -149,14 +149,15 @@ export default function ResultsPage() {
 
           {/* Header */}
           <div className="max-w-6xl mx-auto mb-8">
-            <button
-              onClick={() => router.push("/")}
-              className="flex items-center space-x-2 mb-6 transition-colors hover:opacity-80"
-              style={{ color: "#102a63" }}
-            >
-              <ArrowLeft className="w-5 h-5" />
-              <span className="font-medium">Back to Home</span>
-            </button>
+       <button
+        onClick={() => router.back()}
+        className="flex items-center space-x-2 mb-6 transition-colors hover:opacity-80"
+        style={{ color: "#102a63" }}
+      >
+      <ArrowLeft className="w-5 h-5" />
+      <span className="font-medium">Back</span>
+    </button>
+
 
             <div>
               <h1
