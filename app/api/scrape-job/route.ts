@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeJobURL, parseScrapedJobData } from "@/lib/jobScraper";
 
+// Configure for serverless environment
+// Increase timeout for Puppeteer operations (max 60s on Vercel Hobby, 300s on Pro)
+export const maxDuration = 60; // seconds
+export const dynamic = 'force-dynamic';
+
 /**
  * API endpoint to scrape job description from URL
  * POST /api/scrape-job

@@ -3,10 +3,13 @@
  *
  * This module provides functionality to scrape job descriptions from various job boards
  * and extract structured information using AI.
+ * 
+ * Optimized for serverless environments (Vercel) using puppeteer-core + chrome-aws-lambda
  */
 
 import * as cheerio from "cheerio";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-core";
+import chromium from "@sparticuz/chromium";
 
 interface ScrapedJobData {
   title: string;
@@ -24,6 +27,7 @@ interface ScrapedJobData {
 /**
  * Scrape a job description from a URL using Puppeteer
  * Works for both static HTML and JavaScript-rendered pages
+ * Optimized for serverless environments (Vercel, AWS Lambda)
  */
 export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
   let browser;
@@ -31,116 +35,152 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
   try {
     console.log("🚀 Starting Puppeteer scrape for:", url);
 
-    // Try to find system-installed browser (Edge on Windows, Chrome on others)
-    const launchOptions: any = {
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process"
-      ],
-    };
+    // Detect environment: production (serverless) vs development (local)
+    const isProduction = process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME;
+    
+    let launchOptions: any;
 
-    // Try to find system-installed browsers
-    const fs = require('fs');
-    let browserFound = false;
-
-    if (process.platform === 'win32') {
-      // Windows: Try Edge first (most commonly pre-installed), then Chrome
-      const browserPaths = [
-        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-        'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-      ];
+    if (isProduction) {
+      // SERVERLESS ENVIRONMENT (Vercel, AWS Lambda)
+      console.log("🌐 Running in serverless environment");
       
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
-      }
-    } else if (process.platform === 'darwin') {
-      // macOS: Try Chrome, then Edge
-      const browserPaths = [
-        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-      ];
-      
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
-      }
+      launchOptions = {
+        args: [
+          ...chromium.args,
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu",
+          "--no-first-run",
+          "--no-zygote",
+          "--single-process",
+          "--disable-extensions",
+        ],
+        defaultViewport: chromium.defaultViewport,
+        executablePath: await chromium.executablePath(),
+        headless: chromium.headless,
+        ignoreHTTPSErrors: true,
+      };
     } else {
-      // Linux: Try common Chrome/Chromium locations
-      const browserPaths = [
-        '/usr/bin/google-chrome',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium',
-        '/snap/bin/chromium',
-      ];
+      // LOCAL DEVELOPMENT ENVIRONMENT
+      console.log("💻 Running in local development environment");
       
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
+      // Try to find system-installed browsers
+      const fs = require('fs');
+      let executablePath: string | undefined;
+
+      if (process.platform === 'win32') {
+        const browserPaths = [
+          'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
+          'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
+          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+        ];
+        
+        for (const browserPath of browserPaths) {
+          try {
+            if (fs.existsSync(browserPath)) {
+              console.log(`✅ Found system browser at: ${browserPath}`);
+              executablePath = browserPath;
+              break;
+            }
+          } catch (e) {
+            // Continue to next path
           }
-        } catch (e) {
-          // Continue to next path
         }
+      } else if (process.platform === 'darwin') {
+        const browserPaths = [
+          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+          '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
+        ];
+        
+        for (const browserPath of browserPaths) {
+          try {
+            if (fs.existsSync(browserPath)) {
+              console.log(`✅ Found system browser at: ${browserPath}`);
+              executablePath = browserPath;
+              break;
+            }
+          } catch (e) {
+            // Continue to next path
+          }
+        }
+      } else {
+        const browserPaths = [
+          '/usr/bin/google-chrome',
+          '/usr/bin/chromium-browser',
+          '/usr/bin/chromium',
+          '/snap/bin/chromium',
+        ];
+        
+        for (const browserPath of browserPaths) {
+          try {
+            if (fs.existsSync(browserPath)) {
+              console.log(`✅ Found system browser at: ${browserPath}`);
+              executablePath = browserPath;
+              break;
+            }
+          } catch (e) {
+            // Continue to next path
+          }
+        }
+      }
+
+      launchOptions = {
+        headless: true,
+        args: [
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-web-security",
+        ],
+        executablePath,
+      };
+
+      if (!executablePath) {
+        console.log('⚠️ No system browser found, puppeteer-core requires explicit executablePath');
+        throw new Error('No browser found. Please install Chrome or set CHROME_PATH environment variable.');
       }
     }
 
-    if (!browserFound) {
-      console.log('⚠️ No system browser found, will use Puppeteer\'s bundled Chrome (requires installation)');
-    }
-
-    // Launch browser (will use Edge if found, otherwise fall back to Puppeteer's Chrome)
+    // Launch browser with environment-specific configuration
     browser = await puppeteer.launch(launchOptions);
-
     const page = await browser.newPage();
 
-    // Enable JavaScript
-    await page.setJavaScriptEnabled(true);
+    // Set realistic user agent to avoid bot detection
+    const userAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36";
+    await page.setUserAgent(userAgent);
+    
+    // Set extra HTTP headers to appear more like a real browser
+    await page.setExtraHTTPHeaders({
+      "Accept-Language": "en-US,en;q=0.9",
+      "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+      "Accept-Encoding": "gzip, deflate, br",
+      "Connection": "keep-alive",
+      "Upgrade-Insecure-Requests": "1",
+    });
 
-    // Set a realistic user agent and viewport
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    );
+    // Set viewport
     await page.setViewport({ width: 1920, height: 1080 });
 
-    // Navigate to the page and wait for network to be mostly idle
+    // Navigate to the page with proper timeout and wait conditions
+    console.log("📄 Navigating to URL...");
     try {
       await page.goto(url, {
         waitUntil: "networkidle2", // Wait until no more than 2 network connections for 500ms
-        timeout: 60000,
+        timeout: 60000, // 60 second timeout
       });
+      console.log("✅ Navigation complete");
     } catch (error) {
       console.log("⚠️ Navigation timeout, but continuing anyway...");
+      // Continue even if timeout - we might still have content
     }
 
-    // Wait longer for JavaScript to render content
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    // Wait for JavaScript to render content (especially for React/SPA apps)
+    console.log("⏳ Waiting for dynamic content to load...");
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    // Check if we got the "You need to enable JavaScript" message (means React didn't load)
+    // Check if we got the "You need to enable JavaScript" message
     let html = await page.content();
     if (html.includes("You need to enable JavaScript to run this app")) {
       console.log("⚠️ React app not loaded yet, waiting longer...");
@@ -148,19 +188,21 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
       html = await page.content();
     }
 
-    // Try to wait for actual content (not just the React placeholder)
+    // Wait for actual content to appear (not just skeleton/loading state)
     try {
       await page.waitForFunction(
         () => {
           const bodyText = document.body.innerText;
           return bodyText.length > 500 && !bodyText.includes("You need to enable JavaScript");
         },
-        { timeout: 10000 }
+        { timeout: 15000 } // 15 second timeout for content to load
       );
       console.log("✅ Content loaded successfully");
       html = await page.content();
     } catch {
       console.log("⚠️ Content might not be fully loaded, but continuing...");
+      // Get whatever content we have
+      html = await page.content();
     }
 
     console.log("✅ Puppeteer got HTML, length:", html.length);
@@ -197,11 +239,20 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
     return scrapedData;
   } catch (error) {
     console.error("❌ Error scraping job URL:", error);
-    throw new Error("Failed to scrape job description from URL");
+    
+    // Provide more specific error message
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    throw new Error(`Failed to scrape job description from URL: ${errorMessage}`);
   } finally {
-    // Always close the browser
+    // Always close the browser to free up resources (critical in serverless)
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+        console.log("✅ Browser closed successfully");
+      } catch (closeError) {
+        console.error("⚠️ Error closing browser:", closeError);
+        // Don't throw here - we already got our data or are handling an error
+      }
     }
   }
 }
