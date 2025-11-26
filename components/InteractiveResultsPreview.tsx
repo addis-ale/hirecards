@@ -7,8 +7,11 @@ import {
   ArrowRight, 
   Play
 } from "lucide-react";
+import { useChatbot } from "./ChatbotProvider";
 
 export default function InteractiveResultsPreview() {
+  const { openChatbot } = useChatbot();
+  
   return (
     <section className="relative py-16 overflow-hidden bg-gradient-to-b from-[#d7f4f2] via-white to-white">
       {/* Background Decorative Elements */}
@@ -102,15 +105,15 @@ export default function InteractiveResultsPreview() {
 
         {/* Footer CTAs */}
         <div className="mt-12 flex flex-col sm:flex-row items-center justify-center gap-4">
-          <motion.a
-            href="/create"
+          <motion.button
+            onClick={() => openChatbot()}
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             className="btn-primary group inline-flex items-center justify-center space-x-2 text-lg px-8 py-4"
           >
             <span>Create Your HireCard Now</span>
             <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </motion.a>
+          </motion.button>
         </div>
 
       </div>

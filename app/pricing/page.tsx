@@ -8,8 +8,10 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GradientCanvas from "@/components/GradientCanvas";
+import { useChatbot } from "@/components/ChatbotProvider";
 
 export default function PricingPage() {
+  const { openChatbot } = useChatbot();
   const router = useRouter();
   const [isProcessing, setIsProcessing] = useState(false);
   const [processingPlan, setProcessingPlan] = useState<string | null>(null);
@@ -326,13 +328,13 @@ export default function PricingPage() {
               Get your hiring battle card and start making confident hiring
               decisions today.
             </p>
-            <Link
-              href="/create"
+            <button
+              onClick={() => openChatbot()}
               className="btn-primary inline-flex items-center justify-center space-x-2 text-lg px-8 py-4"
             >
               <Sparkles className="w-5 h-5" />
               <span>Get Started Now</span>
-            </Link>
+            </button>
           </div>
         </section>
 

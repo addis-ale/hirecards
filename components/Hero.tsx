@@ -275,6 +275,24 @@ export const Hero = () => {
         }
 
         const parsedData = parseResult.data;
+        
+        // Validate and fix salary data if needed
+        if (parsedData.minSalary && parsedData.maxSalary) {
+          const min = parseInt(String(parsedData.minSalary).replace(/[^0-9]/g, ''));
+          const max = parseInt(String(parsedData.maxSalary).replace(/[^0-9]/g, ''));
+          
+          // If min > max, swap them
+          if (min > max) {
+            console.warn(`⚠️ Swapping salary: min (${min}) > max (${max})`);
+            parsedData.minSalary = String(max);
+            parsedData.maxSalary = String(min);
+          } else {
+            // Ensure they're clean numbers
+            parsedData.minSalary = String(min);
+            parsedData.maxSalary = String(max);
+          }
+        }
+        
         setParsedData(parsedData); // Store for debug UI
         const inputIsURL = parsedData.isURL;
 
@@ -502,8 +520,12 @@ export const Hero = () => {
             parsedData.skills && isValidValue(parsedData.skills)
               ? parsedData.skills
               : [], // Array of skills (merged)
-          minSalary: "",
-          maxSalary: "",
+          minSalary: isValidValue(parsedData.minSalary)
+            ? String(parsedData.minSalary)
+            : "",
+          maxSalary: isValidValue(parsedData.maxSalary)
+            ? String(parsedData.maxSalary)
+            : "",
           nonNegotiables:
             parsedData.requirements && isValidValue(parsedData.requirements)
               ? parsedData.requirements.slice(0, 3).join(", ")

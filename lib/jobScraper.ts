@@ -660,11 +660,18 @@ If it IS a valid job posting, extract the following:
 - Location (city/state/country or "Remote")
 - Work model (Remote, Hybrid, On-site)
 - Experience level (Entry Level, Mid-Level, Senior, Lead, Principal)
-- Salary range (if mentioned, format as "min - max")
+- Salary range (extract min and max as separate numbers, remove currency symbols and commas)
 - Key required skills (top 5-7 skills)
 - Critical requirements (must-haves)
 - Timeline/urgency (if mentioned)
 - Department (Engineering, Product, Design, Marketing, Sales, etc.)
+
+IMPORTANT FOR SALARY:
+- Extract minSalary and maxSalary as pure numbers (no currency symbols, no commas)
+- Example: "$120,000 - $150,000" → minSalary: "120000", maxSalary: "150000"
+- Example: "£50k-£70k" → minSalary: "50000", maxSalary: "70000"
+- If only one number is mentioned, set both min and max to that number
+- If no salary is mentioned, set both to null
 
 Return ONLY valid JSON with this exact structure:
 {
@@ -673,8 +680,8 @@ Return ONLY valid JSON with this exact structure:
   "location": "city/country or Remote or null",
   "workModel": "Remote/Hybrid/On-site or null",
   "experienceLevel": "level or null",
-  "minSalary": "number or null",
-  "maxSalary": "number or null",
+  "minSalary": "number string or null (e.g., '120000')",
+  "maxSalary": "number string or null (e.g., '150000')",
   "skills": ["skill1", "skill2"] or [],
   "requirements": ["req1", "req2"] or [],
   "timeline": "timeline or null",

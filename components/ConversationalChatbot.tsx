@@ -178,33 +178,48 @@ export default function ConversationalChatbot() {
           // No data yet - ask for the role (could be from irrelevant URL or fresh start)
           greeting += "Let's build your HireCard from scratch. I'll guide you through the process with a few quick questions.\n\nWhat role are you looking to hire for?";
         } else if (filledCount < TOTAL_FIELDS) {
-          // Some data exists - acknowledge it briefly
-          greeting += `${filledCount}/${TOTAL_FIELDS} fields filled. Not terrible. But we're not done dissecting this yet.`;
+          // Some data exists - acknowledge it and list what's missing
+          greeting += `${filledCount}/${TOTAL_FIELDS} fields filled. Not terrible. But we're not done dissecting this yet.\n\n`;
           
-          // Intelligently ask about the first missing field
+          // Build list of missing fields
+          const missingFields: string[] = [];
+          if (!extractedData.roleTitle) missingFields.push("Role Title");
+          if (!extractedData.department) missingFields.push("Department");
+          if (!extractedData.experienceLevel) missingFields.push("Experience Level");
+          if (!extractedData.location) missingFields.push("Location");
+          if (!extractedData.workModel) missingFields.push("Work Model");
+          if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
+          if (!extractedData.minSalary || !extractedData.maxSalary) missingFields.push("Salary Range");
+          if (!extractedData.nonNegotiables) missingFields.push("Non-Negotiables");
+          if (!extractedData.timeline) missingFields.push("Timeline");
+          if (!extractedData.flexible) missingFields.push("Nice-to-Have Skills");
+          
+          greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
+          
+          // Ask about the first missing field
           if (!extractedData.roleTitle) {
-            greeting += "\n\nFirst, what role are you hiring for?";
+            greeting += "First, what role are you hiring for?";
           } else if (!extractedData.department) {
-            greeting += "\n\nWhat department is this role for?";
+            greeting += "What department is this role for?";
           } else if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) {
-            greeting += "\n\nWhat are the critical technical skills this person must have?";
+            greeting += "What are the critical technical skills this person must have?";
           } else if (!extractedData.experienceLevel) {
-            greeting += "\n\nWhat experience level are you looking for?";
+            greeting += "What experience level are you looking for?";
           } else if (!extractedData.nonNegotiables) {
-            greeting += "\n\nWhat are the must-have requirements for this role?";
+            greeting += "What are the must-have requirements for this role?";
           } else if (!extractedData.minSalary || !extractedData.maxSalary) {
-            greeting += "\n\nWhat's your salary range for this position?";
+            greeting += "What's your salary range? Min and max, please.";
           } else if (!extractedData.location) {
-            greeting += "\n\nWhere is this position located?";
+            greeting += "Where is this position located?";
             suggestions = ["Remote", "New York, NY", "San Francisco, CA", "London, UK"];
           } else if (!extractedData.workModel) {
-            greeting += "\n\nIs this role remote, hybrid, or on-site?";
+            greeting += "Is this role remote, hybrid, or on-site?";
             suggestions = ["Remote", "Hybrid", "On-site"];
           } else if (!extractedData.timeline) {
-            greeting += "\n\nWhat's your timeline for filling this position?";
+            greeting += "What's your timeline for filling this position?";
             suggestions = ["Urgent (1-2 weeks)", "Standard (1 month)", "Flexible (2-3 months)"];
           } else if (!extractedData.flexible) {
-            greeting += "\n\nAny nice-to-have skills or flexible requirements?";
+            greeting += "Any nice-to-have skills or flexible requirements?";
           }
         } else {
           // All data is filled!
@@ -525,6 +540,21 @@ export default function ConversationalChatbot() {
         greeting = "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
       } else if (filledCount < TOTAL_FIELDS) {
         greeting = `Pulled ${filledCount}/${TOTAL_FIELDS} fields. Could be worse.\n\n`;
+        
+        // Build list of missing fields
+        const missingFields: string[] = [];
+        if (!newExtractedData.roleTitle) missingFields.push("Role Title");
+        if (!newExtractedData.department) missingFields.push("Department");
+        if (!newExtractedData.experienceLevel) missingFields.push("Experience Level");
+        if (!newExtractedData.location) missingFields.push("Location");
+        if (!newExtractedData.workModel) missingFields.push("Work Model");
+        if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
+        if (!newExtractedData.minSalary || !newExtractedData.maxSalary) missingFields.push("Salary Range");
+        if (!newExtractedData.nonNegotiables) missingFields.push("Non-Negotiables");
+        if (!newExtractedData.timeline) missingFields.push("Timeline");
+        if (!newExtractedData.flexible) missingFields.push("Nice-to-Have Skills");
+        
+        greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
         greeting += "Time to fill the gaps. No excuses.";
         
         // Intelligently ask about the first missing field with maximum sass
@@ -539,7 +569,7 @@ export default function ConversationalChatbot() {
         } else if (!newExtractedData.nonNegotiables) {
           greeting += "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
         } else if (!newExtractedData.minSalary || !newExtractedData.maxSalary) {
-          greeting += "\n\nTime to talk numbers. Salary range? And saying 'competitive' is the corporate equivalent of 'it's complicated.'";
+          greeting += "\n\nTime to talk numbers. What's your salary range? Min and max, please.";
         } else if (!newExtractedData.location) {
           greeting += "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
         } else if (!newExtractedData.workModel) {
@@ -630,12 +660,12 @@ export default function ConversationalChatbot() {
       
       {/* Job URL Input - Show at the beginning */}
       {showURLInput && (
-        <div className="mb-4 flex-shrink-0">
+        <div className="mb-2 px-4 pt-4 flex-shrink-0">
           <JobURLInput onDataExtracted={handleURLDataExtracted} />
         </div>
       )}
 
-      <div className="bg-white rounded-2xl shadow-xl overflow-hidden flex flex-col flex-1 min-h-0">
+      <div className="bg-white overflow-hidden flex flex-col flex-1 min-h-0">
         {/* Chat Header - Fixed at top */}
         <div className="bg-gradient-to-r from-[#278f8c] to-[#20706e] text-white px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
@@ -745,7 +775,7 @@ export default function ConversationalChatbot() {
               onChange={(e) => setCurrentInput(e.target.value)}
               placeholder="Type your message..."
               disabled={isLoading}
-              className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
+              className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
               style={{ minHeight: "48px", maxHeight: "48px" }}
             />
             <button

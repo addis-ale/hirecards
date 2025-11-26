@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Sparkles, Twitter, Linkedin, Github } from "lucide-react";
+import { useChatbot } from "./ChatbotProvider";
 
 export default function Footer() {
+  const { openChatbot } = useChatbot();
   return (
     <footer
       className="text-gray-300 py-8 md:py-10"
@@ -64,12 +68,12 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link
-                  href="/create"
-                  className="hover:text-[#3B7CFF] transition-colors"
+                <button
+                  onClick={() => openChatbot()}
+                  className="hover:text-[#3B7CFF] transition-colors text-left"
                 >
                   Create Deck
-                </Link>
+                </button>
               </li>
             </ul>
           </div>
