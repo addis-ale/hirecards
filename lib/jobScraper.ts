@@ -6,7 +6,8 @@
  */
 
 import * as cheerio from "cheerio";
-import puppeteer from "puppeteer";
+  import axios from "axios";
+
 
 interface ScrapedJobData {
   title: string;
@@ -25,151 +26,45 @@ interface ScrapedJobData {
  * Scrape a job description from a URL using Puppeteer
  * Works for both static HTML and JavaScript-rendered pages
  */
+
+interface ScrapedJobData {
+  title: string;
+  description: string;
+  location?: string;
+  company?: string;
+  salary?: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  benefits?: string[];
+  rawText: string;
+  source: string;
+}
+
+const SCRAPINGBEE_API_KEY = process.env.SCRAPINGBEE_API_KEY;
+
+/**
+ * Scrape a job description from a URL using ScrapingBee
+ */
 export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
-  let browser;
-
   try {
-    console.log("🚀 Starting Puppeteer scrape for:", url);
+    console.log("🚀 ScrapingBee scrape:", url);
 
-    // Try to find system-installed browser (Edge on Windows, Chrome on others)
-    const launchOptions: any = {
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-web-security",
-        "--disable-features=IsolateOrigins,site-per-process"
-      ],
-    };
+    const response = await axios.get("https://app.scrapingbee.com/api/v1/", {
+      params: {
+        api_key: SCRAPINGBEE_API_KEY,
+        url,
+        // Important: enable JS rendering
+        render_js: "true",
+        premium_proxy: "true",
+        wait: "5000", // wait extra for React pages
+      },
+    });
 
-    // Try to find system-installed browsers
-    const fs = require('fs');
-    let browserFound = false;
-
-    if (process.platform === 'win32') {
-      // Windows: Try Edge first (most commonly pre-installed), then Chrome
-      const browserPaths = [
-        'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-        'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-        'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-        'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-      ];
-      
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
-      }
-    } else if (process.platform === 'darwin') {
-      // macOS: Try Chrome, then Edge
-      const browserPaths = [
-        '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-        '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-      ];
-      
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
-      }
-    } else {
-      // Linux: Try common Chrome/Chromium locations
-      const browserPaths = [
-        '/usr/bin/google-chrome',
-        '/usr/bin/chromium-browser',
-        '/usr/bin/chromium',
-        '/snap/bin/chromium',
-      ];
-      
-      for (const browserPath of browserPaths) {
-        try {
-          if (fs.existsSync(browserPath)) {
-            console.log(`✅ Found system browser at: ${browserPath}`);
-            launchOptions.executablePath = browserPath;
-            browserFound = true;
-            break;
-          }
-        } catch (e) {
-          // Continue to next path
-        }
-      }
-    }
-
-    if (!browserFound) {
-      console.log('⚠️ No system browser found, will use Puppeteer\'s bundled Chrome (requires installation)');
-    }
-
-    // Launch browser (will use Edge if found, otherwise fall back to Puppeteer's Chrome)
-    browser = await puppeteer.launch(launchOptions);
-
-    const page = await browser.newPage();
-
-    // Enable JavaScript
-    await page.setJavaScriptEnabled(true);
-
-    // Set a realistic user agent and viewport
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    );
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    // Navigate to the page and wait for network to be mostly idle
-    try {
-      await page.goto(url, {
-        waitUntil: "networkidle2", // Wait until no more than 2 network connections for 500ms
-        timeout: 60000,
-      });
-    } catch (error) {
-      console.log("⚠️ Navigation timeout, but continuing anyway...");
-    }
-
-    // Wait longer for JavaScript to render content
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-    // Check if we got the "You need to enable JavaScript" message (means React didn't load)
-    let html = await page.content();
-    if (html.includes("You need to enable JavaScript to run this app")) {
-      console.log("⚠️ React app not loaded yet, waiting longer...");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      html = await page.content();
-    }
-
-    // Try to wait for actual content (not just the React placeholder)
-    try {
-      await page.waitForFunction(
-        () => {
-          const bodyText = document.body.innerText;
-          return bodyText.length > 500 && !bodyText.includes("You need to enable JavaScript");
-        },
-        { timeout: 10000 }
-      );
-      console.log("✅ Content loaded successfully");
-      html = await page.content();
-    } catch {
-      console.log("⚠️ Content might not be fully loaded, but continuing...");
-    }
-
-    console.log("✅ Puppeteer got HTML, length:", html.length);
-
-    // Parse with Cheerio
+    const html = response.data;
     const $ = cheerio.load(html);
+
     const hostname = new URL(url).hostname.toLowerCase();
 
-    // Determine the job board and use appropriate selectors
     let scrapedData: ScrapedJobData;
 
     if (hostname.includes("linkedin.com")) {
@@ -186,23 +81,16 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
       scrapedData = scrapeWorkday($, url);
     } else if (hostname.includes("ashbyhq.com")) {
       scrapedData = scrapeAshby($, url);
-    } else if (hostname.includes("jobs.")) {
-      scrapedData = scrapeGenericJobBoard($, url);
     } else {
-      // Generic scraping for unknown job boards
       scrapedData = scrapeGenericJobBoard($, url);
     }
 
-    console.log("✅ Scraping complete");
+    console.log("✅ ScrapingBee success");
     return scrapedData;
+
   } catch (error) {
-    console.error("❌ Error scraping job URL:", error);
-    throw new Error("Failed to scrape job description from URL");
-  } finally {
-    // Always close the browser
-    if (browser) {
-      await browser.close();
-    }
+    console.error("❌ ScrapingBee error:", error);
+    throw new Error("Failed to scrape job URL using ScrapingBee");
   }
 }
 
