@@ -704,7 +704,7 @@ export const Hero = () => {
                 >
                   Not an ATS
                 </span>
-                , not a sourcing tool.
+                , not a sourcing tool also.
               </p>
 
               <div 
