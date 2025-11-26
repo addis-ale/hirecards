@@ -26,19 +26,19 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
 
   const tabs = [
     { id: "overview", label: "Overview", Icon: LayoutDashboard },
-    { id: "role", label: "Role", Icon: Briefcase },
-    { id: "skill", label: "Skills", Icon: Code },
-    { id: "market", label: "Market", Icon: TrendingUp },
-    { id: "talentmap", label: "Talent Map", Icon: Map },
-    { id: "pay", label: "Pay", Icon: DollarSign },
-    { id: "reality", label: "Reality", Icon: Target },
-    { id: "funnel", label: "Funnel", Icon: BarChart3 },
-    { id: "fit", label: "Fit", Icon: UserCheck },
-    { id: "message", label: "Message", Icon: MessageSquare },
-    { id: "outreach", label: "Outreach", Icon: Send },
-    { id: "interview", label: "Interview", Icon: Mic },
-    { id: "scorecard", label: "Scorecard", Icon: ClipboardList },
-    { id: "plan", label: "Plan", Icon: CalendarCheck },
+    { id: "role", label: "Role Card", Icon: Briefcase },
+    { id: "skill", label: "Skills Card", Icon: Code },
+    { id: "market", label: "Market Card", Icon: TrendingUp },
+    { id: "talentmap", label: "Talent Map Card", Icon: Map },
+    { id: "pay", label: "Pay Card", Icon: DollarSign },
+    { id: "reality", label: "Reality Card", Icon: Target },
+    { id: "funnel", label: "Funnel Card", Icon: BarChart3 },
+    { id: "fit", label: "Fit Card", Icon: UserCheck },
+    { id: "message", label: "Message Card", Icon: MessageSquare },
+    { id: "outreach", label: "Outreach Card", Icon: Send },
+    { id: "interview", label: "Interview Card", Icon: Mic },
+    { id: "scorecard", label: "Scorecard Card", Icon: ClipboardList },
+    { id: "plan", label: "Plan Card", Icon: CalendarCheck },
   ];
 
   const handleDownload = () => {
