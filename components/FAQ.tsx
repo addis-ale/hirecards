@@ -19,22 +19,22 @@ const faqs = [
   {
     question: "What if my hiring needs are *actually* good? Will it say so?",
     answer:
-      "If you've got your act together, we'll tell you. If not, we'll help you fix it. Either way, you'll get battle cards that make your life easier. Win-win.",
+      "If you have got your act together, we will tell you. If not, we will help you fix it. Either way, you will get battle cards that make your life easier. Win-win.",
   },
   {
-    question: "How long does this take? I'm very impatient.",
+    question: "How long does this take? I am very impatient.",
     answer:
-      '2-3 minutes. Faster than your average coffee break. Definitely faster than reading 47 "Top 10 Hiring Tips" blog posts that all say the same thing.',
+      '2-3 minutes. Faster than your average coffee break. Definitely faster than reading 47 &quot;Top 10 Hiring Tips&quot; blog posts that all say the same thing.',
   },
   {
     question: "Can I delete my cards if I cry too much?",
     answer:
-      "Yes, but why would you? The truth hurts, but bad hires hurt more. Plus, you can edit and regenerate cards anytime. We're not monsters.",
+      "Yes, but why would you? The truth hurts, but bad hires hurt more. Plus, you can edit and regenerate cards anytime. We are not monsters.",
   },
   {
     question: "Do I need a credit card to start?",
     answer:
-      "Nope. Free to try, free to love, free to tell your friends about. We'll only ask for payment if you want the premium features (they're worth it, trust us).",
+      "Nope. Free to try, free to love, free to tell your friends about. We will only ask for payment if you want the premium features (they are worth it, trust us).",
   },
 ]
 
@@ -143,12 +143,12 @@ export default function FAQ() {
               Your Burning Questions
               <br />
               <span className="bg-gradient-to-r from-blue-600 via-violet-600 to-cyan-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_3s_linear_infinite] text-3xl md:text-4xl font-semibold">
-                (Probably Dumb, But We'll Answer)
+                (Probably Dumb, But We will Answer)
               </span>
             </h2>
 
             <p className="text-lg text-slate-600 font-medium max-w-2xl mx-auto">
-              We've got answers to the questions keeping you up at night. And the weird ones too.
+              We have got answers to the questions keeping you up at night. And the weird ones too.
             </p>
           </motion.div>
         </div>
@@ -252,7 +252,7 @@ export default function FAQ() {
           <div className="inline-block">
             <p className="text-slate-500 italic mb-6 flex items-center gap-2 justify-center">
               <Sparkles className="w-4 h-4" />
-              My circuits are fried. You're on your own now, champ.
+              My circuits are fried. You are on your own now, champ.
             </p>
             <button
               onClick={() => openChatbot()}

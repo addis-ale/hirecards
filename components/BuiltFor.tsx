@@ -10,7 +10,7 @@ const personas = [
     icon: Briefcase,
     title: "Startup Founder",
     description:
-      "Hiring is hard. Doing it wrong is expensive. You need to move fast, but you can't afford to hire the wrong person. Get strategic hiring insights without the overhead of a full talent team.",
+      "Hiring is hard. Doing it wrong is expensive. You need to move fast, but you can not afford to hire the wrong person. Get strategic hiring insights without the overhead of a full talent team.",
     gradient: "from-blue-500 to-cyan-400",
     shadowColor: "shadow-blue-500/25",
     bgAccent: "bg-blue-50",
@@ -181,7 +181,7 @@ export default function BuiltFor() {
                       }`}
                     >
                       <span className={`bg-gradient-to-r ${persona.gradient} bg-clip-text text-transparent`}>
-                        That's me
+                          That&apos;s me
                       </span>
                       <svg
                         className={`w-4 h-4 transition-transform duration-300 ${isHovered ? "translate-x-1" : ""}`}
