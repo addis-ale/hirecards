@@ -351,7 +351,27 @@ function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
     } else if (current === "Compensation" && i + 1 < lines.length) {
       // Compensation might span multiple lines
       salary = lines.slice(i + 1, i + 3).join(" ");
+    } 
+    
+    if (!salary) {
+    const compLabel = $("*")
+      .filter((_, el) => $(el).text().trim() === "Compensation")
+      .first();
+
+    if (compLabel.length) {
+      salary = compLabel.next().text().trim();
     }
+  }
+
+    if (!salary) {
+    const bodyText = $.text();
+    const match = bodyText.match(/\$[\d,.]+(?:K|M)?\s*[\–-]\s*\$[\d,.]+(?:K|M)?/i);
+    if (match) {
+      salary = match[0];
+    }
+  }
+
+    salary = salary.replace(/\s+/g, " ").trim();
   }
 
   // Try to find company name in the page
