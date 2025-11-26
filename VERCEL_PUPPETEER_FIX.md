@@ -115,11 +115,54 @@ No environment variables needed! The system automatically detects:
 - [@sparticuz/chromium Documentation](https://github.com/Sparticuz/chromium)
 - [Puppeteer-core Documentation](https://pptr.dev/)
 
+## Debugging Tools Added
+
+### Debug UI: `/debug-scraper`
+A comprehensive debugging interface to diagnose production issues:
+- **Quick Puppeteer Test** - Tests basic Puppeteer/Chromium setup
+- **Job Scraper Test** - Tests actual job URL scraping
+- **Detailed Error Display** - Shows complete error information
+- **Environment Information** - Platform, Node version, etc.
+
+### Test API: `/api/test-puppeteer`
+Standalone endpoint to test Puppeteer setup without scraping:
+```bash
+curl https://your-app.vercel.app/api/test-puppeteer
+```
+
+### Enhanced Error Logging
+- Detailed console logs at every step (🚀 📍 🔧 ✅ ❌)
+- Complete error details in API responses
+- Stack traces in development/preview
+- Helpful suggestions for common issues
+
+See `DEBUG_PUPPETEER_GUIDE.md` for complete debugging documentation.
+
 ## Next Steps
 
-1. Run `npm install` to update dependencies
-2. Test locally with `npm run dev`
-3. Deploy to Vercel with `vercel deploy`
-4. Monitor function logs for any issues
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-The job scraper should now work seamlessly in both development and production environments! 🚀
+2. **Test locally:**
+   ```bash
+   npm run dev
+   ```
+
+3. **Deploy to Vercel:**
+   ```bash
+   vercel --prod
+   ```
+
+4. **Debug if needed:**
+   - Visit `https://your-app.vercel.app/debug-scraper`
+   - Click "Run Puppeteer Test" to diagnose issues
+   - Check Vercel logs for detailed console output
+   - See error details in the debug UI
+
+5. **Share error output:**
+   - If you still have issues, copy the error JSON from the debug UI
+   - Share the test results for further diagnosis
+
+The debug tools will show you exactly what's failing in production! 🎯

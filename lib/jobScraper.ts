@@ -31,6 +31,13 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
 
   try {
     console.log("🚀 Starting Puppeteer scrape for:", url);
+    console.log("📍 Environment:", {
+      isVercel: !!process.env.VERCEL,
+      nodeEnv: process.env.NODE_ENV,
+      platform: process.platform,
+      arch: process.arch,
+      version: process.version,
+    });
 
     // Check if running in production (Vercel) or development
     const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production';
@@ -132,7 +139,13 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
     }
 
     // Launch browser
+    console.log("🔧 Launch options:", JSON.stringify({
+      ...launchOptions,
+      executablePath: launchOptions.executablePath ? "SET" : "DEFAULT",
+    }, null, 2));
+    
     browser = await puppeteer.launch(launchOptions);
+    console.log("✅ Browser launched successfully");
 
     const page = await browser.newPage();
 
@@ -213,13 +226,26 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
 
     console.log("✅ Scraping complete");
     return scrapedData;
-  } catch (error) {
+  } catch (error: any) {
     console.error("❌ Error scraping job URL:", error);
-    throw new Error("Failed to scrape job description from URL");
+    console.error("Error details:", {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      cause: error.cause,
+    });
+    
+    // Throw with detailed error information
+    throw new Error(`Failed to scrape job description: ${error.message}`);
   } finally {
     // Always close the browser
     if (browser) {
-      await browser.close();
+      try {
+        await browser.close();
+        console.log("🔒 Browser closed successfully");
+      } catch (closeError: any) {
+        console.error("⚠️ Error closing browser:", closeError.message);
+      }
     }
   }
 }
