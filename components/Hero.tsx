@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useState, useEffect } from "react";
 import { Textarea } from "./ui/textarea";
 import ConversationalChatbot from "./ConversationalChatbot";
+import ClarityScoreModal from "./ClarityScoreModal";
 
 interface AnalysisResult {
   score: number;
@@ -48,6 +49,7 @@ export const Hero = () => {
   const [loadingProgress, setLoadingProgress] = useState(0);
   const [showChatModal, setShowChatModal] = useState(false);
   const [parsedData, setParsedData] = useState<any>(null);
+  const [showClarityModal, setShowClarityModal] = useState(false);
 
   // Prevent body scroll and hide navbar when modal is open
   useEffect(() => {
@@ -232,6 +234,16 @@ export const Hero = () => {
     if (lowerURL.endsWith("/good")) return "good";
     if (lowerURL.endsWith("/great")) return "great";
     return "default";
+  };
+
+  const handleCompleteFields = () => {
+    setShowClarityModal(false);
+    setShowChatModal(true);
+  };
+
+  const handleGenerateAnyway = () => {
+    setShowClarityModal(false);
+    window.location.href = "/results";
   };
 
   const handleAnalyze = async () => {
@@ -605,6 +617,7 @@ export const Hero = () => {
 
           setAnalysisResult(result);
           setShowResults(true);
+          setShowClarityModal(true);
         } catch (roastError) {
           console.error("Error getting roast:", roastError);
           // Fallback to static message if AI fails
@@ -620,6 +633,7 @@ export const Hero = () => {
           };
           setAnalysisResult(result);
           setShowResults(true);
+          setShowClarityModal(true);
         }
       } catch (error) {
         console.error("Error analyzing role:", error);
@@ -634,6 +648,7 @@ export const Hero = () => {
         };
         setAnalysisResult(result);
         setShowResults(true);
+        setShowClarityModal(true);
       } finally {
         setIsAnalyzing(false);
       }
@@ -1140,29 +1155,15 @@ export const Hero = () => {
                           <div className="mb-4">
                             {analysisResult.score > 0 ? (
                               <>
-                                {/* Two equal buttons side by side on large screens */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-2">
-                                  {/* Primary CTA - Complete for better results */}
+                                {/* Primary CTA - Show Clarity Score Modal */}
+                                <div className="mb-2">
                                   <button
-                                    onClick={() => setShowChatModal(true)}
-                                    className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
+                                    onClick={() => setShowClarityModal(true)}
+                                    className="btn-primary w-full inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
                                   >
                                     <Target className="w-4 h-4" />
-                                    <span>Complete Missing Fields</span>
+                                    <span>View Clarity Score</span>
                                   </button>
-
-                                  {/* Secondary CTA - Generate with what we have (for people in a hurry) */}
-                                  <Link
-                                    href="/results"
-                                    className="inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5 border-2 rounded-lg font-medium transition-all hover:bg-gray-50"
-                                    style={{
-                                      color: "#278f8c",
-                                      borderColor: "#278f8c",
-                                    }}
-                                  >
-                                    <Sparkles className="w-4 h-4" />
-                                    <span>Generate Anyway (Quick)</span>
-                                  </Link>
                                 </div>
 
                                 <p
@@ -1326,6 +1327,18 @@ export const Hero = () => {
           </motion.div>
         </div>
       </div>
+
+      {/* Clarity Score Modal */}
+      <ClarityScoreModal
+        isOpen={showClarityModal}
+        onClose={() => setShowClarityModal(false)}
+        score={analysisResult?.score || 0}
+        category={analysisResult?.category || ""}
+        message={analysisResult?.message || ""}
+        missingFields={missingFields}
+        onCompleteFields={handleCompleteFields}
+        onGenerateAnyway={handleGenerateAnyway}
+      />
     </section>
   );
 };

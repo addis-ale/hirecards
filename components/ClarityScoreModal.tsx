@@ -53,72 +53,72 @@ export default function ClarityScoreModal({
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.2 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden"
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
-            <h3 className="text-xl font-bold" style={{ color: "#102a63" }}>
+          <div className="flex items-center justify-between p-4 border-b">
+            <h3 className="text-lg font-bold" style={{ color: "#102a63" }}>
               Clarity Score Analysis
             </h3>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="p-1.5 hover:bg-gray-100 rounded-full transition-colors"
               aria-label="Close"
             >
-              <X className="w-5 h-5" style={{ color: "#102a63" }} />
+              <X className="w-4 h-4" style={{ color: "#102a63" }} />
             </button>
           </div>
 
           {/* Content */}
-          <div className="p-6">
+          <div className="p-4">
             {/* Score Display */}
-            <div className={`${getCategoryBgColor()} rounded-xl p-6 mb-6`}>
-              <div className="flex items-center justify-between mb-4">
+            <div className={`${getCategoryBgColor()} rounded-xl p-4 mb-4`}>
+              <div className="flex items-center justify-between mb-3">
                 <div>
-                  <div className="text-5xl font-bold" style={{ color: "#102a63" }}>
+                  <div className="text-4xl font-bold" style={{ color: "#102a63" }}>
                     {score}/100
                   </div>
-                  <div className={`text-lg font-semibold mt-1 ${getCategoryColor()}`}>
+                  <div className={`text-base font-semibold mt-0.5 ${getCategoryColor()}`}>
                     {category}
                   </div>
                 </div>
                 {score >= 90 ? (
-                  <CheckCircle className="w-16 h-16 text-green-600" />
+                  <CheckCircle className="w-12 h-12 text-green-600" />
                 ) : (
-                  <AlertCircle className="w-16 h-16 text-yellow-600" />
+                  <AlertCircle className="w-12 h-12 text-yellow-600" />
                 )}
               </div>
 
               {/* AI Message */}
-              <div className="text-gray-700 leading-relaxed whitespace-pre-line">
+              <div className="text-gray-700 text-sm leading-snug whitespace-pre-line">
                 {message}
               </div>
             </div>
 
             {/* Missing Fields */}
             {isIncomplete && (
-              <div className="mb-6">
-                <h4 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
+              <div className="mb-4">
+                <h4 className="font-bold text-base mb-2" style={{ color: "#102a63" }}>
                   Complete These Fields for Better Results:
                 </h4>
-                <ul className="list-disc list-inside space-y-1 text-gray-700">
+                <ul className="list-disc list-inside space-y-0.5 text-sm text-gray-700">
                   {missingFields.map((field, idx) => (
                     <li key={idx}>{field}</li>
                   ))}
                 </ul>
-                <p className="text-sm text-gray-500 mt-3 italic">
+                <p className="text-xs text-gray-500 mt-2 italic">
                   Choose your path: Complete fields for accuracy, or generate quickly with what we have.
                 </p>
               </div>
             )}
 
             {/* Action Buttons */}
-            <div className="flex flex-col sm:flex-row gap-3">
+            <div className="flex flex-col sm:flex-row gap-2">
               {isIncomplete && (
                 <button
                   onClick={onCompleteFields}
-                  className="btn-primary flex-1 py-3 px-6 text-center"
+                  className="btn-primary flex-1 py-2.5 px-4 text-center text-sm"
                 >
                   Complete Missing Fields
                 </button>
@@ -129,7 +129,7 @@ export default function ClarityScoreModal({
                   isIncomplete
                     ? "btn-secondary flex-1"
                     : "btn-primary w-full"
-                } py-3 px-6 text-center`}
+                } py-2.5 px-4 text-center text-sm`}
               >
                 {isIncomplete ? "Generate Anyway (Quick)" : "Generate HireCard"}
               </button>
