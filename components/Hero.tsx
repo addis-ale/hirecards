@@ -241,6 +241,11 @@ export const Hero = () => {
     setShowChatModal(true);
   };
 
+  const handleChatbotClose = () => {
+    setShowChatModal(false);
+    setShowClarityModal(true); // Reopen clarity modal
+  };
+
   const handleGenerateAnyway = () => {
     setShowClarityModal(false);
     window.location.href = "/results";
@@ -657,7 +662,7 @@ export const Hero = () => {
 
   return (
     <section
-      className="relative min-h-screen flex items-center pt-24 pb-0 md:pt-32 md:pb-4 overflow-hidden mb-8"
+      className="relative min-h-screen flex items-center pt-24 pb-16 md:pt-28 md:pb-20 overflow-hidden"
       style={{ backgroundColor: "#f5f5f5" }}
     >
       <div className="section-container relative z-10 w-full">
@@ -668,54 +673,70 @@ export const Hero = () => {
             transition={{ duration: 0.6 }}
           >
             <h1
-              className="text-3xl md:text-4xl lg:text-5xl font-bold mb-6 leading-relaxed mt-8 md:mt-12"
+              className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-4 leading-tight"
               style={{ color: "#102a63" }}
             >
-              YOUR HIRING STRATEGY
-              <br />
-              IS PROBABLY TRASH ANYWAY.
-              <br />
+              Instant Hiring{" "}
               <span
-                className="px-2 py-0.5 rounded-lg"
+                className="inline-block px-3 py-1 rounded-lg"
                 style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
               >
-                PROVE US WRONG.
+                Reality Check
               </span>
             </h1>
 
-            <p
-              className="text-xl md:text-2xl mb-4 max-w-3xl mx-auto leading-relaxed"
-              style={{ color: "#102a63", opacity: 0.9 }}
-            >
-              Most roles fail before they hit the market.{" "}
-              <span className="font-bold" style={{ color: "#102a63" }}>
-                Wrong scope
-              </span>
-              ,{" "}
-              <span className="font-bold" style={{ color: "#102a63" }}>
-                wrong salary
-              </span>
-              ,{" "}
-              <span className="font-bold" style={{ color: "#102a63" }}>
-                wrong expectations
-              </span>
-              .
-            </p>
-
-            <p
-              className="text-base md:text-lg mb-4 max-w-3xl mx-auto leading-relaxed"
-              style={{ color: "#102a63", opacity: 0.8 }}
-            >
-              Paste a job URL or add a few role details. Get a full hiring
-              strategy in under{" "}
-              <span
-                className="px-1.5 py-0.5 rounded-lg font-bold"
-                style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
+            <div className="max-w-4xl mx-auto mb-6">
+              <p
+                className="text-lg md:text-xl mb-3 leading-snug font-medium"
+                style={{ color: "#102a63", opacity: 0.9 }}
               >
-                5 minutes
-              </span>
-              .
-            </p>
+                HireCards is the{" "}
+                <span 
+                  className="font-bold relative inline-block"
+                  style={{ color: "#278f8c" }}
+                >
+                  strategy layer before hiring starts
+                </span>
+                .{" "}
+                <span 
+                  className="px-2 py-0.5 rounded font-semibold"
+                  style={{ backgroundColor: "#ef4444", color: "white" }}
+                >
+                  Not an ATS
+                </span>
+                , not a sourcing tool.
+              </p>
+
+              <div 
+                className="w-12 h-0.5 mx-auto mb-3 rounded-full"
+                style={{ backgroundColor: "#278f8c" }}
+              />
+
+              <p
+                className="text-base md:text-lg mb-3 leading-snug"
+                style={{ color: "#102a63", opacity: 0.8 }}
+              >
+                Most roles fail before hiring even begins because{" "}
+                <span className="font-semibold" style={{ color: "#102a63" }}>
+                  scope, salary, and expectations don&apos;t match reality
+                </span>
+                .
+              </p>
+
+              <p
+                className="text-sm md:text-base leading-snug max-w-3xl mx-auto"
+                style={{ color: "#102a63", opacity: 0.85 }}
+              >
+                Paste a job post or add details. See hireability, what&apos;s off, how to fix it. Get your complete strategy in{" "}
+                <span
+                  className="px-2 py-0.5 rounded-lg font-bold inline-block"
+                  style={{ backgroundColor: "#d7f4f2", color: "#102a63" }}
+                >
+                  under 5 minutes
+                </span>
+                .
+              </p>
+            </div>
 
             {/* Full Screen Loading Dialog */}
             <AnimatePresence>
@@ -986,13 +1007,13 @@ export const Hero = () => {
 
             {/* Role Description Input Section */}
             <div className="max-w-3xl mx-auto mb-4">
-              <div className="flex flex-col gap-3 p-2 bg-white rounded-xl shadow-lg border border-gray-200 relative">
+              <div className="flex flex-col gap-2 p-3 bg-white rounded-xl shadow-lg border-2 relative" style={{ borderColor: "#d7f4f2" }}>
                 <div className="flex-1 relative">
                   <Textarea
                     value={roleDescription}
                     onChange={(e) => setRoleDescription(e.target.value)}
-                    placeholder="Paste a job URL or add a few role details. Get a full hiring strategy in under 5 minutes."
-                    className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 resize-none"
+                    placeholder="Paste a job post URL or type details... (e.g., 'Senior React Developer in NYC')"
+                    className="border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 resize-none text-sm md:text-base"
                     disabled={isAnalyzing}
                     rows={3}
                     onKeyDown={(e) => {
@@ -1006,226 +1027,27 @@ export const Hero = () => {
                 <button
                   onClick={handleAnalyze}
                   disabled={isAnalyzing || !roleDescription.trim()}
-                  className="btn-primary w-full flex items-center justify-center space-x-2 text-xs px-6 py-2 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="w-full flex items-center justify-center space-x-2 px-6 py-3 rounded-lg font-bold text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md"
+                  style={{
+                    backgroundColor: isAnalyzing || !roleDescription.trim() ? "#cccccc" : "#278f8c",
+                    color: "white",
+                  }}
                 >
                   {isAnalyzing ? (
                     <>
-                      <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                       <span>Analyzing...</span>
                     </>
                   ) : (
-                    <span>Run My Reality Check</span>
+                    <>
+                      <Sparkles className="w-4 h-4" />
+                      <span>Get My Hiring Reality Check</span>
+                    </>
                   )}
                 </button>
               </div>
             </div>
 
-            {/* Analysis Results Section */}
-            <AnimatePresence>
-              {showResults && analysisResult && (
-                <motion.div
-                  initial={{ opacity: 0, y: 20, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                  transition={{ duration: 0.5, ease: "easeOut" }}
-                  className="max-w-3xl mx-auto mb-8 mt-6"
-                >
-                  <div
-                    className="bg-white rounded-xl shadow-lg border-2 p-6 md:p-8"
-                    style={{ borderColor: "#d7f4f2" }}
-                  >
-                    {/* Debug: Scraped Data Preview */}
-                    {parsedData && (
-                      <details className="bg-gray-50 border border-gray-200 rounded p-3 mb-4 text-xs text-left w-full">
-                        <summary className="font-bold cursor-pointer text-gray-700 hover:text-gray-900">
-                          🐛 Debug: View Scraped Data
-                        </summary>
-                        <div className="mt-3 space-y-2">
-                          <div><strong>Job Title:</strong> {parsedData.jobTitle || 'None'}</div>
-                          <div><strong>Company:</strong> {parsedData.company || 'None'}</div>
-                          <div><strong>Location:</strong> {parsedData.location || 'None'}</div>
-                          <div><strong>Work Model:</strong> {parsedData.workModel || 'None'}</div>
-                          <div><strong>Experience Level:</strong> {parsedData.experienceLevel || 'None'}</div>
-                          <div><strong>Department:</strong> {parsedData.department || 'None'}</div>
-                          <div><strong>Salary:</strong> {parsedData.minSalary && parsedData.maxSalary ? `${parsedData.minSalary} - ${parsedData.maxSalary}` : 'None'}</div>
-                          <div><strong>Skills:</strong> {parsedData.skills?.length > 0 ? parsedData.skills.join(', ') : 'None'}</div>
-                          <div><strong>Requirements:</strong> {parsedData.requirements?.length > 0 ? parsedData.requirements.slice(0, 3).join(', ') : 'None'}</div>
-                          <div><strong>Confidence:</strong> {parsedData.confidence || 0}</div>
-                          <div><strong>Is Job Posting:</strong> {parsedData.isJobPosting !== undefined ? (parsedData.isJobPosting ? '✅ Yes' : '❌ No') : 'Unknown'}</div>
-                          <div className="pt-2 border-t border-gray-300">
-                            <strong>Description Preview:</strong>
-                            <div className="mt-1 p-2 bg-white rounded text-xs max-h-32 overflow-y-auto">
-                              {parsedData.description?.substring(0, 500) || 'None'}...
-                            </div>
-                          </div>
-                        </div>
-                      </details>
-                    )}
-
-                    {/* Score Header */}
-                    <div className="flex flex-col items-center mb-4">
-                      <div
-                        className="mb-3"
-                        style={{
-                          color:
-                            analysisResult.score === 0 ? "#ef4444" : "#278f8c",
-                        }}
-                      >
-                        {analysisResult.icon}
-                      </div>
-                      <div className="text-center">
-                        <div
-                          className="text-5xl md:text-6xl font-bold mb-1"
-                          style={{
-                            color:
-                              analysisResult.score === 0
-                                ? "#ef4444"
-                                : "#278f8c",
-                          }}
-                        >
-                          {analysisResult.score}
-                          <span className="text-3xl md:text-4xl">/100</span>
-                        </div>
-                        <div
-                          className="text-xl md:text-2xl font-bold"
-                          style={{
-                            color:
-                              analysisResult.score === 0
-                                ? "#ef4444"
-                                : "#102a63",
-                          }}
-                        >
-                          {analysisResult.category}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Message */}
-                    <div className="mb-6">
-                      <p
-                        className="text-base md:text-lg leading-relaxed text-center"
-                        style={{ color: "#102a63" }}
-                      >
-                        {analysisResult.message}
-                      </p>
-                    </div>
-
-                    {/* Divider */}
-                    <div className="border-t border-gray-200 my-5"></div>
-
-                    {/* Call to Action Section */}
-                    <div className="text-center">
-                      {analysisResult.isIncomplete ? (
-                        <>
-                          {/* Show uncertainty warning */}
-                          <div className="mb-4">
-                            <p
-                              className="text-sm font-bold mb-3"
-                              style={{ color: "#102a63" }}
-                            >
-                              Complete These Fields for Better Results:
-                            </p>
-                            <div className="flex flex-wrap gap-2 justify-center mb-4">
-                              {missingFields.map(
-                                (field: string, idx: number) => (
-                                  <span
-                                    key={idx}
-                                    className="text-xs px-3 py-1 rounded-full font-medium"
-                                    style={{
-                                      backgroundColor: "#d7f4f2",
-                                      color: "#102a63",
-                                    }}
-                                  >
-                                    {field}
-                                  </span>
-                                )
-                              )}
-                            </div>
-                            {analysisResult.score > 0 && (
-                              <p
-                                className="text-xs text-center mb-3 leading-relaxed"
-                                style={{ color: "#102a63", opacity: 0.8 }}
-                              >
-                                Choose your path: Complete fields for accuracy,
-                                or generate quickly with what we have.
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="mb-4">
-                            {analysisResult.score > 0 ? (
-                              <>
-                                {/* Primary CTA - Show Clarity Score Modal */}
-                                <div className="mb-2">
-                                  <button
-                                    onClick={() => setShowClarityModal(true)}
-                                    className="btn-primary w-full inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
-                                  >
-                                    <Target className="w-4 h-4" />
-                                    <span>View Clarity Score</span>
-                                  </button>
-                                </div>
-
-                                <p
-                                  className="text-xs text-center leading-relaxed"
-                                  style={{ color: "#102a63", opacity: 0.7 }}
-                                >
-                                  Complete fields for accurate results, or
-                                  generate quickly with what we have
-                                </p>
-                              </>
-                            ) : (
-                              <>
-                                {/* Only show Complete Fields button when score is 0 */}
-                                <button
-                                  onClick={() => setShowChatModal(true)}
-                                  className="btn-primary w-full inline-flex items-center justify-center space-x-2 text-sm px-4 py-2.5"
-                                >
-                                  <Target className="w-4 h-4" />
-                                  <span>Start Over - Add Job Details</span>
-                                </button>
-                              </>
-                            )}
-                          </div>
-                        </>
-                      ) : (
-                        <div className="mb-4">
-                          <Link
-                            href="/results"
-                            className="btn-primary inline-flex items-center justify-center space-x-2 text-sm px-6 py-3 mb-2 w-full sm:w-auto"
-                          >
-                            <Sparkles className="w-4 h-4" />
-                            <span>
-                              Get Your Full HireCard Strategy For This Role
-                            </span>
-                          </Link>
-                          <p
-                            className="text-xs md:text-sm leading-relaxed font-medium"
-                            style={{ color: "#102a63", opacity: 0.9 }}
-                          >
-                            Complete clarity analysis, competitor benchmarking,
-                            sourcing strategy, and battle-tested reality check,
-                            tailored to your specific role. Stop guessing, start
-                            hiring with confidence.
-                          </p>
-                        </div>
-                      )}
-                      <button
-                        onClick={() => {
-                          setShowResults(false);
-                          setRoleDescription("");
-                          setLoadingProgress(0);
-                        }}
-                        className="text-xs font-medium underline hover:no-underline transition-all"
-                        style={{ color: "#278f8c" }}
-                      >
-                        Try Another Role
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
 
             {/* Chatbot Modal */}
             <AnimatePresence>
@@ -1235,7 +1057,7 @@ export const Hero = () => {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-                  onClick={() => setShowChatModal(false)}
+                  onClick={handleChatbotClose}
                 >
                   <motion.div
                     initial={{ scale: 0.9, opacity: 0 }}
@@ -1264,7 +1086,7 @@ export const Hero = () => {
                         </h2>
                       </div>
                       <button
-                        onClick={() => setShowChatModal(false)}
+                        onClick={handleChatbotClose}
                         className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
                         aria-label="Close"
                       >
@@ -1297,31 +1119,53 @@ export const Hero = () => {
               )}
             </AnimatePresence>
 
-            <p
-              className="text-sm mb-12 mt-6"
-              style={{ color: "#102a63", opacity: 0.8 }}
-            >
-              No pressure. It&apos;s only your hiring budget on the line.
-            </p>
-
-            <div
-              className="flex flex-wrap items-center justify-center gap-8 text-base mt-12"
-              style={{ color: "#102a63" }}
-            >
-              <div className="flex items-center space-x-2">
-                <Zap
-                  className="w-7 h-7"
-                  style={{ color: "#278f8c", fill: "#278f8c" }}
-                />
-                <span className="font-medium">Faster than regret</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Target className="w-7 h-7" style={{ color: "#278f8c" }} />
-                <span className="font-medium">Brutally honest scoring</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Sparkles className="w-7 h-7" style={{ color: "#278f8c" }} />
-                <span className="font-medium">No BS, just data</span>
+            <div className="mt-6">
+              <div className="flex flex-wrap items-center justify-center gap-3 md:gap-6">
+                <div 
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white shadow-sm border-2 transition-transform hover:scale-105"
+                  style={{ borderColor: "#d7f4f2" }}
+                >
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "#d7f4f2" }}
+                  >
+                    <Zap
+                      className="w-4 h-4"
+                      style={{ color: "#278f8c", fill: "#278f8c" }}
+                    />
+                  </div>
+                  <span className="font-semibold text-sm" style={{ color: "#102a63" }}>
+                    5-minute strategy
+                  </span>
+                </div>
+                <div 
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white shadow-sm border-2 transition-transform hover:scale-105"
+                  style={{ borderColor: "#d7f4f2" }}
+                >
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "#d7f4f2" }}
+                  >
+                    <Target className="w-4 h-4" style={{ color: "#278f8c" }} />
+                  </div>
+                  <span className="font-semibold text-sm" style={{ color: "#102a63" }}>
+                    Reality-based scoring
+                  </span>
+                </div>
+                <div 
+                  className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-white shadow-sm border-2 transition-transform hover:scale-105"
+                  style={{ borderColor: "#d7f4f2" }}
+                >
+                  <div 
+                    className="w-8 h-8 rounded-full flex items-center justify-center"
+                    style={{ backgroundColor: "#d7f4f2" }}
+                  >
+                    <CheckCircle className="w-4 h-4" style={{ color: "#278f8c" }} />
+                  </div>
+                  <span className="font-semibold text-sm" style={{ color: "#102a63" }}>
+                    Fix issues before posting
+                  </span>
+                </div>
               </div>
             </div>
           </motion.div>
