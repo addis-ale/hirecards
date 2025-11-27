@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import {
   Zap,
   Target,
@@ -23,7 +25,6 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-  type ListX as JSX,
 } from "lucide-react"
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
@@ -35,14 +36,13 @@ interface AnalysisResult {
   score: number
   category: string
   message: string
-  icon: JSX.Element
+  icon: React.ReactNode
   isIncomplete?: boolean
   hasAnyData?: boolean
   isInvalidURL?: boolean
   isProfileURL?: boolean
 }
 
-// Floating orb component for background
 const FloatingOrb = ({
   delay,
   duration,
@@ -51,13 +51,13 @@ const FloatingOrb = ({
   initialY,
 }: { delay: number; duration: number; size: number; initialX: number; initialY: number }) => (
   <motion.div
-    className="absolute rounded-full blur-3xl opacity-30 pointer-events-none"
+    className="absolute rounded-full blur-3xl opacity-[0.08] pointer-events-none"
     style={{
       width: size,
       height: size,
       left: `${initialX}%`,
       top: `${initialY}%`,
-      background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #14b8a6 100%)",
+      background: "linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)",
     }}
     animate={{
       x: [0, 50, -30, 0],
@@ -73,23 +73,21 @@ const FloatingOrb = ({
   />
 )
 
-// Grid pattern background
 const GridPattern = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <div
       className="absolute inset-0 opacity-[0.03]"
       style={{
-        backgroundImage: `linear-gradient(#0f172a 1.5px, transparent 1.5px), linear-gradient(90deg, #0f172a 1.5px, transparent 1.5px)`,
+        backgroundImage: `linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)`,
         backgroundSize: "60px 60px",
       }}
     />
   </div>
 )
 
-// Animated beam component
 const AnimatedBeam = ({ delay }: { delay: number }) => (
   <motion.div
-    className="absolute h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent"
+    className="absolute h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"
     style={{ width: "200px", left: "-200px", top: "50%" }}
     animate={{ x: [0, 2000] }}
     transition={{ duration: 4, delay, repeat: Number.POSITIVE_INFINITY, ease: "linear", repeatDelay: 2 }}
@@ -116,7 +114,6 @@ export const Hero = () => {
   const springX = useSpring(mouseX, { stiffness: 50, damping: 20 })
   const springY = useSpring(mouseY, { stiffness: 50, damping: 20 })
 
-  // Mouse tracking for subtle parallax
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (containerRef.current) {
@@ -131,7 +128,6 @@ export const Hero = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [mouseX, mouseY])
 
-  // Prevent body scroll when modal is open
   useEffect(() => {
     if (showChatModal) {
       const originalOverflow = document.body.style.overflow
@@ -520,7 +516,7 @@ export const Hero = () => {
     <section
       ref={containerRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ background: "linear-gradient(180deg, #0a0a0f 0%, #0f172a 50%, #0a0a0f 100%)" }}
+      style={{ background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%)" }}
     >
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -542,82 +538,84 @@ export const Hero = () => {
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 50%, transparent 0%, #0a0a0f 100%)",
+          background: "radial-gradient(ellipse 80% 50% at 50% 50%, transparent 0%, rgba(255,255,255,0.9) 100%)",
         }}
       />
 
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 md:py-32">
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <motion.div style={{ x: springX, y: springY }} className="text-center">
-          {/* Badge */}
+          {/* Badge - light theme badge */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-cyan-500/30 bg-cyan-500/10 backdrop-blur-sm mb-8"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-200 bg-emerald-50 backdrop-blur-sm mb-8"
           >
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            <span className="text-cyan-300 text-sm font-medium tracking-wide">AI-Powered Hiring Intelligence</span>
+            <span className="text-emerald-700 text-sm font-medium tracking-wide">AI-Powered Hiring Intelligence</span>
           </motion.div>
 
-          {/* Main headline */}
+          {/* Main headline - dark text for light background */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-balance"
           >
-            <span className="text-white">Stop </span>
+            <span className="text-slate-800">Stop </span>
             <span className="relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-red-400 via-rose-400 to-orange-400 bg-clip-text text-transparent">
+              <span className="relative z-10 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 bg-clip-text text-transparent">
                 Guessing
               </span>
               <motion.span
-                className="absolute -inset-1 bg-gradient-to-r from-red-500/20 to-orange-500/20 blur-lg rounded-lg"
-                animate={{ opacity: [0.5, 0.8, 0.5] }}
+                className="absolute -inset-1 bg-gradient-to-r from-red-500/10 to-orange-500/10 blur-lg rounded-lg"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
               />
             </span>
             <br />
-            <span className="text-white">Start </span>
+            <span className="text-slate-800">Start </span>
             <span className="relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-cyan-400 via-teal-400 to-emerald-400 bg-clip-text text-transparent">
+              <span className="relative z-10 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">
                 Hiring Right
               </span>
               <motion.span
-                className="absolute -inset-1 bg-gradient-to-r from-cyan-500/20 to-emerald-500/20 blur-lg rounded-lg"
-                animate={{ opacity: [0.5, 0.8, 0.5] }}
+                className="absolute -inset-1 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 blur-lg rounded-lg"
+                animate={{ opacity: [0.3, 0.6, 0.3] }}
                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, delay: 1 }}
               />
             </span>
           </motion.h1>
 
-          {/* Subheadline */}
+          {/* Subheadline - slate text for light bg */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg sm:text-xl md:text-2xl text-slate-400 max-w-3xl mx-auto mb-4 leading-relaxed text-pretty"
+            className="text-lg sm:text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto mb-4 leading-relaxed text-pretty"
           >
-            Get an instant <span className="text-white font-semibold">reality check</span> on your job posting.
+            Get an instant <span className="text-slate-800 font-semibold">reality check</span> on your job posting.
             <br className="hidden sm:block" />
-            Know your <span className="text-cyan-400">hireability score</span> before you waste weeks.
+            Know your <span className="text-emerald-600">hireability score</span> before you waste weeks.
           </motion.p>
 
-          {/* Warning tag */}
+          {/* Warning tag - light theme warning */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-500/10 border border-rose-500/30 mb-10"
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 mb-10"
           >
-            <AlertTriangle className="w-4 h-4 text-rose-400" />
-            <div className="text-rose-300 text-sm font-medium"><span className="text-[25px]">Not an ATS</span> • Not a sourcing tool • Pure strategy</div>
+            <AlertTriangle className="w-4 h-4 text-rose-500" />
+            <div className="text-rose-600 text-sm font-medium">
+              <span className="text-[25px]">Not an ATS</span> • Not a sourcing tool • Pure strategy
+            </div>
           </motion.div>
 
-          {/* Input Section */}
+          {/* Input Section - light theme input box */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -627,15 +625,15 @@ export const Hero = () => {
             <div
               className={`relative rounded-2xl transition-all duration-500 ${
                 isInputFocused
-                  ? "shadow-[0_0_60px_-15px_rgba(6,182,212,0.5)]"
-                  : "shadow-[0_0_30px_-15px_rgba(6,182,212,0.3)]"
+                  ? "shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]"
+                  : "shadow-[0_0_20px_-10px_rgba(16,185,129,0.15)]"
               }`}
             >
               {/* Gradient border effect */}
-              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-cyan-500 via-teal-500 to-emerald-500 opacity-50" />
+              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-40" />
 
-              <div className="relative bg-slate-900/90 backdrop-blur-xl rounded-2xl p-1.5">
-                <div className="bg-slate-800/50 rounded-xl p-4">
+              <div className="relative bg-white rounded-2xl p-1.5">
+                <div className="bg-slate-50 rounded-xl p-4">
                   <Textarea
                     value={roleDescription}
                     onChange={(e) => setRoleDescription(e.target.value)}
@@ -644,7 +642,7 @@ export const Hero = () => {
                     placeholder="Paste a job post URL or describe your role...
 
 Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
-                    className="bg-transparent border-0 shadow-none focus-visible:ring-0 resize-none text-base md:text-lg text-slate-200 placeholder:text-slate-500 min-h-[120px]"
+                    className="bg-transparent border-0 shadow-none focus-visible:ring-0 resize-none text-base md:text-lg text-slate-800 placeholder:text-slate-400 min-h-[120px]"
                     disabled={isAnalyzing}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
@@ -662,25 +660,25 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="mt-4 pt-4 border-t border-slate-700/50"
+                        className="mt-4 pt-4 border-t border-slate-200"
                       >
                         <button
                           onClick={() => setShowScrapedData(!showScrapedData)}
-                          className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 transition-colors group"
+                          className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors group"
                         >
                           <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-cyan-400" />
-                            <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
+                            <FileText className="w-4 h-4 text-emerald-600" />
+                            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">
                               View Scraped Data
                             </span>
-                            <span className="text-xs text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded-full">
+                            <span className="text-xs text-slate-500 bg-white px-2 py-0.5 rounded-full">
                               {parsedData.isURL ? "From URL" : "From Text"}
                             </span>
                           </div>
                           {showScrapedData ? (
-                            <ChevronUp className="w-4 h-4 text-slate-400" />
+                            <ChevronUp className="w-4 h-4 text-slate-500" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-slate-400" />
+                            <ChevronDown className="w-4 h-4 text-slate-500" />
                           )}
                         </button>
 
@@ -691,43 +689,43 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                               animate={{ opacity: 1, height: "auto" }}
                               exit={{ opacity: 0, height: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="mt-2 p-4 rounded-lg bg-slate-800/50 border border-slate-700/50 overflow-hidden"
+                              className="mt-2 p-4 rounded-lg bg-white border border-slate-200 overflow-hidden"
                             >
                               <div className="max-h-[300px] overflow-y-auto space-y-3 text-sm">
                                 {parsedData.jobTitle && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Job Title:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.jobTitle}</span>
+                                    <span className="ml-2 text-slate-700">{parsedData.jobTitle}</span>
                                   </div>
                                 )}
                                 {parsedData.department && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Department:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.department}</span>
+                                    <span className="ml-2 text-slate-700">{parsedData.department}</span>
                                   </div>
                                 )}
                                 {parsedData.experienceLevel && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Experience Level:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.experienceLevel}</span>
+                                    <span className="ml-2 text-slate-700">{parsedData.experienceLevel}</span>
                                   </div>
                                 )}
                                 {parsedData.location && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Location:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.location}</span>
+                                    <span className="ml-2 text-slate-700">{parsedData.location}</span>
                                   </div>
                                 )}
                                 {parsedData.workModel && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Work Model:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.workModel}</span>
+                                    <span className="ml-2 text-slate-700">{parsedData.workModel}</span>
                                   </div>
                                 )}
                                 {parsedData.minSalary && parsedData.maxSalary && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Salary Range:</span>
-                                    <span className="ml-2 text-slate-300">
+                                    <span className="ml-2 text-slate-700">
                                       ${parsedData.minSalary} - ${parsedData.maxSalary}
                                     </span>
                                   </div>
@@ -739,7 +737,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                                       {parsedData.skills.map((skill: string, index: number) => (
                                         <span
                                           key={index}
-                                          className="px-2 py-1 bg-cyan-500/10 border border-cyan-500/30 rounded text-cyan-300 text-xs"
+                                          className="px-2 py-1 bg-emerald-50 border border-emerald-200 rounded text-emerald-700 text-xs"
                                         >
                                           {skill}
                                         </span>
@@ -750,7 +748,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                                 {parsedData.requirements && parsedData.requirements.length > 0 && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Requirements:</span>
-                                    <ul className="mt-1 ml-4 space-y-1 list-disc list-inside text-slate-300">
+                                    <ul className="mt-1 ml-4 space-y-1 list-disc list-inside text-slate-700">
                                       {parsedData.requirements.map((req: string, index: number) => (
                                         <li key={index}>{req}</li>
                                       ))}
@@ -760,13 +758,13 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                                 {parsedData.timeline && (
                                   <div>
                                     <span className="text-slate-500 font-medium">Timeline:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.timeline}</span>
+                                    <span className="ml-2 text-slate-700">{parsedData.timeline}</span>
                                   </div>
                                 )}
                                 {parsedData.confidence !== undefined && (
-                                  <div className="pt-2 border-t border-slate-700/50">
+                                  <div className="pt-2 border-t border-slate-200">
                                     <span className="text-slate-500 font-medium">Confidence Score:</span>
-                                    <span className="ml-2 text-slate-300">
+                                    <span className="ml-2 text-slate-700">
                                       {Math.round(parsedData.confidence * 100)}%
                                     </span>
                                   </div>
@@ -779,7 +777,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                     )}
                   </AnimatePresence>
 
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-700/50">
+                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
                     <div className="flex items-center gap-2 text-slate-500 text-sm">
                       <MousePointer2 className="w-4 h-4" />
                       <span>Press Enter to analyze</span>
@@ -794,8 +792,8 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                       style={{
                         background:
                           isAnalyzing || !roleDescription.trim()
-                            ? "#374151"
-                            : "linear-gradient(135deg, #0ea5e9 0%, #14b8a6 100%)",
+                            ? "#d1d5db"
+                            : "linear-gradient(135deg, #10b981 0%, #14b8a6 100%)",
                       }}
                     >
                       {/* Button shine effect */}
@@ -820,7 +818,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
             </div>
           </motion.div>
 
-          {/* Feature pills */}
+          {/* Feature pills - light theme pills - removed floating hover effect */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -828,22 +826,21 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
             className="flex flex-wrap items-center justify-center gap-4"
           >
             {[
-              { icon: Zap, text: "5-minute strategy", color: "from-amber-500 to-orange-500" },
-              { icon: Target, text: "Reality-based scoring", color: "from-cyan-500 to-teal-500" },
-              { icon: CheckCircle, text: "Fix issues before posting", color: "from-emerald-500 to-green-500" },
+              { icon: Zap, text: "5-minute strategy", color: "from-amber-400 to-orange-400" },
+              { icon: Target, text: "Reality-based scoring", color: "from-emerald-400 to-teal-400" },
+              { icon: CheckCircle, text: "Fix issues before posting", color: "from-cyan-400 to-blue-400" },
             ].map((feature, index) => (
               <motion.div
                 key={feature.text}
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                whileHover={{ scale: 1.05, y: -2 }}
-                className="group flex items-center gap-3 px-5 py-3 rounded-full bg-slate-800/50 border border-slate-700/50 backdrop-blur-sm hover:border-slate-600 transition-all cursor-default"
+                className="group flex items-center gap-3 px-5 py-3 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-default"
               >
                 <div className={`p-2 rounded-full bg-gradient-to-br ${feature.color}`}>
                   <feature.icon className="w-4 h-4 text-white" />
                 </div>
-                <span className="text-slate-300 font-medium text-sm group-hover:text-white transition-colors">
+                <span className="text-slate-600 font-medium text-sm group-hover:text-slate-800 transition-colors">
                   {feature.text}
                 </span>
               </motion.div>
@@ -852,7 +849,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
         </motion.div>
       </div>
 
-      {/* Full Screen Loading Dialog */}
+      {/* Full Screen Loading Dialog - light theme loading */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
@@ -860,7 +857,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ background: "linear-gradient(180deg, #0a0a0f 0%, #0f172a 50%, #0a0a0f 100%)" }}
+            style={{ background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%)" }}
           >
             <style jsx global>{`
               body { overflow: hidden !important; }
@@ -877,8 +874,8 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                 animate={{ scale: [1, 1.1, 1] }}
                 transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
               >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 blur-xl opacity-50" />
-                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 flex items-center justify-center">
+                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 blur-xl opacity-40" />
+                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center">
                   <Sparkles className="w-10 h-10 text-white" />
                 </div>
               </motion.div>
@@ -886,21 +883,21 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
               <motion.h2
                 initial={{ y: -20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                className="text-2xl md:text-3xl font-bold text-white mb-2"
+                className="text-2xl md:text-3xl font-bold text-slate-800 mb-2"
               >
                 Analyzing Your Role
               </motion.h2>
-              <p className="text-slate-400 mb-8">Keep this page open for your personalized analysis</p>
+              <p className="text-slate-600 mb-8">Keep this page open for your personalized analysis</p>
 
               {/* Progress bar */}
               <div className="mb-8">
                 <div className="flex justify-between mb-2">
-                  <span className="text-cyan-400 font-medium">Processing...</span>
-                  <span className="text-cyan-400 font-bold">{Math.round(loadingProgress)}%</span>
+                  <span className="text-emerald-600 font-medium">Processing...</span>
+                  <span className="text-emerald-600 font-bold">{Math.round(loadingProgress)}%</span>
                 </div>
-                <div className="h-2 bg-slate-800 rounded-full overflow-hidden">
+                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full rounded-full relative bg-gradient-to-r from-cyan-500 to-teal-500"
+                    className="h-full rounded-full relative bg-gradient-to-r from-emerald-500 to-teal-500"
                     initial={{ width: 0 }}
                     animate={{ width: `${loadingProgress}%` }}
                     transition={{ duration: 0.3 }}
@@ -922,13 +919,13 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
-                className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-slate-800/50 border border-slate-700/50"
+                className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-white border border-slate-200 shadow-sm"
               >
                 {(() => {
                   const IconComponent = loadingMessages[loadingMessageIndex].icon
-                  return <IconComponent className="w-5 h-5 text-cyan-400" />
+                  return <IconComponent className="w-5 h-5 text-emerald-600" />
                 })()}
-                <span className="text-slate-300">{loadingMessages[loadingMessageIndex].text}</span>
+                <span className="text-slate-700">{loadingMessages[loadingMessageIndex].text}</span>
               </motion.div>
 
               <p className="text-slate-500 text-sm mt-6">Initial generation takes 30-45 seconds</p>
@@ -937,14 +934,14 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
         )}
       </AnimatePresence>
 
-      {/* Chatbot Modal */}
+      {/* Chatbot Modal - light theme modal */}
       <AnimatePresence>
         {showChatModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md"
             onClick={handleChatbotClose}
           >
             <motion.div
@@ -952,20 +949,20 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col border border-slate-700/50"
+              className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col border border-slate-200"
               style={{ height: "85vh", maxHeight: "700px" }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-5 border-b border-slate-700/50 bg-slate-800/50">
+              <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50">
                 <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-cyan-500 to-teal-500">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500">
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
-                  <h2 className="text-lg font-bold text-white">Complete Your Hiring Strategy</h2>
+                  <h2 className="text-lg font-bold text-slate-800">Complete Your Hiring Strategy</h2>
                 </div>
                 <button
                   onClick={handleChatbotClose}
-                  className="p-2 hover:bg-slate-700/50 rounded-lg transition-colors text-slate-400 hover:text-white"
+                  className="p-2 hover:bg-slate-200 rounded-lg transition-colors text-slate-500 hover:text-slate-800"
                 >
                   <svg
                     className="w-5 h-5"
@@ -980,7 +977,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                   </svg>
                 </button>
               </div>
-              <div className="flex-1 min-h-0 flex flex-col bg-slate-900">
+              <div className="flex-1 min-h-0 flex flex-col bg-white">
                 <div className="p-4 flex-1 flex flex-col min-h-0">
                   <ConversationalChatbot />
                 </div>

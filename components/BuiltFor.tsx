@@ -21,20 +21,20 @@ const personas = [
     title: "Talent Acquisition Manager",
     description:
       "Drowning in reqs. Doing the work of 5 people. Juggling multiple roles while hiring managers expect magic. This is your life raft - instant battle cards that make you look like a strategic genius.",
-    gradient: "from-violet-500 to-purple-400",
+    gradient: "from-violet-600 to-purple-500",
     shadowColor: "shadow-violet-500/25",
-    bgAccent: "bg-violet-50",
-    dark: true,
+    bgAccent: "bg-violet-100",
+    dark: false,
   },
   {
     icon: Target,
     title: "Hiring Manager",
     description:
       "You just want a job description that makes sense and candidates who actually fit. Stop wasting time on misaligned interviews. Get clear role definitions, realistic expectations, and a hiring plan that works.",
-    gradient: "from-emerald-500 to-teal-400",
+    gradient: "from-emerald-600 to-teal-500",
     shadowColor: "shadow-emerald-500/25",
-    bgAccent: "bg-emerald-50",
-    dark: true,
+    bgAccent: "bg-emerald-100",
+    dark: false,
   },
   {
     icon: Building2,
@@ -136,7 +136,7 @@ export default function BuiltFor() {
                   className={`relative h-full rounded-3xl p-8 border transition-all duration-500 ${
                     isDark
                       ? `bg-slate-900 border-slate-700/50 ${isHovered ? `shadow-2xl shadow-slate-900/50 -translate-y-2` : "shadow-xl shadow-slate-900/30"}`
-                      : `bg-white border-slate-100 ${isHovered ? `shadow-2xl ${persona.shadowColor} -translate-y-2` : "shadow-lg shadow-slate-200/50"}`
+                      : `${persona.bgAccent} border-slate-100 ${isHovered ? `shadow-2xl ${persona.shadowColor} -translate-y-2` : "shadow-lg shadow-slate-200/50"}`
                   }`}
                 >
                   {/* Gradient border on hover */}
@@ -181,7 +181,7 @@ export default function BuiltFor() {
                       }`}
                     >
                       <span className={`bg-gradient-to-r ${persona.gradient} bg-clip-text text-transparent`}>
-                          That&apos;s me
+                        That&apos;s me
                       </span>
                       <svg
                         className={`w-4 h-4 transition-transform duration-300 ${isHovered ? "translate-x-1" : ""}`}
