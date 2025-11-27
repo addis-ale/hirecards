@@ -786,7 +786,6 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                     <motion.button
                       onClick={handleAnalyze}
                       disabled={isAnalyzing || !roleDescription.trim()}
-                      whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="group relative flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-base disabled:opacity-40 disabled:cursor-not-allowed transition-all overflow-hidden"
                       style={{
@@ -797,7 +796,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                       }}
                     >
                       {/* Button shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-700" />
 
                       {isAnalyzing ? (
                         <>
@@ -808,7 +807,7 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                         <>
                           <Sparkles className="w-5 h-5 text-white" />
                           <span className="text-white">Get Reality Check</span>
-                          <ArrowRight className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform" />
+                          <ArrowRight className="w-4 h-4 text-white" />
                         </>
                       )}
                     </motion.button>
