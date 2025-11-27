@@ -1,6 +1,4 @@
-"use client";
-
-import type React from "react";
+"use client"
 
 import {
   Zap,
@@ -25,27 +23,23 @@ import {
   ChevronDown,
   ChevronUp,
   FileText,
-} from "lucide-react";
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useSpring,
-} from "framer-motion";
-import { useState, useEffect, useRef } from "react";
-import { Textarea } from "./ui/textarea";
-import ConversationalChatbot from "./ConversationalChatbot";
-import ClarityScoreModal from "./ClarityScoreModal";
+  type ListX as JSX,
+} from "lucide-react"
+import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
+import { useState, useEffect, useRef } from "react"
+import { Textarea } from "./ui/textarea"
+import ConversationalChatbot from "./ConversationalChatbot"
+import ClarityScoreModal from "./ClarityScoreModal"
 
 interface AnalysisResult {
-  score: number;
-  category: string;
-  message: string;
-  icon: React.ReactNode;
-  isIncomplete?: boolean;
-  hasAnyData?: boolean;
-  isInvalidURL?: boolean;
-  isProfileURL?: boolean;
+  score: number
+  category: string
+  message: string
+  icon: JSX.Element
+  isIncomplete?: boolean
+  hasAnyData?: boolean
+  isInvalidURL?: boolean
+  isProfileURL?: boolean
 }
 
 // Static orb component for background
@@ -53,11 +47,7 @@ const StaticOrb = ({
   size,
   initialX,
   initialY,
-}: {
-  size: number;
-  initialX: number;
-  initialY: number;
-}) => (
+}: { size: number; initialX: number; initialY: number }) => (
   <div
     className="absolute rounded-full blur-3xl opacity-30 pointer-events-none"
     style={{
@@ -65,23 +55,23 @@ const StaticOrb = ({
       height: size,
       left: `${initialX}%`,
       top: `${initialY}%`,
-      background:
-        "linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)",
+      background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #14b8a6 100%)",
     }}
   />
-);
+)
 
+// Grid pattern background
 const GridPattern = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <div
       className="absolute inset-0 opacity-[0.03]"
       style={{
-        backgroundImage: `linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)`,
+        backgroundImage: `linear-gradient(#0f172a 1.5px, transparent 1.5px), linear-gradient(90deg, #0f172a 1.5px, transparent 1.5px)`,
         backgroundSize: "60px 60px",
       }}
     />
   </div>
-);
+)
 
 // Static beam component (removed animation)
 const StaticBeam = () => (
@@ -89,137 +79,114 @@ const StaticBeam = () => (
     className="absolute h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"
     style={{ width: "100%", top: "50%" }}
   />
-);
+)
 
 export const Hero = () => {
-  const [roleDescription, setRoleDescription] = useState("");
-  const [showResults, setShowResults] = useState(false);
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
-    null
-  );
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [missingFields, setMissingFields] = useState<string[]>([]);
-  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0);
-  const [loadingProgress, setLoadingProgress] = useState(0);
-  const [showChatModal, setShowChatModal] = useState(false);
-  const [parsedData, setParsedData] = useState<any>(null);
-  const [showClarityModal, setShowClarityModal] = useState(false);
-  const [isInputFocused, setIsInputFocused] = useState(false);
-  const [showScrapedData, setShowScrapedData] = useState(false);
+  const [roleDescription, setRoleDescription] = useState("")
+  const [showResults, setShowResults] = useState(false)
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null)
+  const [isAnalyzing, setIsAnalyzing] = useState(false)
+  const [missingFields, setMissingFields] = useState<string[]>([])
+  const [loadingMessageIndex, setLoadingMessageIndex] = useState(0)
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [showChatModal, setShowChatModal] = useState(false)
+  const [parsedData, setParsedData] = useState<any>(null)
+  const [showClarityModal, setShowClarityModal] = useState(false)
+  const [isInputFocused, setIsInputFocused] = useState(false)
+  const [showScrapedData, setShowScrapedData] = useState(false)
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 });
-  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 });
+  const containerRef = useRef<HTMLDivElement>(null)
+  const mouseX = useMotionValue(0)
+  const mouseY = useMotionValue(0)
+  const springX = useSpring(mouseX, { stiffness: 50, damping: 20 })
+  const springY = useSpring(mouseY, { stiffness: 50, damping: 20 })
 
+  // Mouse tracking for subtle parallax
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        const x = (e.clientX - rect.left - rect.width / 2) / 50;
-        const y = (e.clientY - rect.top - rect.height / 2) / 50;
-        mouseX.set(x);
-        mouseY.set(y);
+        const rect = containerRef.current.getBoundingClientRect()
+        const x = (e.clientX - rect.left - rect.width / 2) / 50
+        const y = (e.clientY - rect.top - rect.height / 2) / 50
+        mouseX.set(x)
+        mouseY.set(y)
       }
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
-  }, [mouseX, mouseY]);
+    }
+    window.addEventListener("mousemove", handleMouseMove)
+    return () => window.removeEventListener("mousemove", handleMouseMove)
+  }, [mouseX, mouseY])
 
+  // Prevent body scroll when modal is open
   useEffect(() => {
     if (showChatModal) {
-      const originalOverflow = document.body.style.overflow;
-      document.body.style.overflow = "hidden";
-      document.body.classList.add("modal-open");
+      const originalOverflow = document.body.style.overflow
+      document.body.style.overflow = "hidden"
+      document.body.classList.add("modal-open")
       return () => {
-        document.body.style.overflow = originalOverflow;
-        document.body.classList.remove("modal-open");
-      };
+        document.body.style.overflow = originalOverflow
+        document.body.classList.remove("modal-open")
+      }
     }
-  }, [showChatModal]);
+  }, [showChatModal])
 
   const loadingMessages = [
     { icon: Search, text: "Scanning 1,200+ trusted job market sources..." },
-    {
-      icon: BarChart3,
-      text: "Analyzing real-time salary data from verified databases...",
-    },
-    {
-      icon: Globe,
-      text: "Cross-referencing international market standards...",
-    },
-    {
-      icon: Briefcase,
-      text: "Comparing with similar roles across 50+ industries...",
-    },
-    {
-      icon: Crosshair,
-      text: "Evaluating skill requirements against market demand...",
-    },
-    {
-      icon: LineChart,
-      text: "Processing compensation trends from top companies...",
-    },
-    {
-      icon: Microscope,
-      text: "Running deep analysis on job description clarity...",
-    },
+    { icon: BarChart3, text: "Analyzing real-time salary data from verified databases..." },
+    { icon: Globe, text: "Cross-referencing international market standards..." },
+    { icon: Briefcase, text: "Comparing with similar roles across 50+ industries..." },
+    { icon: Crosshair, text: "Evaluating skill requirements against market demand..." },
+    { icon: LineChart, text: "Processing compensation trends from top companies..." },
+    { icon: Microscope, text: "Running deep analysis on job description clarity..." },
     { icon: Shield, text: "Validating data accuracy from multiple sources..." },
-    {
-      icon: GraduationCap,
-      text: "Matching requirements with industry certifications...",
-    },
+    { icon: GraduationCap, text: "Matching requirements with industry certifications..." },
     { icon: Star, text: "Calculating your competitive positioning score..." },
-  ];
+  ]
 
   useEffect(() => {
     if (isAnalyzing) {
       const interval = setInterval(() => {
-        setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length);
-      }, 3000);
-      return () => clearInterval(interval);
+        setLoadingMessageIndex((prev) => (prev + 1) % loadingMessages.length)
+      }, 3000)
+      return () => clearInterval(interval)
     } else {
-      setLoadingMessageIndex(0);
+      setLoadingMessageIndex(0)
     }
-  }, [isAnalyzing, loadingMessages.length]);
+  }, [isAnalyzing, loadingMessages.length])
 
   useEffect(() => {
     if (isAnalyzing) {
-      setLoadingProgress(5);
-      const startTime = Date.now();
+      setLoadingProgress(5)
+      const startTime = Date.now()
       const timer = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        let progress;
+        const elapsed = Date.now() - startTime
+        let progress
         if (elapsed < 10000) {
-          progress = 5 + (elapsed / 10000) * 45;
+          progress = 5 + (elapsed / 10000) * 45
         } else if (elapsed < 30000) {
-          progress = 50 + ((elapsed - 10000) / 20000) * 35;
+          progress = 50 + ((elapsed - 10000) / 20000) * 35
         } else {
-          progress = 85 + Math.min(((elapsed - 30000) / 60000) * 10, 10);
+          progress = 85 + Math.min(((elapsed - 30000) / 60000) * 10, 10)
         }
-        setLoadingProgress(Math.min(progress, 95));
-      }, 200);
-      return () => clearInterval(timer);
+        setLoadingProgress(Math.min(progress, 95))
+      }, 200)
+      return () => clearInterval(timer)
     } else {
       setLoadingProgress((prev) => {
-        if (prev > 0 && prev < 100) return 100;
-        return prev;
-      });
+        if (prev > 0 && prev < 100) return 100
+        return prev
+      })
     }
-  }, [isAnalyzing]);
+  }, [isAnalyzing])
 
   const getAnalysisResult = (role: string): AnalysisResult => {
-    const length = role.length;
-    const hasLocation = /in [A-Z]|remote|anywhere/.test(role);
-    const hasSeniority = /senior|lead|staff|principal|junior|mid-level/i.test(
-      role
-    );
-    let baseScore = 30 + Math.floor(Math.random() * 40);
-    if (hasSeniority) baseScore += 15;
-    if (hasLocation) baseScore += 10;
-    if (length > 30) baseScore += 10;
-    const score = Math.min(95, Math.max(12, baseScore));
+    const length = role.length
+    const hasLocation = /in [A-Z]|remote|anywhere/.test(role)
+    const hasSeniority = /senior|lead|staff|principal|junior|mid-level/i.test(role)
+    let baseScore = 30 + Math.floor(Math.random() * 40)
+    if (hasSeniority) baseScore += 15
+    if (hasLocation) baseScore += 10
+    if (length > 30) baseScore += 10
+    const score = Math.min(95, Math.max(12, baseScore))
 
     if (score <= 20) {
       return {
@@ -228,245 +195,189 @@ export const Hero = () => {
         message:
           "Your chances of hiring the right person for this role, with your likely budget and location, are extremely low.",
         icon: <XCircle className="w-12 h-12" />,
-      };
+      }
     } else if (score <= 40) {
       return {
         score,
         category: "Low",
-        message:
-          "This role will struggle. You're competing against companies with bigger budgets.",
+        message: "This role will struggle. You're competing against companies with bigger budgets.",
         icon: <AlertTriangle className="w-12 h-12" />,
-      };
+      }
     } else if (score <= 60) {
       return {
         score,
         category: "Medium",
         message: "You can hire this role, but not without clear tradeoffs.",
         icon: <TrendingUp className="w-12 h-12" />,
-      };
+      }
     } else if (score <= 80) {
       return {
         score,
         category: "Good",
         message: "You'll fill the role, but quality is the real risk.",
         icon: <CheckCircle className="w-12 h-12" />,
-      };
+      }
     } else {
       return {
         score,
         category: "Strong",
         message: "You have a realistic shot at hiring well.",
         icon: <CheckCircle className="w-12 h-12" />,
-      };
+      }
     }
-  };
+  }
 
   const isURL = (text: string): boolean => {
     try {
-      new URL(text);
-      return true;
+      new URL(text)
+      return true
     } catch {
-      return text.toLowerCase().includes("http") || text.includes("www.");
+      return text.toLowerCase().includes("http") || text.includes("www.")
     }
-  };
+  }
 
   const handleCompleteFields = () => {
-    setShowClarityModal(false);
-    setShowChatModal(true);
-  };
+    setShowClarityModal(false)
+    setShowChatModal(true)
+  }
 
   const handleChatbotClose = () => {
-    setShowChatModal(false);
-    setShowClarityModal(true);
-  };
+    setShowChatModal(false)
+    setShowClarityModal(true)
+  }
 
   const handleGenerateAnyway = () => {
-    setShowClarityModal(false);
-    window.location.href = "/results";
-  };
+    setShowClarityModal(false)
+    window.location.href = "/results"
+  }
 
   const handleAnalyze = async () => {
     if (roleDescription.trim()) {
-      setIsAnalyzing(true);
+      setIsAnalyzing(true)
 
       try {
         const parseResponse = await fetch("/api/parse-role", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ input: roleDescription }),
-        });
+        })
 
         if (!parseResponse.ok) {
-          throw new Error(
-            `API returned ${parseResponse.status}: ${parseResponse.statusText}`
-          );
+          throw new Error(`API returned ${parseResponse.status}: ${parseResponse.statusText}`)
         }
 
-        const contentType = parseResponse.headers.get("content-type");
+        const contentType = parseResponse.headers.get("content-type")
         if (!contentType || !contentType.includes("application/json")) {
-          const text = await parseResponse.text();
-          throw new Error("Server returned non-JSON response");
+          const text = await parseResponse.text()
+          throw new Error("Server returned non-JSON response")
         }
 
-        const parseResult = await parseResponse.json();
-        if (!parseResult.success) throw new Error("Failed to parse role");
+        const parseResult = await parseResponse.json()
+        if (!parseResult.success) throw new Error("Failed to parse role")
 
-        const parsedData = parseResult.data;
+        const parsedData = parseResult.data
 
         if (parsedData.minSalary && parsedData.maxSalary) {
-          const min = Number.parseInt(
-            String(parsedData.minSalary).replace(/[^0-9]/g, "")
-          );
-          const max = Number.parseInt(
-            String(parsedData.maxSalary).replace(/[^0-9]/g, "")
-          );
+          const min = Number.parseInt(String(parsedData.minSalary).replace(/[^0-9]/g, ""))
+          const max = Number.parseInt(String(parsedData.maxSalary).replace(/[^0-9]/g, ""))
           if (min > max) {
-            parsedData.minSalary = String(max);
-            parsedData.maxSalary = String(min);
+            parsedData.minSalary = String(max)
+            parsedData.maxSalary = String(min)
           } else {
-            parsedData.minSalary = String(min);
-            parsedData.maxSalary = String(max);
+            parsedData.minSalary = String(min)
+            parsedData.maxSalary = String(max)
           }
         }
 
-        setParsedData(parsedData);
-        const inputIsURL = parsedData.isURL;
+        setParsedData(parsedData)
+        const inputIsURL = parsedData.isURL
 
         const isValidValue = (value: any): boolean => {
-          if (!value) return false;
+          if (!value) return false
           if (typeof value === "string") {
-            const normalized = value.toLowerCase().trim();
+            const normalized = value.toLowerCase().trim()
             return (
               normalized !== "not specified" &&
               normalized !== "n/a" &&
               normalized !== "unknown" &&
               normalized !== "tbd" &&
               normalized !== ""
-            );
+            )
           }
-          if (Array.isArray(value))
-            return value.length > 0 && value.some((v) => isValidValue(v));
-          return true;
-        };
-
-        const extractedFields: any = {};
-        if (
-          parsedData.jobTitle &&
-          parsedData.jobTitle !== "Job Position" &&
-          isValidValue(parsedData.jobTitle)
-        ) {
-          extractedFields.roleTitle = parsedData.jobTitle;
-        }
-        if (isValidValue(parsedData.location))
-          extractedFields.location = parsedData.location;
-        if (isValidValue(parsedData.workModel))
-          extractedFields.workModel = parsedData.workModel;
-        if (isValidValue(parsedData.experienceLevel))
-          extractedFields.experienceLevel = parsedData.experienceLevel;
-        if (isValidValue(parsedData.department))
-          extractedFields.department = parsedData.department;
-        if (
-          parsedData.skills &&
-          parsedData.skills.length > 0 &&
-          isValidValue(parsedData.skills)
-        ) {
-          extractedFields.criticalSkills = parsedData.skills.join(", ");
+          if (Array.isArray(value)) return value.length > 0 && value.some((v) => isValidValue(v))
+          return true
         }
 
-        let missing: string[] = [];
-        if (
-          !parsedData.jobTitle ||
-          parsedData.jobTitle === "Job Position" ||
-          !isValidValue(parsedData.jobTitle)
-        )
-          missing.push("Role Title");
-        if (!isValidValue(parsedData.department)) missing.push("Department");
-        if (!isValidValue(parsedData.experienceLevel))
-          missing.push("Experience Level");
-        if (!isValidValue(parsedData.location)) missing.push("Location");
-        if (!isValidValue(parsedData.workModel)) missing.push("Work Model");
-        if (
-          !parsedData.skills ||
-          parsedData.skills.length === 0 ||
-          !isValidValue(parsedData.skills)
-        )
-          missing.push("Critical Skills");
-        if (
-          !isValidValue(parsedData.minSalary) ||
-          !isValidValue(parsedData.maxSalary)
-        )
-          missing.push("Budget/Salary Range");
-        if (
-          !parsedData.requirements ||
-          parsedData.requirements.length === 0 ||
-          !isValidValue(parsedData.requirements)
-        )
-          missing.push("Non-Negotiables");
-        if (!isValidValue(parsedData.timeline)) missing.push("Timeline");
-        missing.push("Nice-to-Have Skills");
-
-        const fieldsProvided = 10 - missing.length;
-        const hasAnyData = Object.keys(extractedFields).length > 0;
-        const isInvalidURL =
-          parsedData.isJobPosting === false || parsedData.confidence === 0;
-        const urlLower = (
-          typeof roleDescription === "string" ? roleDescription : ""
-        ).toLowerCase();
-        const isProfileURL =
-          urlLower.includes("/in/") || urlLower.includes("/profile/");
-
-        let score = 0;
-        if (
-          hasAnyData &&
-          !isInvalidURL &&
-          !isProfileURL &&
-          missing.length < 10
-        ) {
-          const completenessScore = (fieldsProvided / 10) * 100;
-          const confidenceWeight = parsedData.confidence || 0.5;
-          score = Math.round(completenessScore * confidenceWeight);
-          score = Math.max(16, Math.min(85, score));
+        const extractedFields: any = {}
+        if (parsedData.jobTitle && parsedData.jobTitle !== "Job Position" && isValidValue(parsedData.jobTitle)) {
+          extractedFields.roleTitle = parsedData.jobTitle
+        }
+        if (isValidValue(parsedData.location)) extractedFields.location = parsedData.location
+        if (isValidValue(parsedData.workModel)) extractedFields.workModel = parsedData.workModel
+        if (isValidValue(parsedData.experienceLevel)) extractedFields.experienceLevel = parsedData.experienceLevel
+        if (isValidValue(parsedData.department)) extractedFields.department = parsedData.department
+        if (parsedData.skills && parsedData.skills.length > 0 && isValidValue(parsedData.skills)) {
+          extractedFields.criticalSkills = parsedData.skills.join(", ")
         }
 
-        let message = "";
-        let isIncomplete = missing.length > 0;
+        let missing: string[] = []
+        if (!parsedData.jobTitle || parsedData.jobTitle === "Job Position" || !isValidValue(parsedData.jobTitle))
+          missing.push("Role Title")
+        if (!isValidValue(parsedData.department)) missing.push("Department")
+        if (!isValidValue(parsedData.experienceLevel)) missing.push("Experience Level")
+        if (!isValidValue(parsedData.location)) missing.push("Location")
+        if (!isValidValue(parsedData.workModel)) missing.push("Work Model")
+        if (!parsedData.skills || parsedData.skills.length === 0 || !isValidValue(parsedData.skills))
+          missing.push("Critical Skills")
+        if (!isValidValue(parsedData.minSalary) || !isValidValue(parsedData.maxSalary))
+          missing.push("Budget/Salary Range")
+        if (!parsedData.requirements || parsedData.requirements.length === 0 || !isValidValue(parsedData.requirements))
+          missing.push("Non-Negotiables")
+        if (!isValidValue(parsedData.timeline)) missing.push("Timeline")
+        missing.push("Nice-to-Have Skills")
+
+        const fieldsProvided = 10 - missing.length
+        const hasAnyData = Object.keys(extractedFields).length > 0
+        const isInvalidURL = parsedData.isJobPosting === false || parsedData.confidence === 0
+        const urlLower = (typeof roleDescription === "string" ? roleDescription : "").toLowerCase()
+        const isProfileURL = urlLower.includes("/in/") || urlLower.includes("/profile/")
+
+        let score = 0
+        if (hasAnyData && !isInvalidURL && !isProfileURL && missing.length < 10) {
+          const completenessScore = (fieldsProvided / 10) * 100
+          const confidenceWeight = parsedData.confidence || 0.5
+          score = Math.round(completenessScore * confidenceWeight)
+          score = Math.max(16, Math.min(85, score))
+        }
+
+        let message = ""
+        let isIncomplete = missing.length > 0
 
         if (missing.length === 0) {
-          score = Math.max(score, 70);
-          message = `Complete job description found! Score: ${score}. Still need salary, timeline, and non-negotiables for the full picture.`;
-          isIncomplete = true;
+          score = Math.max(score, 70)
+          message = `Complete job description found! Score: ${score}. Still need salary, timeline, and non-negotiables for the full picture.`
+          isIncomplete = true
         } else if (missing.length <= 2) {
-          score = Math.max(score, 60);
-          message = `Almost there! Found: ${Object.keys(extractedFields).join(
-            ", "
-          )}. Missing: ${missing.slice(0, 2).join(", ")}.`;
+          score = Math.max(score, 60)
+          message = `Almost there! Found: ${Object.keys(extractedFields).join(", ")}. Missing: ${missing.slice(0, 2).join(", ")}.`
         } else if (missing.length <= 5) {
-          score = Math.max(score, 35);
-          message = `Found: ${Object.keys(extractedFields).join(
-            ", "
-          )}. Missing: ${missing.slice(0, 3).join(", ")} and more.`;
+          score = Math.max(score, 35)
+          message = `Found: ${Object.keys(extractedFields).join(", ")}. Missing: ${missing.slice(0, 3).join(", ")} and more.`
         } else {
-          if (score !== 0) score = Math.max(score, 16);
-          if (
-            !hasAnyData ||
-            isInvalidURL ||
-            isProfileURL ||
-            missing.length === 10
-          ) {
-            message = `This job posting needs more details. Clarity score of 0 means we have almost nothing to work with.`;
+          if (score !== 0) score = Math.max(score, 16)
+          if (!hasAnyData || isInvalidURL || isProfileURL || missing.length === 10) {
+            message = `This job posting needs more details. Clarity score of 0 means we have almost nothing to work with.`
           } else {
-            message = `Found: ${Object.keys(extractedFields).join(
-              ", "
-            )}. That's it. We need more details.`;
+            message = `Found: ${Object.keys(extractedFields).join(", ")}. That's it. We need more details.`
           }
         }
 
-        let category = "Ghost Town";
-        if (score >= 70) category = "Moderate-High Clarity";
-        else if (score >= 60) category = "Moderate Clarity";
-        else if (score >= 35) category = "Low Clarity";
+        let category = "Ghost Town"
+        if (score >= 70) category = "Moderate-High Clarity"
+        else if (score >= 60) category = "Moderate Clarity"
+        else if (score >= 35) category = "Low Clarity"
 
-        setMissingFields(missing);
+        setMissingFields(missing)
 
         const incompleteData = {
           isURL: inputIsURL,
@@ -474,63 +385,43 @@ export const Hero = () => {
           extractedFields: extractedFields,
           missingFields: missing,
           parsedData: parsedData,
-        };
+        }
 
-        sessionStorage.setItem(
-          "incompleteData",
-          JSON.stringify(incompleteData)
-        );
+        sessionStorage.setItem("incompleteData", JSON.stringify(incompleteData))
 
         const formData = {
           roleTitle:
-            parsedData.jobTitle &&
-            parsedData.jobTitle !== "Job Position" &&
-            isValidValue(parsedData.jobTitle)
+            parsedData.jobTitle && parsedData.jobTitle !== "Job Position" && isValidValue(parsedData.jobTitle)
               ? parsedData.jobTitle
               : "",
-          department: isValidValue(parsedData.department)
-            ? parsedData.department
-            : "",
-          experienceLevel: isValidValue(parsedData.experienceLevel)
-            ? parsedData.experienceLevel
-            : "",
-          location: isValidValue(parsedData.location)
-            ? parsedData.location
-            : "",
-          workModel: isValidValue(parsedData.workModel)
-            ? parsedData.workModel
-            : "",
-          criticalSkills:
-            parsedData.skills && isValidValue(parsedData.skills)
-              ? parsedData.skills
-              : [],
-          minSalary: isValidValue(parsedData.minSalary)
-            ? String(parsedData.minSalary)
-            : "",
-          maxSalary: isValidValue(parsedData.maxSalary)
-            ? String(parsedData.maxSalary)
-            : "",
+          department: isValidValue(parsedData.department) ? parsedData.department : "",
+          experienceLevel: isValidValue(parsedData.experienceLevel) ? parsedData.experienceLevel : "",
+          location: isValidValue(parsedData.location) ? parsedData.location : "",
+          workModel: isValidValue(parsedData.workModel) ? parsedData.workModel : "",
+          criticalSkills: parsedData.skills && isValidValue(parsedData.skills) ? parsedData.skills : [],
+          minSalary: isValidValue(parsedData.minSalary) ? String(parsedData.minSalary) : "",
+          maxSalary: isValidValue(parsedData.maxSalary) ? String(parsedData.maxSalary) : "",
           nonNegotiables:
             parsedData.requirements && isValidValue(parsedData.requirements)
               ? parsedData.requirements.slice(0, 3).join(", ")
               : "",
           flexible: "",
           timeline: "",
-        };
+        }
 
-        sessionStorage.setItem("heroAnalysisData", JSON.stringify(formData));
+        sessionStorage.setItem("heroAnalysisData", JSON.stringify(formData))
 
         const hasSignificantData =
           (parsedData.skills?.length > 0 && isValidValue(parsedData.skills)) ||
           isValidValue(parsedData.experienceLevel) ||
           isValidValue(parsedData.location) ||
           isValidValue(parsedData.workModel) ||
-          isValidValue(parsedData.department);
+          isValidValue(parsedData.department)
 
         if (hasSignificantData) {
-          sessionStorage.setItem("formData", JSON.stringify(formData));
+          sessionStorage.setItem("formData", JSON.stringify(formData))
         } else {
-          sessionStorage.removeItem("formData");
+          sessionStorage.removeItem("formData")
           if (missing.length < 10) {
             missing = [
               "Role Title",
@@ -543,8 +434,8 @@ export const Hero = () => {
               "Non-Negotiables",
               "Timeline",
               "Nice-to-Have Skills",
-            ];
-            setMissingFields(missing);
+            ]
+            setMissingFields(missing)
           }
         }
 
@@ -559,10 +450,10 @@ export const Hero = () => {
               extractedFields: extractedFields,
               missingFields: missing,
             }),
-          });
+          })
 
-          const roastData = await roastResponse.json();
-          const aiMessage = roastData.success ? roastData.roast : message;
+          const roastData = await roastResponse.json()
+          const aiMessage = roastData.success ? roastData.roast : message
 
           const result = {
             score: score,
@@ -573,11 +464,11 @@ export const Hero = () => {
             hasAnyData: hasAnyData,
             isInvalidURL: isInvalidURL,
             isProfileURL: isProfileURL,
-          };
+          }
 
-          setAnalysisResult(result);
-          setShowResults(true);
-          setShowClarityModal(true);
+          setAnalysisResult(result)
+          setShowResults(true)
+          setShowClarityModal(true)
         } catch (roastError) {
           const result = {
             score: score,
@@ -588,28 +479,27 @@ export const Hero = () => {
             hasAnyData: hasAnyData,
             isInvalidURL: isInvalidURL,
             isProfileURL: isProfileURL,
-          };
-          setAnalysisResult(result);
-          setShowResults(true);
-          setShowClarityModal(true);
+          }
+          setAnalysisResult(result)
+          setShowResults(true)
+          setShowClarityModal(true)
         }
       } catch (error) {
         const result = {
           score: 16,
           category: "Error",
-          message:
-            "We couldn't analyze this role properly. Please try again or provide more details.",
+          message: "We couldn't analyze this role properly. Please try again or provide more details.",
           icon: <AlertTriangle className="w-12 h-12" />,
           isIncomplete: true,
-        };
-        setAnalysisResult(result);
-        setShowResults(true);
-        setShowClarityModal(true);
+        }
+        setAnalysisResult(result)
+        setShowResults(true)
+        setShowClarityModal(true)
       } finally {
-        setIsAnalyzing(false);
+        setIsAnalyzing(false)
       }
     }
-  };
+  }
 
   return (
     <section
@@ -626,6 +516,7 @@ export const Hero = () => {
       {/* Subtle Grid Pattern */}
       <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
 
+
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="text-center">
           {/* Badge */}
@@ -636,12 +527,10 @@ export const Hero = () => {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-200/50 bg-gradient-to-r from-emerald-100 to-teal-100 shadow-sm mb-4"
           >
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
-            <span className="text-emerald-700 text-sm font-medium tracking-wide">
-              Not an ATS, not a sourcing tool
-            </span>
+            <span className="text-emerald-700 text-sm font-medium tracking-wide">Not an ATS, not a sourcing tool</span>
           </motion.div>
 
-          {/* Main headline - dark text for light background */}
+          {/* Main headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -665,8 +554,7 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.3 }}
             className="text-base sm:text-lg text-slate-900 max-w-2xl mx-auto mb-3 leading-relaxed font-bold"
           >
-            Most roles fail before hiring even begins because scope, salary, and
-            expectations don&apos;t match reality.
+            Most roles fail before hiring even begins because scope, salary, and expectations don&apos;t match reality.
           </motion.p>
 
           {/* How it works */}
@@ -676,12 +564,10 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto mb-6 leading-relaxed"
           >
-            Paste a job post or add a few details. See hireability, what&apos;s
-            off, how to fix it — and get your complete hiring strategy in under
-            5 minutes.
+            Paste a job post or add a few details. See hireability, what&apos;s off, how to fix it — and get your complete hiring strategy in under 5 minutes.
           </motion.p>
 
-          {/* Input Section - light theme input box */}
+          {/* Input Section */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -704,8 +590,8 @@ export const Hero = () => {
                     disabled={isAnalyzing}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
-                        e.preventDefault();
-                        handleAnalyze();
+                        e.preventDefault()
+                        handleAnalyze()
                       }
                     }}
                   />
@@ -718,25 +604,25 @@ export const Hero = () => {
                         animate={{ opacity: 1, height: "auto" }}
                         exit={{ opacity: 0, height: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="mt-4 pt-4 border-t border-slate-200"
+                        className="mt-4 pt-4 border-t border-slate-700/50"
                       >
                         <button
                           onClick={() => setShowScrapedData(!showScrapedData)}
-                          className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors group"
+                          className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 transition-colors group"
                         >
                           <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-emerald-600" />
-                            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">
+                            <FileText className="w-4 h-4 text-cyan-400" />
+                            <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
                               View Scraped Data
                             </span>
-                            <span className="text-xs text-slate-500 bg-white px-2 py-0.5 rounded-full">
+                            <span className="text-xs text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded-full">
                               {parsedData.isURL ? "From URL" : "From Text"}
                             </span>
                           </div>
                           {showScrapedData ? (
-                            <ChevronUp className="w-4 h-4 text-slate-500" />
+                            <ChevronUp className="w-4 h-4 text-slate-400" />
                           ) : (
-                            <ChevronDown className="w-4 h-4 text-slate-500" />
+                            <ChevronDown className="w-4 h-4 text-slate-400" />
                           )}
                         </button>
 
@@ -747,122 +633,82 @@ export const Hero = () => {
                               animate={{ opacity: 1, height: "auto" }}
                               exit={{ opacity: 0, height: 0 }}
                               transition={{ duration: 0.2 }}
-                              className="mt-2 p-4 rounded-lg bg-white border border-slate-200 overflow-hidden"
+                              className="mt-2 p-4 rounded-lg bg-slate-800/50 border border-slate-700/50 overflow-hidden"
                             >
                               <div className="max-h-[300px] overflow-y-auto space-y-3 text-sm">
                                 {parsedData.jobTitle && (
                                   <div>
-                                    <span className="text-slate-500 font-medium">
-                                      Job Title:
-                                    </span>
-                                    <span className="ml-2 text-slate-700">
-                                      {parsedData.jobTitle}
-                                    </span>
+                                    <span className="text-slate-500 font-medium">Job Title:</span>
+                                    <span className="ml-2 text-slate-300">{parsedData.jobTitle}</span>
                                   </div>
                                 )}
                                 {parsedData.department && (
                                   <div>
-                                    <span className="text-slate-500 font-medium">
-                                      Department:
-                                    </span>
-                                    <span className="ml-2 text-slate-700">
-                                      {parsedData.department}
-                                    </span>
+                                    <span className="text-slate-500 font-medium">Department:</span>
+                                    <span className="ml-2 text-slate-300">{parsedData.department}</span>
                                   </div>
                                 )}
                                 {parsedData.experienceLevel && (
                                   <div>
-                                    <span className="text-slate-500 font-medium">
-                                      Experience Level:
-                                    </span>
-                                    <span className="ml-2 text-slate-700">
-                                      {parsedData.experienceLevel}
-                                    </span>
+                                    <span className="text-slate-500 font-medium">Experience Level:</span>
+                                    <span className="ml-2 text-slate-300">{parsedData.experienceLevel}</span>
                                   </div>
                                 )}
                                 {parsedData.location && (
                                   <div>
-                                    <span className="text-slate-500 font-medium">
-                                      Location:
-                                    </span>
-                                    <span className="ml-2 text-slate-700">
-                                      {parsedData.location}
-                                    </span>
+                                    <span className="text-slate-500 font-medium">Location:</span>
+                                    <span className="ml-2 text-slate-300">{parsedData.location}</span>
                                   </div>
                                 )}
                                 {parsedData.workModel && (
                                   <div>
-                                    <span className="text-slate-500 font-medium">
-                                      Work Model:
-                                    </span>
-                                    <span className="ml-2 text-slate-700">
-                                      {parsedData.workModel}
+                                    <span className="text-slate-500 font-medium">Work Model:</span>
+                                    <span className="ml-2 text-slate-300">{parsedData.workModel}</span>
+                                  </div>
+                                )}
+                                {parsedData.minSalary && parsedData.maxSalary && (
+                                  <div>
+                                    <span className="text-slate-500 font-medium">Salary Range:</span>
+                                    <span className="ml-2 text-slate-300">
+                                      ${parsedData.minSalary} - ${parsedData.maxSalary}
                                     </span>
                                   </div>
                                 )}
-                                {parsedData.minSalary &&
-                                  parsedData.maxSalary && (
-                                    <div>
-                                      <span className="text-slate-500 font-medium">
-                                        Salary Range:
-                                      </span>
-                                      <span className="ml-2 text-slate-700">
-                                        ${parsedData.minSalary} - $
-                                        {parsedData.maxSalary}
-                                      </span>
+                                {parsedData.skills && parsedData.skills.length > 0 && (
+                                  <div>
+                                    <span className="text-slate-500 font-medium">Skills:</span>
+                                    <div className="mt-1 flex flex-wrap gap-1">
+                                      {parsedData.skills.map((skill: string, index: number) => (
+                                        <span
+                                          key={index}
+                                          className="px-2 py-1 bg-cyan-500/10 border border-cyan-500/30 rounded text-cyan-300 text-xs"
+                                        >
+                                          {skill}
+                                        </span>
+                                      ))}
                                     </div>
-                                  )}
-                                {parsedData.skills &&
-                                  parsedData.skills.length > 0 && (
-                                    <div>
-                                      <span className="text-slate-500 font-medium">
-                                        Skills:
-                                      </span>
-                                      <div className="mt-1 flex flex-wrap gap-1">
-                                        {parsedData.skills.map(
-                                          (skill: string, index: number) => (
-                                            <span
-                                              key={index}
-                                              className="px-2 py-1 bg-emerald-50 border border-emerald-200 rounded text-emerald-700 text-xs"
-                                            >
-                                              {skill}
-                                            </span>
-                                          )
-                                        )}
-                                      </div>
-                                    </div>
-                                  )}
-                                {parsedData.requirements &&
-                                  parsedData.requirements.length > 0 && (
-                                    <div>
-                                      <span className="text-slate-500 font-medium">
-                                        Requirements:
-                                      </span>
-                                      <ul className="mt-1 ml-4 space-y-1 list-disc list-inside text-slate-700">
-                                        {parsedData.requirements.map(
-                                          (req: string, index: number) => (
-                                            <li key={index}>{req}</li>
-                                          )
-                                        )}
-                                      </ul>
-                                    </div>
-                                  )}
+                                  </div>
+                                )}
+                                {parsedData.requirements && parsedData.requirements.length > 0 && (
+                                  <div>
+                                    <span className="text-slate-500 font-medium">Requirements:</span>
+                                    <ul className="mt-1 ml-4 space-y-1 list-disc list-inside text-slate-300">
+                                      {parsedData.requirements.map((req: string, index: number) => (
+                                        <li key={index}>{req}</li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
                                 {parsedData.timeline && (
                                   <div>
-                                    <span className="text-slate-500 font-medium">
-                                      Timeline:
-                                    </span>
-                                    <span className="ml-2 text-slate-700">
-                                      {parsedData.timeline}
-                                    </span>
+                                    <span className="text-slate-500 font-medium">Timeline:</span>
+                                    <span className="ml-2 text-slate-300">{parsedData.timeline}</span>
                                   </div>
                                 )}
                                 {parsedData.confidence !== undefined && (
-                                  <div className="pt-2 border-t border-slate-200">
-                                    <span className="text-slate-500 font-medium">
-                                      Confidence Score:
-                                    </span>
-                                    <span className="ml-2 text-slate-700">
+                                  <div className="pt-2 border-t border-slate-700/50">
+                                    <span className="text-slate-500 font-medium">Confidence Score:</span>
+                                    <span className="ml-2 text-slate-300">
                                       {Math.round(parsedData.confidence * 100)}%
                                     </span>
                                   </div>
@@ -899,21 +745,9 @@ export const Hero = () => {
                         </>
                       ) : (
                         <>
-                          <Sparkles
-                            className={`w-4 h-4 ${
-                              !roleDescription.trim()
-                                ? "text-slate-400"
-                                : "text-white"
-                            }`}
-                          />
+                          <Sparkles className={`w-4 h-4 ${!roleDescription.trim() ? "text-slate-400" : "text-white"}`} />
                           <span>Run Reality Check</span>
-                          <ArrowRight
-                            className={`w-4 h-4 ${
-                              !roleDescription.trim()
-                                ? "text-slate-400"
-                                : "text-white"
-                            } group-hover:translate-x-0.5 transition-transform`}
-                          />
+                          <ArrowRight className={`w-4 h-4 ${!roleDescription.trim() ? "text-slate-400" : "text-white"} group-hover:translate-x-0.5 transition-transform`} />
                         </>
                       )}
                     </motion.button>
@@ -923,7 +757,7 @@ export const Hero = () => {
             </div>
           </motion.div>
 
-          {/* Feature pills - light theme pills - removed floating hover effect */}
+          {/* Feature pills */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -931,29 +765,15 @@ export const Hero = () => {
             className="flex flex-wrap items-center justify-center gap-3"
           >
             {[
-              {
-                icon: Zap,
-                text: "5-minute strategy",
-                color: "from-amber-500 to-orange-500",
-              },
-              {
-                icon: Target,
-                text: "Reality-based scoring",
-                color: "from-cyan-500 to-teal-500",
-              },
-              {
-                icon: CheckCircle,
-                text: "Fix issues before posting",
-                color: "from-emerald-500 to-green-500",
-              },
+              { icon: Zap, text: "5-minute strategy", color: "from-amber-500 to-orange-500" },
+              { icon: Target, text: "Reality-based scoring", color: "from-cyan-500 to-teal-500" },
+              { icon: CheckCircle, text: "Fix issues before posting", color: "from-emerald-500 to-green-500" },
             ].map((feature) => (
               <div
                 key={feature.text}
                 className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 backdrop-blur-sm shadow-sm"
               >
-                <div
-                  className={`w-7 h-7 flex items-center justify-center rounded-full bg-gradient-to-br ${feature.color}`}
-                >
+                <div className={`w-7 h-7 flex items-center justify-center rounded-full bg-gradient-to-br ${feature.color}`}>
                   <feature.icon className="w-3.5 h-3.5 text-white" />
                 </div>
                 <span className="text-slate-700 font-medium text-xs">
@@ -965,7 +785,7 @@ export const Hero = () => {
         </div>
       </div>
 
-      {/* Full Screen Loading Dialog - light theme loading */}
+      {/* Full Screen Loading Dialog */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
@@ -975,16 +795,10 @@ export const Hero = () => {
             className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100"
           >
             <style jsx global>{`
-              body {
-                overflow: hidden !important;
-              }
+              body { overflow: hidden !important; }
               @keyframes shimmer {
-                0% {
-                  transform: translateX(-100%);
-                }
-                100% {
-                  transform: translateX(100%);
-                }
+                0% { transform: translateX(-100%); }
+                100% { transform: translateX(100%); }
               }
             `}</style>
 
@@ -1091,21 +905,27 @@ export const Hero = () => {
                   >
                     Starting
                   </span>
-                  <span style={{ color: "#102a63", opacity: 0.4 }}>→</span>
+                  <span style={{ color: "#102a63", opacity: 0.4 }}>
+                    →
+                  </span>
                   <span
                     className="font-medium animate-pulse"
                     style={{ color: "#278f8c", animationDelay: "0.5s" }}
                   >
                     Searching
                   </span>
-                  <span style={{ color: "#102a63", opacity: 0.4 }}>→</span>
+                  <span style={{ color: "#102a63", opacity: 0.4 }}>
+                    →
+                  </span>
                   <span
                     className="font-medium animate-pulse"
                     style={{ color: "#278f8c", animationDelay: "1s" }}
                   >
                     Analyzing
                   </span>
-                  <span style={{ color: "#102a63", opacity: 0.4 }}>→</span>
+                  <span style={{ color: "#102a63", opacity: 0.4 }}>
+                    →
+                  </span>
                   <span
                     className="font-medium animate-pulse"
                     style={{ color: "#278f8c", animationDelay: "1.5s" }}
@@ -1124,8 +944,7 @@ export const Hero = () => {
                     style={{ borderColor: "#d7f4f2" }}
                   >
                     {(() => {
-                      const IconComponent =
-                        loadingMessages[loadingMessageIndex].icon;
+                      const IconComponent = loadingMessages[loadingMessageIndex].icon;
                       return (
                         <IconComponent
                           className="w-4 h-4 flex-shrink-0"
@@ -1158,9 +977,10 @@ export const Hero = () => {
                   className="text-sm leading-relaxed"
                   style={{ color: "#102a63", opacity: 0.8 }}
                 >
-                  While we work, remember: The best hires aren&apos;t always the
-                  ones with the most experience — they&apos;re the ones who
-                  understand your mission and bring the energy to execute it.
+                  While we work, remember: The best hires aren&apos;t
+                  always the ones with the most experience — they&apos;re
+                  the ones who understand your mission and bring the
+                  energy to execute it.
                 </p>
               </div>
             </div>
@@ -1168,7 +988,7 @@ export const Hero = () => {
         )}
       </AnimatePresence>
 
-      {/* Chatbot Modal - light theme modal */}
+      {/* Chatbot Modal */}
       <AnimatePresence>
         {showChatModal && (
           <motion.div
@@ -1204,8 +1024,7 @@ export const Hero = () => {
                       Complete Your Hiring Strategy
                     </h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Paste a job URL below or build from scratch with our AI
-                      chatbot
+                      Paste a job URL below or build from scratch with our AI chatbot
                     </p>
                   </div>
                 </div>
@@ -1250,5 +1069,5 @@ export const Hero = () => {
         onGenerateAnyway={handleGenerateAnyway}
       />
     </section>
-  );
-};
+  )
+}

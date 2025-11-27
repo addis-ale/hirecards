@@ -13,8 +13,8 @@ const steps = [
     title: "SHARE YOUR REQUIREMENTS",
     description:
       "Tell us about your role requirements, ideal candidate profile, and hiring needs. The more details, the better your battle cards.",
-    color: "from-emerald-400 to-green-500",
-    glowColor: "rgba(16, 185, 129, 0.4)",
+    color: "from-cyan-400 to-blue-500",
+    glowColor: "rgba(34, 211, 238, 0.4)",
     number: "01",
   },
   {
@@ -22,8 +22,8 @@ const steps = [
     title: "GENERATED FROM REAL DATA",
     description:
       "Comprehensive battle cards generated from real-world scraped data - complete with key competencies, interview questions, and evaluation criteria tailored to your role.",
-    color: "from-green-400 to-teal-500",
-    glowColor: "rgba(52, 211, 153, 0.4)",
+    color: "from-violet-400 to-purple-500",
+    glowColor: "rgba(167, 139, 250, 0.4)",
     number: "02",
   },
   {
@@ -31,8 +31,8 @@ const steps = [
     title: "SHARE & START HIRING",
     description:
       "Get your deck instantly. Share with your hiring team. Run structured interviews that help you identify the best candidates.",
-    color: "from-teal-400 to-cyan-500",
-    glowColor: "rgba(110, 231, 183, 0.4)",
+    color: "from-rose-400 to-pink-500",
+    glowColor: "rgba(251, 113, 133, 0.4)",
     number: "03",
   },
 ]
@@ -99,7 +99,8 @@ function StepCard({
         style={{ background: step.glowColor }}
       />
 
-      <div className="relative bg-white/50 backdrop-blur-xl border border-emerald-200/50 rounded-2xl p-8 h-full overflow-hidden">
+      {/* Card */}
+      <div className="relative bg-slate-900/80 backdrop-blur-xl border border-slate-700/50 rounded-2xl p-8 h-full overflow-hidden">
         {/* Animated border gradient */}
         <motion.div
           className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -113,7 +114,7 @@ function StepCard({
         />
 
         {/* Step number - large background text */}
-        <div className="absolute -top-4 -right-2 text-[120px] font-black text-emerald-100/30 leading-none select-none">
+        <div className="absolute -top-4 -right-2 text-[120px] font-black text-slate-800/30 leading-none select-none">
           {step.number}
         </div>
 
@@ -144,6 +145,7 @@ function StepCard({
           </>
         )}
 
+        {/* Content */}
         <div className="relative z-10">
           {/* Icon container */}
           <motion.div
@@ -186,21 +188,18 @@ export default function HowItWorks() {
   const { openChatbot } = useChatbot()
 
   return (
-    <section
-      id="how-it-works"
-      className="relative py-24 md:py-36 overflow-hidden bg-gradient-to-b from-white to-emerald-50"
-    >
+    <section id="how-it-works" className="relative py-24 md:py-36 overflow-hidden bg-slate-950">
       {/* Background elements */}
       <div className="absolute inset-0">
         {/* Gradient orbs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-200/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-green-200/20 rounded-full blur-3xl" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
         {/* Grid pattern */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `linear-gradient(rgba(16,185,129,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.1) 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
             backgroundSize: "60px 60px",
           }}
         />
@@ -217,22 +216,21 @@ export default function HowItWorks() {
           >
             {/* Badge */}
             <motion.div
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/50 border border-emerald-200/50 mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-800/50 border border-slate-700/50 mb-8"
               initial={{ opacity: 0, scale: 0.9 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
             >
               <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500" />
               </span>
               <span className="text-sm text-slate-400 font-medium">Simple 3-Step Process</span>
             </motion.div>
 
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">
-              <span
-                              className="bg-gradient-to-r from-blue-600 via-green-00 to-teal-600 bg-clip-text text-transparent">How We </span>
-              <span className="bg-gradient-to-r from-emerald-400 via-green-400 to-teal-400 bg-clip-text text-transparent">
+              <span className="text-white">How We </span>
+              <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-violet-400 bg-clip-text text-transparent">
                 Fix Your Chaos
               </span>
             </h2>
@@ -262,9 +260,9 @@ export default function HowItWorks() {
             />
             <defs>
               <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#10b981" />
-                <stop offset="50%" stopColor="#34d399" />
-                <stop offset="100%" stopColor="#6ee7b7" />
+                <stop offset="0%" stopColor="#22d3ee" />
+                <stop offset="50%" stopColor="#a78bfa" />
+                <stop offset="100%" stopColor="#fb7185" />
               </linearGradient>
             </defs>
           </svg>
@@ -280,7 +278,7 @@ export default function HowItWorks() {
         >
           <motion.button
             onClick={() => openChatbot()}
-            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-emerald-500 to-green-500 rounded-full font-semibold text-white text-lg shadow-lg shadow-emerald-500/25 overflow-hidden"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full font-semibold text-white text-lg shadow-lg shadow-cyan-500/25 overflow-hidden"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.98 }}
           >
