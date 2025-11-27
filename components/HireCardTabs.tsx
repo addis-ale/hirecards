@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Download, Share2, LayoutDashboard, Briefcase, Code, TrendingUp, Map, DollarSign, Target, BarChart3, UserCheck, MessageSquare, Send, Mic, ClipboardList, CalendarCheck, Lock } from "lucide-react";
 import { OverviewCard } from "./cards/OverviewCard";
 import { RoleCard } from "./cards/RoleCard";
@@ -21,17 +22,37 @@ interface HireCardTabsProps {
   isSubscribed?: boolean;
 }
 
+// Helper function to get card descriptions for tooltips
+const getCardDescription = (id: string): string => {
+  const descriptions: Record<string, string> = {
+    reality: "Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.",
+    role: "What this person will actually do and what success looks like in the first 6–12 months.",
+    skill: "The must-have abilities, tools, and experience needed to perform the role.",
+    market: "How big the talent pool is and how competitive the market is for this profile.",
+    talentmap: "Where the strongest candidates come from — companies, locations, and common backgrounds.",
+    pay: "What candidates expect to earn in this market and how your budget compares.",
+    funnel: "The volume of outreach and interviews you'll need to fill the role.",
+    fit: "What motivates this persona, what they care about, and what usually makes them say yes or no.",
+    message: "How to pitch the role in a way that actually gets replies.",
+    outreach: "Ready-to-send email and DM templates for reaching ideal candidates.",
+    interview: "The recommended interview process and competencies to assess at each stage.",
+    scorecard: "A simple evaluation framework to keep the team aligned and reduce bias.",
+    plan: "Your next steps — the checklist, SLAs, and actions to kick off and run the hiring process well."
+  };
+  return descriptions[id] || "Card details";
+};
+
 export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false }) => {
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState("reality");
+  const [tooltipTab, setTooltipTab] = useState<string | null>(null);
 
   const tabs = [
-    { id: "overview", label: "Overview", Icon: LayoutDashboard },
+    { id: "reality", label: "Reality Card", Icon: Target },
     { id: "role", label: "Role Card", Icon: Briefcase },
     { id: "skill", label: "Skills Card", Icon: Code },
     { id: "market", label: "Market Card", Icon: TrendingUp },
     { id: "talentmap", label: "Talent Map Card", Icon: Map },
     { id: "pay", label: "Pay Card", Icon: DollarSign },
-    { id: "reality", label: "Reality Card", Icon: Target },
     { id: "funnel", label: "Funnel Card", Icon: BarChart3 },
     { id: "fit", label: "Fit Card", Icon: UserCheck },
     { id: "message", label: "Message Card", Icon: MessageSquare },
@@ -63,8 +84,8 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
 
   const renderCardContent = () => {
     switch (activeTab) {
-      case "overview":
-        return <OverviewCard isSubscribed={isSubscribed} />;
+      case "reality":
+        return <RealityCard />;
       case "role":
         return <RoleCard />;
       case "skill":
@@ -75,8 +96,6 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
         return <TalentMapCard />;
       case "pay":
         return <PayCard />;
-      case "reality":
-        return <RealityCard />;
       case "funnel":
         return <FunnelCard />;
       case "fit":
@@ -123,26 +142,69 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
       </div>
 
       {/* Container with border */}
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="flex h-[800px]">
+      <div className="bg-white rounded-lg shadow-lg overflow-visible">
+        <div className="flex h-[800px] overflow-hidden">
           {/* Sidebar Navigation */}
-          <div className="w-64 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto">
+          <div className="w-64 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto overflow-x-visible">
             <div className="p-2 space-y-1">
               {tabs.map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`
-                    w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg text-left
-                    ${activeTab === tab.id
-                      ? "bg-[#278f8c] text-white shadow-md"
-                      : "text-gray-700 hover:bg-gray-50"
-                    }
-                  `}
-                >
-                  <tab.Icon className="w-5 h-5 flex-shrink-0" />
-                  <span className="flex-1">{tab.label}</span>
-                </button>
+                <div key={tab.id} className="relative">
+                  <button
+                    data-tab-id={tab.id}
+                    onClick={() => {
+                      setActiveTab(tab.id);
+                      setTooltipTab(null);
+                    }}
+                    onMouseEnter={() => setTooltipTab(tab.id)}
+                    onMouseLeave={() => setTooltipTab(null)}
+                    className={`
+                      w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg text-left
+                      ${activeTab === tab.id
+                        ? "bg-[#278f8c] text-white shadow-md"
+                        : "text-gray-700 hover:bg-gray-50"
+                      }
+                    `}
+                  >
+                    <tab.Icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="flex-1">{tab.label}</span>
+                  </button>
+
+                  {/* Tooltip on Hover */}
+                  <AnimatePresence>
+                    {tooltipTab === tab.id && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.95 }}
+                        transition={{ duration: 0.2 }}
+                        className="fixed z-[9999] w-80 pointer-events-none"
+                        style={{
+                          left: `${(document.querySelector(`button[data-tab-id="${tab.id}"]`) as HTMLElement)?.getBoundingClientRect().right + 16 || 0}px`,
+                          top: `${(document.querySelector(`button[data-tab-id="${tab.id}"]`) as HTMLElement)?.getBoundingClientRect().top || 0}px`,
+                        }}
+                      >
+                        <div 
+                          className="bg-white border-2 border-[#278f8c] rounded-xl shadow-2xl p-4 relative pointer-events-auto"
+                          onMouseEnter={() => setTooltipTab(tab.id)}
+                          onMouseLeave={() => setTooltipTab(null)}
+                        >
+                          <div className="flex items-center gap-2 mb-3">
+                            <div className="p-2 bg-[#d7f4f2] rounded-lg">
+                              <tab.Icon size={18} className="text-[#278f8c]" />
+                            </div>
+                            <h4 className="font-bold text-[#102a63]">{tab.label}</h4>
+                          </div>
+                          <p className="text-sm text-slate-600 leading-relaxed">
+                            {getCardDescription(tab.id)}
+                          </p>
+                          {/* Arrow pointer pointing left */}
+                          <div className="absolute left-0 top-4 -ml-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-white"></div>
+                          <div className="absolute left-0 top-4 -ml-3 w-0 h-0 border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent border-r-[9px] border-r-[#278f8c]"></div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               ))}
             </div>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { 
   Loader2, 
@@ -71,7 +71,6 @@ export default function ConversationalChatbot() {
     timeline: null,
   });
   const [completeness, setCompleteness] = useState(0);
-  const [conversationComplete, setConversationComplete] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [showURLInput, setShowURLInput] = useState(true);
@@ -152,6 +151,66 @@ export default function ConversationalChatbot() {
       setGeneratingMessageIndex(0);
     }
   }, [isGenerating, generatingMessages.length]);
+
+  // Define handleComplete with useCallback
+  const handleComplete = useCallback(async () => {
+    setIsGenerating(true);
+
+    const formData = {
+      roleTitle: extractedData.roleTitle || "",
+      department: extractedData.department || "",
+      experienceLevel: extractedData.experienceLevel || "",
+      location: extractedData.location || "",
+      workModel: extractedData.workModel || "",
+      criticalSkills: extractedData.criticalSkills || [],
+      minSalary: extractedData.minSalary || "",
+      maxSalary: extractedData.maxSalary || "",
+      nonNegotiables: extractedData.nonNegotiables || "",
+      flexible: extractedData.flexible || "",
+      timeline: extractedData.timeline || "",
+    };
+
+    sessionStorage.setItem("formData", JSON.stringify(formData));
+
+    try {
+      // Map to API expected format
+      const apiFormData = {
+        jobTitle: extractedData.roleTitle || "",
+        department: extractedData.department || "",
+        experienceLevel: extractedData.experienceLevel || "",
+        location: extractedData.location || "",
+        workModel: extractedData.workModel || "",
+        salaryRange: extractedData.minSalary && extractedData.maxSalary 
+          ? `${extractedData.minSalary} - ${extractedData.maxSalary}`
+          : "",
+        requiredSkills: Array.isArray(extractedData.criticalSkills) 
+          ? extractedData.criticalSkills.join(", ")
+          : "",
+        keyResponsibilities: extractedData.nonNegotiables || "",
+        hiringTimeline: extractedData.timeline || "",
+        companySize: "Not specified",
+      };
+
+      const response = await fetch("/api/generate-cards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(apiFormData),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
+        sessionStorage.setItem("sessionId", result.sessionId);
+      }
+    } catch (error) {
+      console.error("Error generating cards:", error);
+    }
+
+    router.push("/results");
+  }, [extractedData, router]);
 
   // Progress bar animation - synced with actual generation
   useEffect(() => {
@@ -415,11 +474,6 @@ export default function ConversationalChatbot() {
           // Only update if completeness increased, never decrease
           return Math.max(prevCompleteness, newCompleteness);
         });
-        
-        // Check if conversation is complete
-        if (result.isComplete) {
-          setConversationComplete(true);
-        }
       }
     } catch (err) {
       console.error("Failed to extract data:", err);
@@ -665,52 +719,6 @@ export default function ConversationalChatbot() {
       
       addAssistantMessage(greeting);
     }, 500);
-  };
-
-  const handleComplete = async () => {
-    // Show generating screen
-    setIsGenerating(true);
-
-    // Prepare form data (clean structure)
-    const formData = {
-      roleTitle: extractedData.roleTitle || "",
-      department: extractedData.department || "",
-      experienceLevel: extractedData.experienceLevel || "",
-      location: extractedData.location || "",
-      workModel: extractedData.workModel || "",
-      criticalSkills: extractedData.criticalSkills || [], // Array only (no criticalSkill string)
-      minSalary: extractedData.minSalary || "",
-      maxSalary: extractedData.maxSalary || "",
-      nonNegotiables: extractedData.nonNegotiables || "", // Single field (no requirements duplicate)
-      flexible: extractedData.flexible || "",
-      timeline: extractedData.timeline || "",
-    };
-
-    // Save to sessionStorage
-    sessionStorage.setItem("formData", JSON.stringify(formData));
-
-    try {
-      // Generate cards
-      const response = await fetch("/api/generate-cards", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const result = await response.json();
-      
-      if (result.success) {
-        sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
-        sessionStorage.setItem("sessionId", result.sessionId);
-      }
-    } catch (error) {
-      console.error("Error generating cards:", error);
-    }
-
-    // Always navigate to results after generation (success or fail)
-    router.push("/results");
   };
 
   const filledFieldsCount = countFilledFields(extractedData);
