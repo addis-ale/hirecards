@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import {
   Loader2,
@@ -152,6 +152,48 @@ export default function ConversationalChatbot() {
     }
   }, [isGenerating])
 
+  // Define handleComplete before it's used in useEffect
+  const handleComplete = useCallback(async () => {
+    setIsGenerating(true)
+
+    const formData = {
+      roleTitle: extractedData.roleTitle || "",
+      department: extractedData.department || "",
+      experienceLevel: extractedData.experienceLevel || "",
+      location: extractedData.location || "",
+      workModel: extractedData.workModel || "",
+      criticalSkills: extractedData.criticalSkills || [],
+      minSalary: extractedData.minSalary || "",
+      maxSalary: extractedData.maxSalary || "",
+      nonNegotiables: extractedData.nonNegotiables || "",
+      flexible: extractedData.flexible || "",
+      timeline: extractedData.timeline || "",
+    }
+
+    sessionStorage.setItem("formData", JSON.stringify(formData))
+
+    try {
+      const response = await fetch("/api/generate-cards", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        sessionStorage.setItem("battleCards", JSON.stringify(result.cards))
+        sessionStorage.setItem("sessionId", result.sessionId)
+      }
+    } catch (error) {
+      console.error("Error generating cards:", error)
+    }
+
+    router.push("/results")
+  }, [extractedData, router])
+
   // Load existing data from storage on mount
   useEffect(() => {
     const loadExistingData = () => {
@@ -256,7 +298,7 @@ export default function ConversationalChatbot() {
         addAssistantMessage(greeting, suggestions)
       }, 500)
     }
-  }, [dataLoaded, extractedData])
+  }, [dataLoaded, extractedData, handleComplete])
 
   // Auto scroll to bottom
   useEffect(() => {
@@ -466,47 +508,6 @@ export default function ConversationalChatbot() {
       setError("Something went wrong. Please try again.")
       setIsLoading(false)
     }
-  }
-
-  const handleComplete = async () => {
-    setIsGenerating(true)
-
-    const formData = {
-      roleTitle: extractedData.roleTitle || "",
-      department: extractedData.department || "",
-      experienceLevel: extractedData.experienceLevel || "",
-      location: extractedData.location || "",
-      workModel: extractedData.workModel || "",
-      criticalSkills: extractedData.criticalSkills || [],
-      minSalary: extractedData.minSalary || "",
-      maxSalary: extractedData.maxSalary || "",
-      nonNegotiables: extractedData.nonNegotiables || "",
-      flexible: extractedData.flexible || "",
-      timeline: extractedData.timeline || "",
-    }
-
-    sessionStorage.setItem("formData", JSON.stringify(formData))
-
-    try {
-      const response = await fetch("/api/generate-cards", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      })
-
-      const result = await response.json()
-
-      if (result.success) {
-        sessionStorage.setItem("battleCards", JSON.stringify(result.cards))
-        sessionStorage.setItem("sessionId", result.sessionId)
-      }
-    } catch (error) {
-      console.error("Error generating cards:", error)
-    }
-
-    router.push("/results")
   }
 
   return (

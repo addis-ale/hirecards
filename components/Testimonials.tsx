@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import { motion } from "framer-motion"
 import { Star, Quote, Sparkles } from "lucide-react"
 
@@ -86,7 +87,7 @@ export default function Testimonials() {
             </h2>
 
             <p className="text-lg md:text-xl text-slate-500 max-w-xl mx-auto">
-              Don't just take our word for it. Here's what our users have to say.
+              Don&apos;t just take our word for it. Here&apos;s what our users have to say.
             </p>
           </motion.div>
         </div>
@@ -116,13 +117,15 @@ export default function Testimonials() {
               </div>
 
               {/* Testimonial text with better typography */}
-              <p className="text-slate-700 mb-8 leading-relaxed text-lg font-medium">"{testimonial.text}"</p>
+              <p className="text-slate-700 mb-8 leading-relaxed text-lg font-medium">&quot;{testimonial.text}&quot;</p>
 
               <div className="flex items-center gap-4 pt-6 border-t border-slate-100/80">
                 <div className={`relative p-1 rounded-full bg-gradient-to-br ${testimonial.accentGradient}`}>
-                  <img
+                  <Image
                     src={testimonial.image || "/placeholder.svg"}
                     alt={testimonial.name}
+                    width={56}
+                    height={56}
                     className="w-14 h-14 rounded-full object-cover bg-white ring-2 ring-white"
                   />
                 </div>
