@@ -6,8 +6,7 @@
  */
 
 import * as cheerio from "cheerio";
-import puppeteer from "puppeteer-core";
-import chromium from "@sparticuz/chromium";
+import axios from "axios";
 
 interface ScrapedJobData {
   title: string;
@@ -26,168 +25,45 @@ interface ScrapedJobData {
  * Scrape a job description from a URL using Puppeteer
  * Works for both static HTML and JavaScript-rendered pages
  */
+
+interface ScrapedJobData {
+  title: string;
+  description: string;
+  location?: string;
+  company?: string;
+  salary?: string;
+  requirements?: string[];
+  responsibilities?: string[];
+  benefits?: string[];
+  rawText: string;
+  source: string;
+}
+
+const SCRAPINGBEE_API_KEY = process.env.SCRAPINGBEE_API_KEY;
+
+/**
+ * Scrape a job description from a URL using ScrapingBee
+ */
 export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
-  let browser;
-
   try {
-    console.log("🚀 Starting Puppeteer scrape for:", url);
+    console.log("🚀 ScrapingBee scrape:", url);
 
-    // Check if running in production (Vercel) or development
-    const isProduction = process.env.VERCEL || process.env.NODE_ENV === 'production';
-    
-    let launchOptions: any = {
-      headless: true,
-      args: [
-        "--no-sandbox",
-        "--disable-setuid-sandbox",
-        "--disable-dev-shm-usage",
-        "--disable-accelerated-2d-canvas",
-        "--no-first-run",
-        "--no-zygote",
-        "--single-process",
-        "--disable-gpu",
-      ],
-    };
+    const response = await axios.get("https://app.scrapingbee.com/api/v1/", {
+      params: {
+        api_key: SCRAPINGBEE_API_KEY,
+        url,
+        // Important: enable JS rendering
+        render_js: "true",
+        premium_proxy: "true",
+        wait: "5000", // wait extra for React pages
+      },
+    });
 
-    if (isProduction) {
-      // Production (Vercel): Use @sparticuz/chromium
-      console.log('🌐 Running in production mode (Vercel)');
-      launchOptions = {
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      };
-    } else {
-      // Development: Try to find system-installed browsers
-      const fs = require('fs');
-      let browserFound = false;
-
-      if (process.platform === 'win32') {
-        // Windows: Try Edge first (most commonly pre-installed), then Chrome
-        const browserPaths = [
-          'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
-          'C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe',
-          'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
-          'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
-        ];
-        
-        for (const browserPath of browserPaths) {
-          try {
-            if (fs.existsSync(browserPath)) {
-              console.log(`✅ Found system browser at: ${browserPath}`);
-              launchOptions.executablePath = browserPath;
-              browserFound = true;
-              break;
-            }
-          } catch (e) {
-            // Continue to next path
-          }
-        }
-      } else if (process.platform === 'darwin') {
-        // macOS: Try Chrome, then Edge
-        const browserPaths = [
-          '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-          '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-        ];
-        
-        for (const browserPath of browserPaths) {
-          try {
-            if (fs.existsSync(browserPath)) {
-              console.log(`✅ Found system browser at: ${browserPath}`);
-              launchOptions.executablePath = browserPath;
-              browserFound = true;
-              break;
-            }
-          } catch (e) {
-            // Continue to next path
-          }
-        }
-      } else {
-        // Linux: Try common Chrome/Chromium locations
-        const browserPaths = [
-          '/usr/bin/google-chrome',
-          '/usr/bin/chromium-browser',
-          '/usr/bin/chromium',
-          '/snap/bin/chromium',
-        ];
-        
-        for (const browserPath of browserPaths) {
-          try {
-            if (fs.existsSync(browserPath)) {
-              console.log(`✅ Found system browser at: ${browserPath}`);
-              launchOptions.executablePath = browserPath;
-              browserFound = true;
-              break;
-            }
-          } catch (e) {
-            // Continue to next path
-          }
-        }
-      }
-
-      if (!browserFound) {
-        console.log('⚠️ No system browser found. Please install Chrome or Edge, or use Puppeteer with Chrome.');
-      }
-    }
-
-    // Launch browser
-    browser = await puppeteer.launch(launchOptions);
-
-    const page = await browser.newPage();
-
-    // Enable JavaScript
-    await page.setJavaScriptEnabled(true);
-
-    // Set a realistic user agent and viewport
-    await page.setUserAgent(
-      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-    );
-    await page.setViewport({ width: 1920, height: 1080 });
-
-    // Navigate to the page and wait for network to be mostly idle
-    try {
-      await page.goto(url, {
-        waitUntil: "networkidle2", // Wait until no more than 2 network connections for 500ms
-        timeout: 60000,
-      });
-    } catch (error) {
-      console.log("⚠️ Navigation timeout, but continuing anyway...");
-    }
-
-    // Wait longer for JavaScript to render content
-    await new Promise((resolve) => setTimeout(resolve, 5000));
-
-    // Check if we got the "You need to enable JavaScript" message (means React didn't load)
-    let html = await page.content();
-    if (html.includes("You need to enable JavaScript to run this app")) {
-      console.log("⚠️ React app not loaded yet, waiting longer...");
-      await new Promise((resolve) => setTimeout(resolve, 5000));
-      html = await page.content();
-    }
-
-    // Try to wait for actual content (not just the React placeholder)
-    try {
-      await page.waitForFunction(
-        () => {
-          const bodyText = document.body.innerText;
-          return bodyText.length > 500 && !bodyText.includes("You need to enable JavaScript");
-        },
-        { timeout: 10000 }
-      );
-      console.log("✅ Content loaded successfully");
-      html = await page.content();
-    } catch {
-      console.log("⚠️ Content might not be fully loaded, but continuing...");
-    }
-
-    console.log("✅ Puppeteer got HTML, length:", html.length);
-
-    // Parse with Cheerio
+    const html = response.data;
     const $ = cheerio.load(html);
+
     const hostname = new URL(url).hostname.toLowerCase();
 
-    // Determine the job board and use appropriate selectors
     let scrapedData: ScrapedJobData;
 
     if (hostname.includes("linkedin.com")) {
@@ -204,23 +80,15 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
       scrapedData = scrapeWorkday($, url);
     } else if (hostname.includes("ashbyhq.com")) {
       scrapedData = scrapeAshby($, url);
-    } else if (hostname.includes("jobs.")) {
-      scrapedData = scrapeGenericJobBoard($, url);
     } else {
-      // Generic scraping for unknown job boards
       scrapedData = scrapeGenericJobBoard($, url);
     }
 
-    console.log("✅ Scraping complete");
+    console.log("✅ ScrapingBee success");
     return scrapedData;
   } catch (error) {
-    console.error("❌ Error scraping job URL:", error);
-    throw new Error("Failed to scrape job description from URL");
-  } finally {
-    // Always close the browser
-    if (browser) {
-      await browser.close();
-    }
+    console.error("❌ ScrapingBee error:", error);
+    throw new Error("Failed to scrape job URL using ScrapingBee");
   }
 }
 
@@ -441,17 +309,27 @@ function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
     if (current === "Location" && !location) {
       // Handle multiple locations (could be comma-separated on one line or multiple lines)
       // Check if next line contains comma-separated locations
-      if (next && next.includes(',')) {
+      if (next && next.includes(",")) {
         // All locations on one line: "Mexico, Colombia, Peru, Ecuador"
         location = next;
       } else {
         // Multiple lines for locations
         let locations = [next];
-        
+
         // Check if next line(s) are also locations (not a field label)
-        const fieldLabels = ["Employment Type", "Location Type", "Department", "Compensation", "Remote Type"];
+        const fieldLabels = [
+          "Employment Type",
+          "Location Type",
+          "Department",
+          "Compensation",
+          "Remote Type",
+        ];
         let j = i + 2;
-        while (j < lines.length && !fieldLabels.includes(lines[j]) && lines[j].length < 50) {
+        while (
+          j < lines.length &&
+          !fieldLabels.includes(lines[j]) &&
+          lines[j].length < 50
+        ) {
           // If it looks like a location (short, not a label), add it
           if (lines[j] && !lines[j].includes(":") && lines[j] !== next) {
             locations.push(lines[j]);
@@ -460,7 +338,7 @@ function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
             break;
           }
         }
-        
+
         location = locations.join(", ");
       }
     } else if (current === "Employment Type") {
@@ -473,7 +351,11 @@ function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
         locationType = "Remote";
       } else if (lower.includes("hybrid")) {
         locationType = "Hybrid";
-      } else if (lower.includes("office") || lower.includes("on-site") || lower.includes("onsite")) {
+      } else if (
+        lower.includes("office") ||
+        lower.includes("on-site") ||
+        lower.includes("onsite")
+      ) {
         locationType = "On-site";
       }
     } else if (current === "Department") {
@@ -482,6 +364,28 @@ function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
       // Compensation might span multiple lines
       salary = lines.slice(i + 1, i + 3).join(" ");
     }
+
+    if (!salary) {
+      const compLabel = $("*")
+        .filter((_, el) => $(el).text().trim() === "Compensation")
+        .first();
+
+      if (compLabel.length) {
+        salary = compLabel.next().text().trim();
+      }
+    }
+
+    if (!salary) {
+      const bodyText = $.text();
+      const match = bodyText.match(
+        /\$[\d,.]+(?:K|M)?\s*[\–-]\s*\$[\d,.]+(?:K|M)?/i
+      );
+      if (match) {
+        salary = match[0];
+      }
+    }
+
+    salary = salary.replace(/\s+/g, " ").trim();
   }
 
   // Try to find company name in the page
@@ -494,14 +398,28 @@ function scrapeAshby($: cheerio.CheerioAPI, url: string): ScrapedJobData {
     const urlParts = url.split("/");
     if (urlParts.length > 3 && urlParts[2].includes("ashbyhq.com")) {
       const potentialCompany = urlParts[3];
-      if (potentialCompany && potentialCompany.length > 2 && potentialCompany.length < 50) {
-        company = potentialCompany.charAt(0).toUpperCase() + potentialCompany.slice(1);
+      if (
+        potentialCompany &&
+        potentialCompany.length > 2 &&
+        potentialCompany.length < 50
+      ) {
+        company =
+          potentialCompany.charAt(0).toUpperCase() + potentialCompany.slice(1);
       }
     }
-    
+
     // If still no company, look for company name patterns in text
     // But exclude common field labels
-    const excludeWords = ["Location", "Department", "Employment Type", "Location Type", "Compensation", "Remote", "Hybrid", "On-site"];
+    const excludeWords = [
+      "Location",
+      "Department",
+      "Employment Type",
+      "Location Type",
+      "Compensation",
+      "Remote",
+      "Hybrid",
+      "On-site",
+    ];
     if (!company) {
       $("*").each((_, elem) => {
         const text = $(elem).text().trim();
