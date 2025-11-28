@@ -16,7 +16,7 @@ export const OutreachCard = () => {
           <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
             Outreach Card
           </h2>
-          <p className="text-sm text-gray-600">3-Step Outreach (Tailored to Product-Minded Analytics Engineers)</p>
+          <p className="text-sm text-gray-600">Ready-to-send email and DM templates for reaching ideal candidates.</p>
         </div>
       </div>
 

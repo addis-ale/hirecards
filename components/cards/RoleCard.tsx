@@ -35,7 +35,7 @@ export const RoleCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Role Card" subtitle="Role summary, outcomes, truth, and actions" Icon={Briefcase} density="compact">
+      <Section title="Role Card" subtitle="What this person will actually do and what success looks like in the first 6–12 months." Icon={Briefcase} density="compact">
         <div className="space-y-4">
           {/* Role Summary */}
           <div className="rounded-xl border border-gray-200 p-4 bg-gradient-to-br from-blue-50 to-white">

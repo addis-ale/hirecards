@@ -17,7 +17,7 @@ export const RealityCard = () => {
           <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
             Reality Card
           </h2>
-          <p className="text-sm text-gray-600">Feasibility & Hiring Conditions</p>
+          <p className="text-sm text-gray-600">Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.</p>
         </div>
       </div>
 

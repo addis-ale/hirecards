@@ -8,7 +8,7 @@ import { Callout } from "@/components/ui/Callout";
 export const SkillCard = () => {
   return (
     <div className="space-y-6">
-      <Section title="Skill Card" subtitle="Technical, product, and behavioural skills" Icon={Code} density="compact">
+      <Section title="Skill Card" subtitle="The must-have abilities, tools, and experience needed to perform the role." Icon={Code} density="compact">
         <div className="space-y-4">
           {/* Core Technical Skills */}
           <div>

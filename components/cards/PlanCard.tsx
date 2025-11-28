@@ -54,7 +54,7 @@ export const PlanCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Plan Card" subtitle="Launch plan and weekly rhythm" Icon={CalendarCheck} density="compact">
+      <Section title="Plan Card" subtitle="Your next steps — the checklist, SLAs, and actions to kick off and run the hiring process well." Icon={CalendarCheck} density="compact">
         <div className="space-y-4">
           {/* First 7 Days */}
           <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">

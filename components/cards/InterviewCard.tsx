@@ -34,7 +34,7 @@ export const InterviewCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Interview Card" subtitle="Interview loop and best practices" Icon={Mic} density="compact">
+      <Section title="Interview Card" subtitle="The recommended interview process and competencies to assess at each stage." Icon={Mic} density="compact">
         <div className="space-y-4">
           {/* Optimal Loop */}
           <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">

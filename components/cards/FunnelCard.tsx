@@ -44,7 +44,7 @@ export const FunnelCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Funnel Card" subtitle="Expected conversion rates and bottlenecks" Icon={BarChart3} density="compact">
+      <Section title="Funnel Card" subtitle="The volume of outreach and interviews you'll need to fill the role." Icon={BarChart3} density="compact">
         <div className="space-y-4">
           {/* Expected Funnel */}
           <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">

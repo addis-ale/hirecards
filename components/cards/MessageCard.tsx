@@ -63,7 +63,7 @@ If you're tired of doing invisible work and want your output to *change how busi
     <div className="space-y-6">
       <Section
         title="Message Card"
-        subtitle="Core pitch, positioning, and ready-to-use message templates"
+        subtitle="How to pitch the role in a way that actually gets replies."
         Icon={MessageSquare}
         density="compact"
       >

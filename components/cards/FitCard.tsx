@@ -50,7 +50,7 @@ export const FitCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Fit Card" subtitle="Ideal candidate persona and alignment" Icon={UserCheck} density="compact">
+      <Section title="Fit Card" subtitle="What motivates this persona, what they care about, and what usually makes them say yes or no." Icon={UserCheck} density="compact">
         <div className="space-y-4">
           {/* Persona */}
           <div className="rounded-xl border-2 p-4 bg-gradient-to-br from-blue-50 to-white" style={{ borderColor: "#278f8c" }}>
