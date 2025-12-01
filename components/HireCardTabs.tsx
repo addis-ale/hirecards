@@ -45,6 +45,11 @@ const getCardDescription = (id: string): string => {
 export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false }) => {
   const [activeTab, setActiveTab] = useState("reality");
   const [tooltipTab, setTooltipTab] = useState<string | null>(null);
+  const [selectedCards, setSelectedCards] = useState<string[]>(["reality"]); // Default: Reality card selected
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [showSelectionHint, setShowSelectionHint] = useState(false);
+  const [showShareHint, setShowShareHint] = useState(false);
+  const [showDownloadHint, setShowDownloadHint] = useState(false);
 
   const tabs = [
     { id: "reality", label: "Reality Card", Icon: Target },
@@ -62,23 +67,52 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
     { id: "plan", label: "Plan Card", Icon: CalendarCheck },
   ];
 
+  const toggleCardSelection = (cardId: string) => {
+    setSelectedCards(prev => 
+      prev.includes(cardId) 
+        ? prev.filter(id => id !== cardId)
+        : [...prev, cardId]
+    );
+  };
+
+  const selectAllCards = () => {
+    setSelectedCards(tabs.map(tab => tab.id));
+  };
+
+  const deselectAllCards = () => {
+    setSelectedCards([]);
+  };
+
   const handleDownload = () => {
-    // TODO: Implement PDF download
-    alert("Download functionality coming soon!");
+    if (selectedCards.length === 0) {
+      alert("👈 Select cards first!\n\nCheck the circles next to the cards in the sidebar to choose what you want to download.");
+      return;
+    }
+    // TODO: Implement PDF download with selected cards
+    alert(`Download functionality coming soon!\nSelected cards: ${selectedCards.join(", ")}`);
   };
 
   const handleShare = () => {
-    // TODO: Implement share functionality
+    if (selectedCards.length === 0) {
+      alert("👈 Select cards first!\n\nCheck the circles next to the cards in the sidebar to choose what you want to share.");
+      return;
+    }
+    
+    const selectedCardNames = selectedCards
+      .map(id => tabs.find(tab => tab.id === id)?.label)
+      .join(", ");
+    
+    // TODO: Implement share functionality with selected cards
     if (navigator.share) {
       navigator.share({
         title: "HireCard Strategy",
-        text: "Check out my hiring strategy from HireCard",
+        text: `Check out my hiring strategy: ${selectedCardNames}`,
         url: window.location.href,
       }).catch(err => console.log("Share failed:", err));
     } else {
       // Fallback: Copy link
       navigator.clipboard.writeText(window.location.href);
-      alert("Link copied to clipboard!");
+      alert(`Link copied to clipboard!\nSharing: ${selectedCardNames}`);
     }
   };
 
@@ -123,31 +157,115 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   return (
     <div className="w-full">
       {/* Action Buttons */}
-      <div className="flex justify-end gap-3 mb-6">
-        <button
-          onClick={handleShare}
-          className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-all"
-          style={{ color: "#102a63" }}
+      <div className="flex justify-between items-center gap-3 mb-6">
+        {/* Selection Controls */}
+        <div 
+          className="flex items-center gap-3 relative"
+          onMouseEnter={() => setShowSelectionHint(true)}
+          onMouseLeave={() => setShowSelectionHint(false)}
         >
-          <Share2 className="w-4 h-4" />
-          <span className="text-sm font-medium">Share</span>
-        </button>
-        <button
-          onClick={handleDownload}
-          className="flex items-center gap-2 px-4 py-2 bg-[#278f8c] text-white rounded-lg hover:bg-[#1a6764] transition-all"
-        >
-          <Download className="w-4 h-4" />
-          <span className="text-sm font-medium">Download PDF</span>
-        </button>
+          <span className="text-sm font-medium" style={{ color: "#102a63" }}>
+            {selectedCards.length} card{selectedCards.length !== 1 ? 's' : ''} selected
+          </span>
+          <button
+            onClick={selectAllCards}
+            className="text-sm text-[#278f8c] hover:underline font-medium"
+          >
+            Select All
+          </button>
+          <button
+            onClick={deselectAllCards}
+            className="text-sm text-gray-500 hover:underline font-medium"
+          >
+            Clear
+          </button>
+          
+          {/* Hint Tooltip */}
+          {showSelectionHint && (
+            <div className="absolute top-full left-0 mt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div 
+                className="bg-[#102a63] text-white text-xs rounded-lg px-4 py-2 shadow-lg max-w-xs"
+              >
+                <p className="font-medium mb-1">💡 Select cards to share or download</p>
+                <p className="text-gray-300">Check the circles next to each card in the sidebar to customize what you want to export.</p>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Share & Download Buttons */}
+        <div className="flex gap-3">
+          {/* Share Button */}
+          <div 
+            className="relative"
+            onMouseEnter={() => selectedCards.length === 0 && setShowShareHint(true)}
+            onMouseLeave={() => setShowShareHint(false)}
+          >
+            <button
+              onClick={handleShare}
+              disabled={selectedCards.length === 0}
+              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ color: "#102a63" }}
+            >
+              <Share2 className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                Share {selectedCards.length > 0 && `(${selectedCards.length})`}
+              </span>
+            </button>
+            
+            {/* Tooltip for disabled state */}
+            {showShareHint && selectedCards.length === 0 && (
+              <div className="absolute bottom-full right-0 mb-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="bg-[#102a63] text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                  ← Select cards from the sidebar first
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Download Button */}
+          <div 
+            className="relative"
+            onMouseEnter={() => selectedCards.length === 0 && setShowDownloadHint(true)}
+            onMouseLeave={() => setShowDownloadHint(false)}
+          >
+            <button
+              onClick={handleDownload}
+              disabled={selectedCards.length === 0}
+              className="flex items-center gap-2 px-4 py-2 bg-[#278f8c] text-white rounded-lg hover:bg-[#1a6764] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="w-4 h-4" />
+              <span className="text-sm font-medium">
+                Download PDF {selectedCards.length > 0 && `(${selectedCards.length})`}
+              </span>
+            </button>
+            
+            {/* Tooltip for disabled state */}
+            {showDownloadHint && selectedCards.length === 0 && (
+              <div className="absolute bottom-full right-0 mb-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+                <div className="bg-[#102a63] text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
+                  ← Select cards from the sidebar first
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Container with border */}
       <div className="bg-white rounded-lg shadow-lg overflow-visible">
         <div className="flex h-[800px] overflow-hidden">
           {/* Sidebar Navigation */}
-          <div className="w-64 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto overflow-x-visible">
+          <div 
+            className="w-64 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto overflow-x-visible relative"
+            onMouseEnter={() => setIsSelectionMode(true)}
+            onMouseLeave={() => setIsSelectionMode(false)}
+          >
             <div className="p-2 space-y-1">
-              {tabs.map((tab) => (
+              {tabs.map((tab) => {
+                const [isHovered, setIsHovered] = React.useState(false);
+                
+                return (
                 <div key={tab.id} className="relative">
                   <button
                     data-tab-id={tab.id}
@@ -155,8 +273,14 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
                       setActiveTab(tab.id);
                       setTooltipTab(null);
                     }}
-                    onMouseEnter={() => setTooltipTab(tab.id)}
-                    onMouseLeave={() => setTooltipTab(null)}
+                    onMouseEnter={() => {
+                      setTooltipTab(tab.id);
+                      setIsHovered(true);
+                    }}
+                    onMouseLeave={() => {
+                      setTooltipTab(null);
+                      setIsHovered(false);
+                    }}
                     className={`
                       w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg text-left
                       ${activeTab === tab.id
@@ -167,6 +291,43 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
                   >
                     <tab.Icon className="w-5 h-5 flex-shrink-0" />
                     <span className="flex-1">{tab.label}</span>
+                    
+                    {/* Custom circular checkbox with checkmark - shows on hover or when selected */}
+                    {(isHovered || selectedCards.includes(tab.id)) && (
+                      <div
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleCardSelection(tab.id);
+                        }}
+                        className={`w-5 h-5 rounded-full border-2 cursor-pointer flex-shrink-0 flex items-center justify-center transition-all ${
+                          selectedCards.includes(tab.id)
+                            ? activeTab === tab.id 
+                              ? "bg-white border-white" 
+                              : "bg-[#278f8c] border-[#278f8c]"
+                            : activeTab === tab.id 
+                              ? "border-white" 
+                              : "border-gray-400"
+                        } animate-in fade-in zoom-in duration-200`}
+                      >
+                        {selectedCards.includes(tab.id) && (
+                          <svg 
+                            className="w-3 h-3" 
+                            viewBox="0 0 12 12" 
+                            fill="none"
+                            style={{ 
+                              stroke: activeTab === tab.id ? "#278f8c" : "#ffffff"
+                            }}
+                          >
+                            <path 
+                              d="M2 6L4.5 8.5L10 3" 
+                              strokeWidth="2" 
+                              strokeLinecap="round" 
+                              strokeLinejoin="round"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    )}
                   </button>
 
                   {/* Tooltip on Hover */}
@@ -205,7 +366,8 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
                     )}
                   </AnimatePresence>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
 

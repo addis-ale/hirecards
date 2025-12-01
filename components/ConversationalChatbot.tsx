@@ -315,47 +315,33 @@ export default function ConversationalChatbot() {
           greeting += "Let's build your HireCard from scratch. I'll guide you through the process with a few quick questions.\n\nWhat role are you looking to hire for?";
         } else if (filledCount < TOTAL_FIELDS) {
           // Some data exists - acknowledge it and list what's missing
-          greeting += `${filledCount}/${TOTAL_FIELDS} fields filled. Not terrible. But we're not done dissecting this yet.\n\n`;
+          greeting += `Good start! ${filledCount}/${TOTAL_FIELDS} fields done. Let's knock out the rest.\n\n`;
           
-          // Build list of missing fields
-          const missingFields: string[] = [];
-          if (!extractedData.roleTitle) missingFields.push("Role Title");
-          if (!extractedData.department) missingFields.push("Department");
-          if (!extractedData.experienceLevel) missingFields.push("Experience Level");
-          if (!extractedData.location) missingFields.push("Location");
-          if (!extractedData.workModel) missingFields.push("Work Model");
-          if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
-          if (!extractedData.minSalary || !extractedData.maxSalary) missingFields.push("Salary Range");
-          if (!extractedData.nonNegotiables) missingFields.push("Non-Negotiables");
-          if (!extractedData.timeline) missingFields.push("Timeline");
-          if (!extractedData.flexible) missingFields.push("Nice-to-Have Skills");
-          
-          greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
-          
-          // Ask about the first missing field
+          // Ask about the first missing field directly
           if (!extractedData.roleTitle) {
-            greeting += "First, what role are you hiring for?";
+            greeting += "What role are you hiring for?";
           } else if (!extractedData.department) {
-            greeting += "What department is this role for?";
+            greeting += "What department?";
           } else if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) {
-            greeting += "What are the critical technical skills this person must have?";
+            greeting += "What critical skills must they have?";
           } else if (!extractedData.experienceLevel) {
-            greeting += "What experience level are you looking for?";
+            greeting += "Experience level?";
+            suggestions = ["Entry Level", "Mid-Level", "Senior", "Lead/Principal"];
           } else if (!extractedData.nonNegotiables) {
-            greeting += "What are the must-have requirements for this role?";
+            greeting += "What are your non-negotiables?";
           } else if (!extractedData.minSalary || !extractedData.maxSalary) {
-            greeting += "What's your salary range? Min and max, please.";
+            greeting += "Salary range? (Min and max)";
           } else if (!extractedData.location) {
-            greeting += "Where is this position located?";
+            greeting += "Where's this position located?";
             suggestions = ["Remote", "New York, NY", "San Francisco, CA", "London, UK"];
           } else if (!extractedData.workModel) {
-            greeting += "Is this role remote, hybrid, or on-site?";
+            greeting += "Remote, hybrid, or on-site?";
             suggestions = ["Remote", "Hybrid", "On-site"];
           } else if (!extractedData.timeline) {
-            greeting += "What's your timeline for filling this position?";
+            greeting += "Timeline to fill this role?";
             suggestions = ["Urgent (1-2 weeks)", "Standard (1 month)", "Flexible (2-3 months)"];
           } else if (!extractedData.flexible) {
-            greeting += "Any nice-to-have skills or flexible requirements?";
+            greeting += "Any nice-to-have skills?";
           }
         } else {
           // All data is filled!
