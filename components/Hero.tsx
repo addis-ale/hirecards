@@ -596,130 +596,6 @@ export const Hero = () => {
                     }}
                   />
 
-                  {/* Collapsible Scraped Data Section */}
-                  <AnimatePresence>
-                    {parsedData && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="mt-4 pt-4 border-t border-slate-700/50"
-                      >
-                        <button
-                          onClick={() => setShowScrapedData(!showScrapedData)}
-                          className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-700/30 hover:bg-slate-700/50 transition-colors group"
-                        >
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-cyan-400" />
-                            <span className="text-sm font-medium text-slate-300 group-hover:text-white transition-colors">
-                              View Scraped Data
-                            </span>
-                            <span className="text-xs text-slate-500 bg-slate-800/50 px-2 py-0.5 rounded-full">
-                              {parsedData.isURL ? "From URL" : "From Text"}
-                            </span>
-                          </div>
-                          {showScrapedData ? (
-                            <ChevronUp className="w-4 h-4 text-slate-400" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 text-slate-400" />
-                          )}
-                        </button>
-
-                        <AnimatePresence>
-                          {showScrapedData && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="mt-2 p-4 rounded-lg bg-slate-800/50 border border-slate-700/50 overflow-hidden"
-                            >
-                              <div className="max-h-[300px] overflow-y-auto space-y-3 text-sm">
-                                {parsedData.jobTitle && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Job Title:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.jobTitle}</span>
-                                  </div>
-                                )}
-                                {parsedData.department && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Department:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.department}</span>
-                                  </div>
-                                )}
-                                {parsedData.experienceLevel && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Experience Level:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.experienceLevel}</span>
-                                  </div>
-                                )}
-                                {parsedData.location && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Location:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.location}</span>
-                                  </div>
-                                )}
-                                {parsedData.workModel && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Work Model:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.workModel}</span>
-                                  </div>
-                                )}
-                                {parsedData.minSalary && parsedData.maxSalary && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Salary Range:</span>
-                                    <span className="ml-2 text-slate-300">
-                                      ${parsedData.minSalary} - ${parsedData.maxSalary}
-                                    </span>
-                                  </div>
-                                )}
-                                {parsedData.skills && parsedData.skills.length > 0 && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Skills:</span>
-                                    <div className="mt-1 flex flex-wrap gap-1">
-                                      {parsedData.skills.map((skill: string, index: number) => (
-                                        <span
-                                          key={index}
-                                          className="px-2 py-1 bg-cyan-500/10 border border-cyan-500/30 rounded text-cyan-300 text-xs"
-                                        >
-                                          {skill}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                                {parsedData.requirements && parsedData.requirements.length > 0 && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Requirements:</span>
-                                    <ul className="mt-1 ml-4 space-y-1 list-disc list-inside text-slate-300">
-                                      {parsedData.requirements.map((req: string, index: number) => (
-                                        <li key={index}>{req}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                                {parsedData.timeline && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Timeline:</span>
-                                    <span className="ml-2 text-slate-300">{parsedData.timeline}</span>
-                                  </div>
-                                )}
-                                {parsedData.confidence !== undefined && (
-                                  <div className="pt-2 border-t border-slate-700/50">
-                                    <span className="text-slate-500 font-medium">Confidence Score:</span>
-                                    <span className="ml-2 text-slate-300">
-                                      {Math.round(parsedData.confidence * 100)}%
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
                   <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-200">
                     <div className="flex items-center gap-2 text-slate-500 text-xs">
@@ -735,8 +611,12 @@ export const Hero = () => {
                       className={`group relative flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm transition-all overflow-hidden ${
                         !roleDescription.trim() && !isAnalyzing
                           ? "bg-white border-2 border-slate-200 text-slate-400 cursor-not-allowed"
-                          : "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25"
+                          : "text-white shadow-lg"
                       }`}
+                      style={roleDescription.trim() && !isAnalyzing ? { 
+                        background: "linear-gradient(to right, #016B61, #70B2B2)",
+                        boxShadow: "0 10px 25px -5px #016B6140"
+                      } : {}}
                     >
                       {isAnalyzing ? (
                         <>

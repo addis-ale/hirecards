@@ -97,72 +97,39 @@ export default function FAQ() {
   }
 
   return (
-    <section className="relative py-24 md:py-40 overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-50 via-white to-slate-100">
-        <GridPattern />
-        <FloatingOrb
-          delay={0}
-          duration={25}
-          size={400}
-          initialX={10}
-          initialY={20}
-          gradient="linear-gradient(135deg, #3b82f6 0%, #0ea5e9 50%, #06b6d4 100%)"
-        />
-        <FloatingOrb
-          delay={5}
-          duration={28}
-          size={350}
-          initialX={80}
-          initialY={70}
-          gradient="linear-gradient(135deg, #8b5cf6 0%, #a855f7 50%, #d946ef 100%)"
-        />
-        <FloatingOrb
-          delay={10}
-          duration={26}
-          size={300}
-          initialX={50}
-          initialY={5}
-          gradient="linear-gradient(135deg, #06b6d4 0%, #14b8a6 50%, #10b981 100%)"
-        />
-      </div>
-
-      <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-20">
+    <section className="relative py-20 md:py-32 overflow-hidden bg-white">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-100 to-cyan-100 border border-blue-200 shadow-lg shadow-blue-500/10 mb-6">
-              <HelpCircle className="w-4 h-4 text-blue-600" />
-              <span className="text-sm font-medium text-blue-900">Common Questions</span>
-            </div>
-
-            <h2 className="text-5xl md:text-6xl font-bold mb-6 text-balance">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 text-gray-900">
               Your Burning Questions
               <br />
-              <span className="bg-gradient-to-r from-blue-600 via-violet-600 to-cyan-600 bg-clip-text text-transparent bg-[length:200%_auto] animate-[gradient_3s_linear_infinite] text-3xl md:text-4xl font-semibold">
+              <span style={{ color: "#70B2B2" }} className="text-2xl md:text-3xl font-semibold">
                 (Probably Dumb, But We will Answer)
               </span>
             </h2>
 
-            <p className="text-lg text-slate-600 font-medium max-w-2xl mx-auto">
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
               We have got answers to the questions keeping you up at night. And the weird ones too.
             </p>
           </motion.div>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {faqs.map((faq, index) => {
             const isOpen = openIndex === index
             const gradients = [
-              "from-blue-500 to-cyan-400",
-              "from-violet-500 to-purple-400",
-              "from-emerald-500 to-teal-400",
-              "from-orange-500 to-amber-400",
-              "from-pink-500 to-rose-400",
-              "from-indigo-500 to-blue-400",
+              "from-[#016B61] to-[#70B2B2]",
+              "from-[#70B2B2] to-[#9ECFD4]",
+              "from-[#9ECFD4] to-[#70B2B2]",
+              "from-[#016B61] to-[#9ECFD4]",
+              "from-[#70B2B2] to-[#016B61]",
+              "from-[#9ECFD4] to-[#016B61]",
             ]
             const gradient = gradients[index % gradients.length]
 
@@ -200,7 +167,7 @@ export default function FAQ() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 text-left">
-                        <h3 className="text-lg font-bold text-slate-900 leading-relaxed">{faq.question}</h3>
+                        <h3 className="text-lg font-bold leading-relaxed" style={{ color: "#016B61" }}>{faq.question}</h3>
                       </div>
 
                       <div className={`flex-shrink-0 transition-all duration-300 ${isOpen ? "rotate-180" : ""}`}>
@@ -208,13 +175,15 @@ export default function FAQ() {
                           className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
                             isOpen
                               ? `bg-gradient-to-br ${gradient} shadow-lg`
-                              : "bg-gradient-to-br from-slate-100 to-slate-50"
+                              : ""
                           }`}
+                          style={!isOpen ? { background: "linear-gradient(to bottom right, #E5E9C5, #9ECFD4)" } : {}}
                         >
                           <ChevronDown
                             className={`w-5 h-5 transition-colors duration-300 ${
-                              isOpen ? "text-white" : "text-slate-600"
+                              isOpen ? "text-white" : ""
                             }`}
+                            style={!isOpen ? { color: "#016B61" } : {}}
                           />
                         </div>
                       </div>
@@ -229,8 +198,8 @@ export default function FAQ() {
                           transition={{ duration: 0.3 }}
                           className="overflow-hidden"
                         >
-                          <div className="pt-4 mt-4 border-t border-slate-100">
-                            <p className="text-slate-600 leading-relaxed text-base">{faq.answer}</p>
+                          <div className="pt-4 mt-4" style={{ borderTop: "1px solid #9ECFD4" }}>
+                            <p className="leading-relaxed text-base" style={{ color: "#016B61", opacity: 0.7 }}>{faq.answer}</p>
                           </div>
                         </motion.div>
                       )}
@@ -247,16 +216,17 @@ export default function FAQ() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.4 }}
-          className="text-center mt-16"
+          className="text-center mt-12 md:col-span-2"
         >
           <div className="inline-block">
-            <p className="text-slate-500 italic mb-6 flex items-center gap-2 justify-center">
+            <p className="italic mb-6 flex items-center gap-2 justify-center" style={{ color: "#016B61", opacity: 0.6 }}>
               <Sparkles className="w-4 h-4" />
               My circuits are fried. You are on your own now, champ.
             </p>
             <button
               onClick={() => openChatbot()}
-              className="group relative inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-blue-600 via-violet-600 to-blue-600 text-white font-semibold text-lg rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:shadow-blue-600/30 hover:-translate-y-1 active:translate-y-0"
+              className="group relative inline-flex items-center gap-3 px-8 py-4 text-white font-semibold text-lg rounded-full overflow-hidden transition-all duration-300 hover:shadow-xl hover:-translate-y-1 active:translate-y-0"
+              style={{ background: "linear-gradient(to right, #016B61, #70B2B2, #016B61)", boxShadow: "0 10px 40px -10px #016B6140" }}
             >
               {/* Shine effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
