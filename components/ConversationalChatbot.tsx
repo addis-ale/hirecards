@@ -827,7 +827,7 @@ export default function ConversationalChatbot() {
                 className="text-sm"
                 style={{ color: "#102a63", opacity: 0.7 }}
               >
-                This is completely normal — we&apos;re doing deep market
+                This is completely normal. We&apos;re doing deep market
                 research for you
               </p>
             </div>
@@ -923,7 +923,7 @@ export default function ConversationalChatbot() {
                 style={{ color: "#102a63", opacity: 0.8 }}
               >
                 While we work, remember: The best hires aren&apos;t
-                always the ones with the most experience — they&apos;re
+                always the ones with the most experience, they&apos;re
                 the ones who understand your mission and bring the
                 energy to execute it.
               </p>

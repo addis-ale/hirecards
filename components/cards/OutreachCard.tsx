@@ -36,7 +36,7 @@ export const OutreachCard = () => {
           {/* Message 1 */}
           <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
             <h4 className="font-bold text-sm mb-2" style={{ color: "#278f8c" }}>
-              Message 1 — Relevance First
+              Message 1. Relevance First
             </h4>
             <p className="text-sm text-gray-700">
               1–2 lines referencing their modelling work + a clean hook about customer-facing analytics.
@@ -46,7 +46,7 @@ export const OutreachCard = () => {
           {/* Message 2 */}
           <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
             <h4 className="font-bold text-sm mb-2" style={{ color: "#278f8c" }}>
-              Message 2 — Scope & Product Impact
+              Message 2. Scope & Product Impact
             </h4>
             <p className="text-sm text-gray-700">
               A line showing the unique value: shipping models that become live product features inside Mollie&apos;s merchant dashboard.
@@ -56,7 +56,7 @@ export const OutreachCard = () => {
           {/* Message 3 */}
           <div className="bg-white border-2 border-gray-200 rounded-lg p-4">
             <h4 className="font-bold text-sm mb-2" style={{ color: "#278f8c" }}>
-              Message 3 — Soft Follow-Up
+              Message 3. Soft Follow-Up
             </h4>
             <p className="text-sm text-gray-700">
               &quot;Worth a quick sanity check?&quot; → no pressure, no oversell.
@@ -67,7 +67,7 @@ export const OutreachCard = () => {
 
       {/* Brutal Truth */}
       <Callout tone="danger" title="Brutal Truth">
-        Analytics engineers get hammered with &quot;modern stack + dbt + impact&quot; pitches. If your outreach sounds like that, you disappear instantly. The only thing that cuts through is product ownership — not dashboards, not stack, not buzzwords.
+        Analytics engineers get hammered with &quot;modern stack + dbt + impact&quot; pitches. If your outreach sounds like that, you disappear instantly. The only thing that cuts through is product ownership, not dashboards, not stack, not buzzwords.
       </Callout>
 
       {/* Red Flags */}
@@ -139,7 +139,7 @@ export const OutreachCard = () => {
               Hidden Bottleneck
             </h3>
             <p className="text-sm text-purple-900">
-              If you can&apos;t clearly explain how this role shapes Mollie&apos;s merchant analytics experience in the first message, the candidate assumes it&apos;s another BI cleanup job — and ignores you.
+              If you can&apos;t clearly explain how this role shapes Mollie&apos;s merchant analytics experience in the first message, the candidate assumes it&apos;s another BI cleanup job, and ignores you.
             </p>
           </div>
         </div>

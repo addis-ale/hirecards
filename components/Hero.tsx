@@ -564,7 +564,7 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto mb-6 leading-relaxed"
           >
-            Paste a job post or add a few details. See hireability, what&apos;s off, how to fix it — and get your complete hiring strategy in under 5 minutes.
+            Paste a job post or add a few details. See hireability, what&apos;s off, how to fix it, and get your complete hiring strategy in under 5 minutes.
           </motion.p>
 
           {/* Input Section */}
@@ -883,7 +883,7 @@ export const Hero = () => {
                   className="text-sm"
                   style={{ color: "#102a63", opacity: 0.7 }}
                 >
-                  This is completely normal — we&apos;re doing deep market
+                  This is completely normal. We&apos;re doing deep market
                   research for you
                 </p>
               </div>
@@ -978,7 +978,7 @@ export const Hero = () => {
                   style={{ color: "#102a63", opacity: 0.8 }}
                 >
                   While we work, remember: The best hires aren&apos;t
-                  always the ones with the most experience — they&apos;re
+                  always the ones with the most experience, they&apos;re
                   the ones who understand your mission and bring the
                   energy to execute it.
                 </p>

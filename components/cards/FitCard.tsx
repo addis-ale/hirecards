@@ -29,13 +29,13 @@ export const FitCard = () => {
   ];
 
   const donts = [
-    "Pitch the role as \"modern stack, impact, ownership\" — every company says this",
+    "Pitch the role as \"modern stack, impact, ownership\", every company says this",
     "Oversell AI elements",
     "Pretend data quality is perfect"
   ];
 
   const fixes = [
-    "Show \"the messy truth\" early — AEs love honesty",
+    "Show \"the messy truth\" early, AEs love honesty",
     "Position the role as product-building, not \"reporting\""
   ];
 

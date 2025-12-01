@@ -37,7 +37,7 @@ export const RealityCard = () => {
           Reality Check
         </h3>
         <p className="text-sm leading-relaxed" style={{ color: "#102a63" }}>
-          This hire is feasible but challenging. You&apos;re not sourcing an entry-level analyst—you&apos;re competing for senior Analytics Engineers who are already employed, well-compensated, and selective about where they go next.
+          This hire is feasible but challenging. You&apos;re not sourcing an entry-level analyst, you&apos;re competing for senior Analytics Engineers who are already employed, well-compensated, and selective about where they go next.
         </p>
         <p className="text-sm leading-relaxed mt-3" style={{ color: "#102a63" }}>
           Winning here requires competitive compensation, a tight fast hiring loop, consistent internal alignment, and clear ownership. Half-measures won&apos;t work in this market.
@@ -53,7 +53,7 @@ export const RealityCard = () => {
           {[
             { label: "Market is tight", desc: "Senior Analytics Engineers are fully employed. Outbound sourcing is mandatory." },
             { label: "Speed wins", desc: "If your loop is slower than 10–14 days, every top-tier candidate evaporates." },
-            { label: "Compensation reality", desc: "If you offer €80k, you won't hire a senior—you'll hire someone who thinks they're senior." }
+            { label: "Compensation reality", desc: "If you offer €80k, you won't hire a senior, you'll hire someone who thinks they're senior." }
           ].map((insight, idx) => (
             <li key={idx} className="flex items-start gap-2 text-sm" style={{ color: "#102a63" }}>
               <span className="text-blue-500 font-bold">•</span>
@@ -135,11 +135,11 @@ export const RealityCard = () => {
           <p>
             <strong className="text-[#102a63]">Move fast</strong> (10-14 day loop), 
             <strong className="text-[#102a63]"> pay market rate</strong> (€95k-110k), and 
-            <strong className="text-[#102a63]"> run targeted outbound</strong> sourcing—you&apos;ll hire.
+            <strong className="text-[#102a63]"> run targeted outbound</strong> sourcing, you&apos;ll hire.
           </p>
           <p>
             <strong className="text-[#102a63]">Post-and-pray</strong>, take 4-6 weeks to decide, and 
-            <strong className="text-[#102a63]"> lowball on comp</strong>—you won&apos;t.
+            <strong className="text-[#102a63]"> lowball on comp</strong>, you won&apos;t.
           </p>
         </div>
       </div>

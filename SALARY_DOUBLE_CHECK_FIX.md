@@ -29,7 +29,7 @@ The chatbot was asking users to verify or provide the salary range again even af
 **Simplified salary question:**
 ```typescript
 // BEFORE:
-6. Salary Range → "Salary range? And don't say 'competitive' — that's code for 'we're lowballing.'"
+6. Salary Range → "Salary range? And don't say 'competitive', that's code for 'we're lowballing.'"
 
 // AFTER:
 6. Salary Range → "Salary range? Numbers, please. Min and max."

@@ -57,7 +57,7 @@ export const InterviewCard = () => {
 
           {/* Brutal Truth */}
           <Callout tone="danger" title="💥 Brutal Truth">
-            If the interviewers aren&apos;t trained, you&apos;re not evaluating candidates — you&apos;re filtering them at random.
+            If the interviewers aren&apos;t trained, you&apos;re not evaluating candidates, you&apos;re filtering them at random.
           </Callout>
 
           {/* Red Flags */}
