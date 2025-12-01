@@ -19,6 +19,7 @@ import {
   GraduationCap,
   Star,
   ArrowRight,
+  ArrowDown,
   MousePointer2,
   ChevronDown,
   ChevronUp,
@@ -504,7 +505,7 @@ export const Hero = () => {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-[85vh] flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-emerald-50/30 to-white pt-20"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-emerald-50/30 to-white pt-20"
     >
       {/* Static background elements */}
       <div className="absolute inset-0 overflow-hidden">
@@ -519,52 +520,28 @@ export const Hero = () => {
 
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="text-center">
-          {/* Badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-200/50 bg-gradient-to-r from-emerald-100 to-teal-100 shadow-sm mb-4"
-          >
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600" />
-            <span className="text-emerald-700 text-sm font-medium tracking-wide">Not an ATS, not a sourcing tool</span>
-          </motion.div>
-
           {/* Main headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-3 text-balance"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-balance text-gray-900"
           >
-            <span className="text-slate-900">HireCards is the </span>
-            <span className="relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-emerald-600 via-green-600 to-teal-600 bg-clip-text text-transparent">
-                strategy layer
-              </span>
-            </span>
+            13 Battle Cards That Tell You
             <br />
-            <span className="text-slate-900">before hiring starts</span>
+            <span className="relative inline-block" style={{ color: "#016B61" }}>
+              Exactly How to Hire
+            </span>
           </motion.h1>
 
-          {/* Description */}
+          {/* Subheadline */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-base sm:text-lg text-slate-900 max-w-2xl mx-auto mb-3 leading-relaxed font-bold"
+            className="text-base sm:text-lg md:text-xl max-w-3xl mx-auto mb-6 leading-relaxed text-gray-600"
           >
-            Most roles fail before hiring even begins because scope, salary, and expectations don&apos;t match reality.
-          </motion.p>
-
-          {/* How it works */}
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.4 }}
-            className="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto mb-6 leading-relaxed"
-          >
-            Paste a job post or add a few details. See hireability, what&apos;s off, how to fix it, and get your complete hiring strategy in under 5 minutes.
+            Role clarity. Market intel. Comp data. Interview scripts. Outreach templates. Hiring plan. Everything you need to fill a role, generated in 5 minutes.
           </motion.p>
 
           {/* Input Section */}
@@ -574,6 +551,16 @@ export const Hero = () => {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="max-w-2xl mx-auto mb-6"
           >
+            {/* Label above input */}
+            <div className="text-center mb-3">
+              <div className="flex items-center justify-center gap-2">
+                <ArrowDown className="w-5 h-5 animate-bounce" style={{ color: "#016B61" }} />
+                <p className="text-base md:text-lg font-semibold" style={{ color: "#016B61" }}>
+                  Paste your JD link or describe the role
+                </p>
+              </div>
+            </div>
+
             <div className="relative rounded-2xl shadow-[0_0_15px_-5px_rgba(16,185,129,0.2)]">
               {/* Gradient border effect */}
               <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 opacity-50" />
@@ -585,8 +572,9 @@ export const Hero = () => {
                     onChange={(e) => setRoleDescription(e.target.value)}
                     onFocus={() => setIsInputFocused(true)}
                     onBlur={() => setIsInputFocused(false)}
-                    placeholder="Paste your job description URL or describe the role here..."
-                    className="bg-transparent border-0 shadow-none focus-visible:ring-0 focus:ring-0 focus:outline-none resize-none text-sm md:text-base text-slate-900 placeholder:text-slate-400 min-h-[90px]"
+                    placeholder="e.g., https://jobs.company.com/senior-engineer or 'We need a senior full-stack developer...'"
+                    className="bg-transparent border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:ring-0 focus:outline-none focus:border-0 resize-none text-sm md:text-base text-slate-900 placeholder:text-slate-400 min-h-[90px]"
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     disabled={isAnalyzing}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {

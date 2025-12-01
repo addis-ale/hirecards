@@ -45,14 +45,14 @@ export default function Testimonials() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: "#016B61" }}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
               <span style={{ color: "#70B2B2" }}>Real People</span> Who No Longer
               <br />
               <span className="text-3xl md:text-4xl">
                 Hate Their Hiring Process
               </span>
             </h2>
-            <p className="text-xl" style={{ color: "#016B61", opacity: 0.7 }}>
+            <p className="text-xl text-gray-600">
               (They&apos;re still surprised this actually works)
             </p>
           </motion.div>
@@ -76,7 +76,7 @@ export default function Testimonials() {
                   />
                 ))}
               </div>
-              <p className="mb-6 leading-relaxed italic" style={{ color: "#016B61", opacity: 0.8 }}>
+              <p className="mb-6 leading-relaxed italic text-gray-700">
                 &ldquo;{testimonial.text}&rdquo;
               </p>
               <div className="flex items-center space-x-3 pt-4" style={{ borderTop: "1px solid #9ECFD4" }}>
@@ -84,8 +84,8 @@ export default function Testimonials() {
                   {testimonial.image}
                 </div>
                 <div>
-                  <div className="font-bold" style={{ color: "#016B61" }}>{testimonial.name}</div>
-                  <div className="text-sm" style={{ color: "#016B61", opacity: 0.6 }}>
+                  <div className="font-bold text-gray-900">{testimonial.name}</div>
+                  <div className="text-sm text-gray-600">
                     {testimonial.role} at {testimonial.company}
                   </div>
                 </div>

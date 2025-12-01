@@ -42,6 +42,24 @@ const getCardDescription = (id: string): string => {
 export const LandingPreviewTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [tooltipTab, setTooltipTab] = useState<string | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    const isAtTop = scrollTop <= 1;
+
+    // If scrolling down and at bottom, or scrolling up and at top, allow page scroll
+    if ((e.deltaY > 0 && isAtBottom) || (e.deltaY < 0 && isAtTop)) {
+      return; // Don't prevent default, allow page scroll
+    }
+
+    // Otherwise, prevent page scroll and scroll within container
+    e.stopPropagation();
+  };
 
   const tabs = [
     { id: "overview", label: "Overview Card", Icon: LayoutDashboard },
@@ -168,11 +186,13 @@ export const LandingPreviewTabs: React.FC = () => {
       <div className="flex-1 bg-slate-50 rounded-xl border border-slate-100 p-6 relative overflow-hidden h-full">
         <AnimatePresence mode="wait">
           <motion.div
+            ref={scrollContainerRef}
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
+            onWheel={handleWheel}
             className="relative z-10 h-full overflow-y-auto pr-2"
             style={{
               scrollbarWidth: 'none',

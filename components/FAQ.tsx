@@ -144,16 +144,16 @@ export default function FAQ() {
                 className="group relative"
               >
                 <div
-                  className={`relative rounded-2xl overflow-hidden transition-all duration-500 ${
+                  className={`relative rounded-2xl overflow-hidden transition-all duration-300 ${
                     isOpen
-                      ? "shadow-xl shadow-slate-900/10 -translate-y-1"
-                      : "shadow-lg shadow-slate-200/50 hover:shadow-xl hover:shadow-slate-300/50 hover:-translate-y-1"
+                      ? "shadow-xl shadow-slate-900/10"
+                      : "shadow-lg shadow-slate-200/50"
                   }`}
                 >
                   {/* Gradient border overlay */}
                   <div
-                    className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 transition-opacity duration-500 ${
-                      isOpen ? "opacity-100" : "group-hover:opacity-100"
+                    className={`absolute inset-0 bg-gradient-to-r ${gradient} opacity-0 transition-opacity duration-300 ${
+                      isOpen ? "opacity-100" : ""
                     }`}
                     style={{ padding: "1.5px" }}
                   >
@@ -167,23 +167,17 @@ export default function FAQ() {
                   >
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1 text-left">
-                        <h3 className="text-lg font-bold leading-relaxed" style={{ color: "#016B61" }}>{faq.question}</h3>
+                        <h3 className="text-lg font-bold leading-relaxed text-gray-900">{faq.question}</h3>
                       </div>
 
                       <div className={`flex-shrink-0 transition-all duration-300 ${isOpen ? "rotate-180" : ""}`}>
                         <div
-                          className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300 ${
-                            isOpen
-                              ? `bg-gradient-to-br ${gradient} shadow-lg`
-                              : ""
-                          }`}
-                          style={!isOpen ? { background: "linear-gradient(to bottom right, #E5E9C5, #9ECFD4)" } : {}}
+                          className="w-10 h-10 rounded-lg flex items-center justify-center transition-all duration-300"
+                          style={{ backgroundColor: isOpen ? "#016B61" : "#E5E9C5" }}
                         >
                           <ChevronDown
-                            className={`w-5 h-5 transition-colors duration-300 ${
-                              isOpen ? "text-white" : ""
-                            }`}
-                            style={!isOpen ? { color: "#016B61" } : {}}
+                            className="w-5 h-5 transition-colors duration-300"
+                            style={{ color: isOpen ? "#ffffff" : "#016B61" }}
                           />
                         </div>
                       </div>
@@ -199,7 +193,7 @@ export default function FAQ() {
                           className="overflow-hidden"
                         >
                           <div className="pt-4 mt-4" style={{ borderTop: "1px solid #9ECFD4" }}>
-                            <p className="leading-relaxed text-base" style={{ color: "#016B61", opacity: 0.7 }}>{faq.answer}</p>
+                            <p className="leading-relaxed text-base text-gray-600">{faq.answer}</p>
                           </div>
                         </motion.div>
                       )}

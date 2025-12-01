@@ -20,13 +20,13 @@ const personas = [
     icon: Users,
     title: "Talent Acquisition Manager",
     description: "Drowning in reqs. Doing the work of 5 people. Juggling multiple roles while hiring managers expect magic. This is your life raft, instant battle cards that make you look like a strategic genius.",
-    color: "bg-[#70B2B2]",
+    color: "bg-[#016B61]",
   },
   {
     icon: Target,
     title: "Hiring Manager",
     description: "You just want a job description that makes sense and candidates who actually fit. Stop wasting time on misaligned interviews. Get clear role definitions, realistic expectations, and a hiring plan that works.",
-    color: "bg-[#9ECFD4]",
+    color: "bg-[#016B61]",
   },
   {
     icon: Building2,
@@ -58,12 +58,12 @@ export default function BuiltFor() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6" style={{ color: "#016B61" }}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
               Built for These
               <br />
               <span style={{ color: "#70B2B2" }}>Beautiful Delusionals</span>
             </h2>
-            <p className="text-xl" style={{ color: "#016B61", opacity: 0.7 }}>
+            <p className="text-xl text-gray-600">
               (Who Think They Can Actually Hire Good People)
             </p>
           </motion.div>
@@ -77,19 +77,20 @@ export default function BuiltFor() {
                 key={index}
                 initial={{ opacity: 0, scale: 0.9 }}
                 whileInView={{ opacity: 1, scale: 1 }}
+                whileHover={{ scale: 1.05 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="card hover:scale-105 transition-all duration-300 text-center"
+                className="card text-center cursor-pointer"
               >
                 <div
                   className={`w-16 h-16 mx-auto ${persona.color} rounded-2xl flex items-center justify-center mb-4`}
                 >
                   <Icon className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-lg font-bold mb-2" style={{ color: "#016B61" }}>
+                <h3 className="text-lg font-bold mb-2 text-gray-900">
                   {persona.title}
                 </h3>
-                <p className="text-sm leading-relaxed" style={{ color: "#016B61", opacity: 0.7 }}>
+                <p className="text-sm leading-relaxed text-gray-600">
                   {persona.description}
                 </p>
               </motion.div>
