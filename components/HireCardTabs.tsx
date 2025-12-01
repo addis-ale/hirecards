@@ -50,6 +50,7 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   const [showSelectionHint, setShowSelectionHint] = useState(false);
   const [showShareHint, setShowShareHint] = useState(false);
   const [showDownloadHint, setShowDownloadHint] = useState(false);
+  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
 
   const tabs = [
     { id: "reality", label: "Reality Card", Icon: Target },
@@ -262,10 +263,7 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
             onMouseLeave={() => setIsSelectionMode(false)}
           >
             <div className="p-2 space-y-1">
-              {tabs.map((tab) => {
-                const [isHovered, setIsHovered] = React.useState(false);
-                
-                return (
+              {tabs.map((tab) => (
                 <div key={tab.id} className="relative">
                   <button
                     data-tab-id={tab.id}
@@ -275,11 +273,11 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
                     }}
                     onMouseEnter={() => {
                       setTooltipTab(tab.id);
-                      setIsHovered(true);
+                      setHoveredTab(tab.id);
                     }}
                     onMouseLeave={() => {
                       setTooltipTab(null);
-                      setIsHovered(false);
+                      setHoveredTab(null);
                     }}
                     className={`
                       w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg text-left
@@ -293,7 +291,7 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
                     <span className="flex-1">{tab.label}</span>
                     
                     {/* Custom circular checkbox with checkmark - shows on hover or when selected */}
-                    {(isHovered || selectedCards.includes(tab.id)) && (
+                    {(hoveredTab === tab.id || selectedCards.includes(tab.id)) && (
                       <div
                         onClick={(e) => {
                           e.stopPropagation();
@@ -366,8 +364,7 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
                     )}
                   </AnimatePresence>
                 </div>
-                );
-              })}
+              ))}
             </div>
           </div>
 
