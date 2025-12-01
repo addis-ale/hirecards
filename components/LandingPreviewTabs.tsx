@@ -25,7 +25,7 @@ const getCardDescription = (id: string): string => {
     role: "What this person will actually do and what success looks like in the first 6–12 months.",
     skill: "The must-have abilities, tools, and experience needed to perform the role.",
     market: "How big the talent pool is and how competitive the market is for this profile.",
-    talentmap: "Where the strongest candidates come from — companies, locations, and common backgrounds.",
+    talentmap: "Where the strongest candidates come from, companies, locations, and common backgrounds.",
     pay: "What candidates expect to earn in this market and how your budget compares.",
     reality: "Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.",
     funnel: "The volume of outreach and interviews you'll need to fill the role.",
@@ -34,7 +34,7 @@ const getCardDescription = (id: string): string => {
     outreach: "Ready-to-send email and DM templates for reaching ideal candidates.",
     interview: "The recommended interview process and competencies to assess at each stage.",
     scorecard: "A simple evaluation framework to keep the team aligned and reduce bias.",
-    plan: "Your next steps — the checklist, SLAs, and actions to kick off and run the hiring process well."
+    plan: "Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well."
   };
   return descriptions[id] || "Card details";
 };
@@ -42,6 +42,24 @@ const getCardDescription = (id: string): string => {
 export const LandingPreviewTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [tooltipTab, setTooltipTab] = useState<string | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    const isAtTop = scrollTop <= 1;
+
+    // If scrolling down and at bottom, or scrolling up and at top, allow page scroll
+    if ((e.deltaY > 0 && isAtBottom) || (e.deltaY < 0 && isAtTop)) {
+      return; // Don't prevent default, allow page scroll
+    }
+
+    // Otherwise, prevent page scroll and scroll within container
+    e.stopPropagation();
+  };
 
   const tabs = [
     { id: "overview", label: "Overview Card", Icon: LayoutDashboard },
@@ -168,11 +186,13 @@ export const LandingPreviewTabs: React.FC = () => {
       <div className="flex-1 bg-slate-50 rounded-xl border border-slate-100 p-6 relative overflow-hidden h-full">
         <AnimatePresence mode="wait">
           <motion.div
+            ref={scrollContainerRef}
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
+            onWheel={handleWheel}
             className="relative z-10 h-full overflow-y-auto pr-2"
             style={{
               scrollbarWidth: 'none',

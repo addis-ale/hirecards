@@ -45,8 +45,8 @@ export default function Testimonials() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              <span className="text-[#3B7CFF]">Real People</span> Who No Longer
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
+              <span style={{ color: "#70B2B2" }}>Real People</span> Who No Longer
               <br />
               <span className="text-3xl md:text-4xl">
                 Hate Their Hiring Process
@@ -76,15 +76,15 @@ export default function Testimonials() {
                   />
                 ))}
               </div>
-              <p className="text-gray-700 mb-6 leading-relaxed italic">
+              <p className="mb-6 leading-relaxed italic text-gray-700">
                 &ldquo;{testimonial.text}&rdquo;
               </p>
-              <div className="flex items-center space-x-3 pt-4 border-t border-gray-100">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary-400 to-secondary-400 flex items-center justify-center text-2xl">
+              <div className="flex items-center space-x-3 pt-4" style={{ borderTop: "1px solid #9ECFD4" }}>
+                <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl" style={{ background: "linear-gradient(to bottom right, #70B2B2, #9ECFD4)" }}>
                   {testimonial.image}
                 </div>
                 <div>
-                  <div className="font-bold">{testimonial.name}</div>
+                  <div className="font-bold text-gray-900">{testimonial.name}</div>
                   <div className="text-sm text-gray-600">
                     {testimonial.role} at {testimonial.company}
                   </div>

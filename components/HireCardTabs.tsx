@@ -29,7 +29,7 @@ const getCardDescription = (id: string): string => {
     role: "What this person will actually do and what success looks like in the first 6–12 months.",
     skill: "The must-have abilities, tools, and experience needed to perform the role.",
     market: "How big the talent pool is and how competitive the market is for this profile.",
-    talentmap: "Where the strongest candidates come from — companies, locations, and common backgrounds.",
+    talentmap: "Where the strongest candidates come from, companies, locations, and common backgrounds.",
     pay: "What candidates expect to earn in this market and how your budget compares.",
     funnel: "The volume of outreach and interviews you'll need to fill the role.",
     fit: "What motivates this persona, what they care about, and what usually makes them say yes or no.",
@@ -37,7 +37,7 @@ const getCardDescription = (id: string): string => {
     outreach: "Ready-to-send email and DM templates for reaching ideal candidates.",
     interview: "The recommended interview process and competencies to assess at each stage.",
     scorecard: "A simple evaluation framework to keep the team aligned and reduce bias.",
-    plan: "Your next steps — the checklist, SLAs, and actions to kick off and run the hiring process well."
+    plan: "Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well."
   };
   return descriptions[id] || "Card details";
 };

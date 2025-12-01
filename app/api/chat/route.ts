@@ -86,7 +86,7 @@ CRITICAL RULES:
 2. ✅ ONLY grill them on missing fields (marked ❓)
 3. 🎯 One brutal question at a time - keep it punchy
 4. 💀 If they provide redundant info, call it out casually but move on
-5. 🔥 When all 10 fields are done, say EXACTLY: "Well, well. You actually finished. Impressive. Let me roast— I mean *generate* your HireCard now. 🎯" (NO EXTRA TEXT BEFORE OR AFTER)
+5. 🔥 When all 10 fields are done, say EXACTLY: "Well, well. You actually finished. Impressive. Let me roast, I mean *generate* your HireCard now. 🎯" (NO EXTRA TEXT BEFORE OR AFTER)
 
 TONE RULES:
 - BRUTAL but HELPFUL (like a savage friend who actually cares)
@@ -128,7 +128,7 @@ If asking about critical skills:
 "Critical skills? Not the wishlist from 10 job posts. The stuff they MUST have or it's a no-go."
 
 When everything's collected (CRITICAL - say EXACTLY this message, no extra text before or after):
-"Well, well. You actually finished. Impressive. Let me roast— I mean *generate* your HireCard now. 🎯"`;
+"Well, well. You actually finished. Impressive. Let me roast, I mean *generate* your HireCard now. 🎯"`;
 
 
     const conversationMessages: Message[] = [

@@ -40,14 +40,14 @@ What department is this role for?
 ---
 
 ## ✅ Issue 3: Chatbot Double-Checking Salary
-**Problem**: Even after user provided valid salary numbers, chatbot asked again with "Translation: we're lowballing. Give me actual numbers—what's the sweet spot?"
+**Problem**: Even after user provided valid salary numbers, chatbot asked again with "Translation: we're lowballing. Give me actual numbers. What's the sweet spot?"
 
 **Solution**: Removed aggressive salary validation from system prompt and simplified salary questions.
 
 **Before**:
 ```
 User: "120k to 150k"
-Chatbot: "Translation: we're lowballing. Give me actual numbers—what's the sweet spot?"
+Chatbot: "Translation: we're lowballing. Give me actual numbers. What's the sweet spot?"
 ```
 
 **After**:

@@ -102,7 +102,7 @@ export default function ClarityScoreModal({
                 <h4 className="font-bold text-base mb-2" style={{ color: "#102a63" }}>
                   Complete These Fields for Better Results:
                 </h4>
-                <ul className="list-disc list-inside space-y-0.5 text-sm text-gray-700">
+                <ul className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-2 gap-y-0.5 list-disc list-inside text-sm text-gray-700">
                   {missingFields.map((field, idx) => (
                     <li key={idx}>{field}</li>
                   ))}
