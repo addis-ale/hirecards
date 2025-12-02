@@ -36,7 +36,7 @@ export const ScorecardCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Scorecard Card" subtitle="Evaluation criteria and rating system" Icon={ClipboardList} density="compact">
+      <Section title="Scorecard Card" subtitle="A simple evaluation framework to keep the team aligned and reduce bias." Icon={ClipboardList} density="compact">
         <div className="space-y-4">
           {/* Competencies */}
           <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">

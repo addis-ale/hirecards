@@ -38,7 +38,7 @@ export const TalentMapCard = () => {
   ];
 
   const donts = [
-    "Target early-stage startups — modelling maturity tends to be low",
+    "Target early-stage startups, modelling maturity tends to be low",
     "Target banking analytics teams without validating modelling experience"
   ];
 
@@ -49,7 +49,7 @@ export const TalentMapCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Talent Map Card" subtitle="Where to find and avoid talent" Icon={Users} density="compact">
+      <Section title="Talent Map Card" subtitle="Where the strongest candidates come from, companies, locations, and common backgrounds." Icon={Users} density="compact">
         <div className="space-y-4">
           {/* Primary Feeder Companies */}
           <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">
@@ -154,7 +154,7 @@ export const TalentMapCard = () => {
 
           {/* Hidden Bottleneck */}
           <Callout tone="warning" title="🔍 Hidden Bottleneck">
-            You&apos;re not just fighting for attention — you&apos;re fighting for credibility.
+            You&apos;re not just fighting for attention, you&apos;re fighting for credibility.
           </Callout>
         </div>
       </Section>

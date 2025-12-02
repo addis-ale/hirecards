@@ -16,7 +16,7 @@ export const MarketCard = () => {
           <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
             Market Card
           </h2>
-          <p className="text-sm text-gray-600">Market Analysis & Talent Pool</p>
+          <p className="text-sm text-gray-600">How big the talent pool is and how competitive the market is for this profile.</p>
         </div>
       </div>
 

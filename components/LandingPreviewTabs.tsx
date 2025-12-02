@@ -18,24 +18,64 @@ import { InterviewCard } from "./cards/InterviewCard";
 import { ScorecardCard } from "./cards/ScorecardCard";
 import { PlanCard } from "./cards/PlanCard";
 
+// Helper function to get card descriptions for tooltips
+const getCardDescription = (id: string): string => {
+  const descriptions: Record<string, string> = {
+    overview: "Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.",
+    role: "What this person will actually do and what success looks like in the first 6–12 months.",
+    skill: "The must-have abilities, tools, and experience needed to perform the role.",
+    market: "How big the talent pool is and how competitive the market is for this profile.",
+    talentmap: "Where the strongest candidates come from, companies, locations, and common backgrounds.",
+    pay: "What candidates expect to earn in this market and how your budget compares.",
+    reality: "Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.",
+    funnel: "The volume of outreach and interviews you'll need to fill the role.",
+    fit: "What motivates this persona, what they care about, and what usually makes them say yes or no.",
+    message: "How to pitch the role in a way that actually gets replies.",
+    outreach: "Ready-to-send email and DM templates for reaching ideal candidates.",
+    interview: "The recommended interview process and competencies to assess at each stage.",
+    scorecard: "A simple evaluation framework to keep the team aligned and reduce bias.",
+    plan: "Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well."
+  };
+  return descriptions[id] || "Card details";
+};
+
 export const LandingPreviewTabs: React.FC = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const [tooltipTab, setTooltipTab] = useState<string | null>(null);
+  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+
+  const handleWheel = (e: React.WheelEvent<HTMLDivElement>) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = container;
+    const isAtBottom = scrollTop + clientHeight >= scrollHeight - 1;
+    const isAtTop = scrollTop <= 1;
+
+    // If scrolling down and at bottom, or scrolling up and at top, allow page scroll
+    if ((e.deltaY > 0 && isAtBottom) || (e.deltaY < 0 && isAtTop)) {
+      return; // Don't prevent default, allow page scroll
+    }
+
+    // Otherwise, prevent page scroll and scroll within container
+    e.stopPropagation();
+  };
 
   const tabs = [
-    { id: "overview", label: "Overview", Icon: LayoutDashboard },
-    { id: "role", label: "Role", Icon: Briefcase },
-    { id: "skill", label: "Skills", Icon: Code },
-    { id: "market", label: "Market", Icon: TrendingUp },
-    { id: "talentmap", label: "Talent Map", Icon: Map },
-    { id: "pay", label: "Pay", Icon: DollarSign },
-    { id: "reality", label: "Reality", Icon: Target },
-    { id: "funnel", label: "Funnel", Icon: BarChart3 },
-    { id: "fit", label: "Fit", Icon: UserCheck },
-    { id: "message", label: "Message", Icon: MessageSquare },
-    { id: "outreach", label: "Outreach", Icon: Send },
-    { id: "interview", label: "Interview", Icon: Mic },
-    { id: "scorecard", label: "Scorecard", Icon: ClipboardList },
-    { id: "plan", label: "Plan", Icon: CalendarCheck },
+    { id: "overview", label: "Overview Card", Icon: LayoutDashboard },
+    { id: "role", label: "Role Card", Icon: Briefcase },
+    { id: "skill", label: "Skills Card", Icon: Code },
+    { id: "market", label: "Market Card", Icon: TrendingUp },
+    { id: "talentmap", label: "Talent Map Card", Icon: Map },
+    { id: "pay", label: "Pay Card", Icon: DollarSign },
+    { id: "reality", label: "Reality Card", Icon: Target },
+    { id: "funnel", label: "Funnel Card", Icon: BarChart3 },
+    { id: "fit", label: "Fit Card", Icon: UserCheck },
+    { id: "message", label: "Message Card", Icon: MessageSquare },
+    { id: "outreach", label: "Outreach Card", Icon: Send },
+    { id: "interview", label: "Interview Card", Icon: Mic },
+    { id: "scorecard", label: "Scorecard Card", Icon: ClipboardList },
+    { id: "plan", label: "Plan Card", Icon: CalendarCheck },
   ];
 
   const renderCardContent = () => {
@@ -79,38 +119,80 @@ export const LandingPreviewTabs: React.FC = () => {
 
   return (
     <div className="flex flex-col md:flex-row gap-6 h-[800px]">
-      {/* Sidebar Navigation */}
-      <div className="w-full md:w-1/3 flex flex-col gap-2 h-full">
+      {/* Compact Sidebar Navigation */}
+      <div className="w-full md:w-48 flex flex-col gap-2">
         {tabs.map((tab, index) => (
-          <motion.button
+          <motion.div
             key={tab.id}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: index * 0.03 }}
-            onClick={() => setActiveTab(tab.id)}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className={`text-left px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-3 flex-shrink-0
-              ${activeTab === tab.id 
-                ? 'bg-[#102a63] text-white shadow-md' 
-                : 'hover:bg-[#d7f4f2]/50 text-slate-600 hover:text-[#102a63]'
-              }`}
+            className="relative"
           >
-            <tab.Icon size={16} className={activeTab === tab.id ? 'text-[#278f8c]' : 'text-slate-400'} />
-            {tab.label}
-          </motion.button>
+            <motion.button
+              onClick={() => {
+                setActiveTab(tab.id);
+                setTooltipTab(null);
+              }}
+              onMouseEnter={() => setTooltipTab(tab.id)}
+              onMouseLeave={() => setTooltipTab(null)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2
+                ${activeTab === tab.id 
+                  ? 'bg-[#102a63] text-white shadow-md' 
+                  : 'hover:bg-[#d7f4f2]/50 text-slate-600 hover:text-[#102a63]'
+                }`}
+            >
+              <tab.Icon size={16} className={activeTab === tab.id ? 'text-[#278f8c]' : 'text-slate-400'} />
+              {tab.label}
+            </motion.button>
+
+            {/* Tooltip on Hover */}
+            <AnimatePresence>
+              {tooltipTab === tab.id && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute left-full ml-4 top-0 z-50 w-80"
+                  onMouseEnter={() => setTooltipTab(tab.id)}
+                  onMouseLeave={() => setTooltipTab(null)}
+                >
+                  <div className="bg-white border-2 border-[#278f8c] rounded-xl shadow-2xl p-4 relative">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="p-2 bg-[#d7f4f2] rounded-lg">
+                        <tab.Icon size={18} className="text-[#278f8c]" />
+                      </div>
+                      <h4 className="font-bold text-[#102a63]">{tab.label}</h4>
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed">
+                      {getCardDescription(tab.id)}
+                    </p>
+                    {/* Arrow pointer pointing left */}
+                    <div className="absolute left-0 top-4 -ml-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-white"></div>
+                    <div className="absolute left-0 top-4 -ml-3 w-0 h-0 border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent border-r-[9px] border-r-[#278f8c]"></div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
         ))}
       </div>
+
 
       {/* Card Content Area */}
       <div className="flex-1 bg-slate-50 rounded-xl border border-slate-100 p-6 relative overflow-hidden h-full">
         <AnimatePresence mode="wait">
           <motion.div
+            ref={scrollContainerRef}
             key={activeTab}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
+            onWheel={handleWheel}
             className="relative z-10 h-full overflow-y-auto pr-2"
             style={{
               scrollbarWidth: 'none',

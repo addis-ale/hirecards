@@ -26,9 +26,9 @@ export const MessageCard = () => {
     {
       title: "⚡ Short ‘Scroll-Stopper’ (General Audience)",
       icon: Eye,
-      content: `"We’re hiring a ${"{ROLE}"} — but here’s the difference: 
+      content: `"We're hiring a ${"{ROLE}"}. But here's the difference: 
 Your work becomes an actual customer-facing product feature, not a buried internal dashboard. 
-If you want a role where impact is visible in weeks (not quarters), this is it."`,
+If you want a role where impact is visible in weeks (not quarters), this is it."`
     },
     {
       title: "🧠 Medium-Length Technical Pitch (Engineer-Focused)",
@@ -48,7 +48,7 @@ If you enjoy turning ambiguous problems into real product capabilities, let’s 
       content: `"Every data team claims impact. Few can prove it.
 
 At ${"{COMPANY}"} the models our team builds determine what thousands of businesses see on their screens every day. 
-Your work becomes the 'why' behind key decisions — not the forgotten system behind the scenes.
+Your work becomes the 'why' behind key decisions, not the forgotten system behind the scenes.
 
 We’re hiring a ${"{ROLE}"} who wants:
 • Ownership of model strategy  
@@ -63,7 +63,7 @@ If you're tired of doing invisible work and want your output to *change how busi
     <div className="space-y-6">
       <Section
         title="Message Card"
-        subtitle="Core pitch, positioning, and ready-to-use message templates"
+        subtitle="How to pitch the role in a way that actually gets replies."
         Icon={MessageSquare}
         density="compact"
       >
@@ -87,7 +87,7 @@ If you're tired of doing invisible work and want your output to *change how busi
                   style={{ color: "#278f8c" }}
                 >
                   &quot;Your models will directly power merchant-facing
-                  analytics used by thousands of businesses — not internal
+                  analytics used by thousands of businesses, not internal
                   dashboards. You shape the product, not just the pipeline.&quot;
                 </p>
               </div>
@@ -128,11 +128,11 @@ If you're tired of doing invisible work and want your output to *change how busi
           {/* Hidden Bottleneck */}
           <Callout tone="warning" title="🔍 Hidden Bottleneck">
             Your messaging is often too polite and too vague. Senior talent
-            responds to direct, specific value — not generalities.
+            responds to direct, specific value, not generalities.
           </Callout>
 
           {/* ====================== */}
-          {/* NEW — Message Templates */}
+          {/* NEW - Message Templates */}
           {/* ====================== */}
           <Section title="📝 Message Templates" Icon={AlignLeft} >
             <div className="space-y-4">

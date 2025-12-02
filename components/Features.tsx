@@ -20,93 +20,93 @@ import { motion } from "framer-motion";
 const features = [
   {
     icon: Briefcase,
-    title: "Role",
+    title: "Role Card",
     description:
-      "Clear job description, key responsibilities, required skills, and success metrics for the position.",
+      "What this person will actually do and what success looks like in the first 6–12 months.",
     color: "from-blue-500 to-blue-600",
   },
   {
     icon: Code,
-    title: "Skills",
+    title: "Skills Card",
     description:
-      "Technical requirements, must-have competencies, nice-to-have skills, and proficiency levels needed.",
+      "The must-have abilities, tools, and experience needed to perform the role.",
     color: "from-purple-500 to-purple-600",
   },
   {
     icon: TrendingUp,
-    title: "Market",
+    title: "Market Card",
     description:
-      "Hiring trends, demand analysis, talent availability, and competitive landscape insights.",
+      "How big the talent pool is and how competitive the market is for this profile.",
     color: "from-indigo-500 to-indigo-600",
   },
   {
     icon: Map,
-    title: "Talent Map",
+    title: "Talent Map Card",
     description:
-      "Where to find candidates, top talent sources, competitor insights, and sourcing channel recommendations.",
+      "Where the strongest candidates come from, companies, locations, and common backgrounds.",
     color: "from-cyan-500 to-cyan-600",
   },
   {
     icon: DollarSign,
-    title: "Pay",
+    title: "Pay Card",
     description:
-      "Market-aligned compensation data, salary ranges, equity benchmarks, and benefits comparison.",
+      "What candidates expect to earn in this market and how your budget compares.",
     color: "from-green-500 to-green-600",
   },
   {
     icon: Target,
-    title: "Reality",
+    title: "Reality Card",
     description:
-      "Feasibility score, market conditions, competition analysis, red flags, and honest recommendations.",
+      "Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.",
     color: "from-red-500 to-red-600",
   },
   {
     icon: BarChart3,
-    title: "Funnel",
+    title: "Funnel Card",
     description:
-      "Expected conversion rates, volume planning, outreach targets, and hiring funnel projections.",
+      "The volume of outreach and interviews you'll need to fill the role.",
     color: "from-orange-500 to-orange-600",
   },
   {
     icon: UserCheck,
-    title: "Fit",
+    title: "Fit Card",
     description:
-      "Candidate scoring framework, must-have criteria, evaluation dimensions, and profile assessment tools.",
+      "What motivates this persona, what they care about, and what usually makes them say yes or no.",
     color: "from-pink-500 to-pink-600",
   },
   {
     icon: MessageSquare,
-    title: "Message",
+    title: "Message Card",
     description:
-      "How to position the role, key value propositions, messaging strategy, and attraction tactics.",
+      "How to pitch the role in a way that actually gets replies.",
     color: "from-violet-500 to-violet-600",
   },
   {
     icon: Send,
-    title: "Outreach",
+    title: "Outreach Card",
     description:
-      "Recruiting templates, email sequences, LinkedIn pitches, and personalized outreach strategies.",
+      "Ready-to-send email and DM templates for reaching ideal candidates.",
     color: "from-sky-500 to-sky-600",
   },
   {
     icon: Mic,
-    title: "Interview",
+    title: "Interview Card",
     description:
-      "Structured interview guide, stage-by-stage process, evaluation criteria, and assessment framework.",
+      "The recommended interview process and competencies to assess at each stage.",
     color: "from-teal-500 to-teal-600",
   },
   {
     icon: ClipboardList,
-    title: "Scorecard",
+    title: "Scorecard Card",
     description:
-      "Standardized evaluation rubric, scoring dimensions, weighted criteria, and decision-making framework.",
+      "A simple evaluation framework to keep the team aligned and reduce bias.",
     color: "from-emerald-500 to-emerald-600",
   },
   {
     icon: CalendarCheck,
-    title: "Plan",
+    title: "Plan Card",
     description:
-      "30-day action plan, week-by-week execution roadmap, milestones, and tactical hiring steps.",
+      "Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well.",
     color: "from-amber-500 to-amber-600",
   },
 ];
@@ -127,9 +127,9 @@ export default function Features() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+            <h2 className="text-4xl md:text-5xl font-bold mb-6 text-gray-900">
               This Isn&apos;t Just
-              <span className="text-[#3B7CFF]"> Pretty Cards</span>
+              <span style={{ color: "#70B2B2" }}> Pretty Cards</span>
               <br />
               <span className="text-2xl md:text-3xl font-normal text-gray-600">
                 It&apos;s Structured Smackdown for Bad Hiring

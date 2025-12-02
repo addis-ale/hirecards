@@ -200,16 +200,16 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
           
           if (score >= 90) {
             category = 'Crystal Clear';
-            message = `Wow! Look at you with a clarity score of ${score}/100—you actually know what you're doing! This is rare. Like, unicorn-level rare. We've got everything we need to build you a killer HireCard. Let's make this happen.`;
+            message = `Wow! Look at you with a clarity score of ${score}/100, you actually know what you're doing! This is rare. Like, unicorn-level rare. We've got everything we need to build you a killer HireCard. Let's make this happen.`;
           } else if (score >= 70) {
             category = 'Moderate-High Clarity';
-            message = `Oh, look at you with a clarity score of ${score}/100—it's like you almost know what you're doing! But spoiler alert: those missing fields are the equivalent of leaving the house without pants. Sure, you might get lucky and have someone show up, but good luck convincing them that your undefined expectations are worth their time!`;
+            message = `Oh, look at you with a clarity score of ${score}/100, it's like you almost know what you're doing! But spoiler alert: those missing fields are the equivalent of leaving the house without pants. Sure, you might get lucky and have someone show up, but good luck convincing them that your undefined expectations are worth their time!`;
           } else if (score >= 50) {
             category = 'Moderate Clarity';
             message = `Clarity score: ${score}/100. So... you're halfway there. Congrats, I guess? But here's the thing: you're asking people to apply for a role where half the details are a mystery. It's like selling a car and saying "it has wheels... probably." Fill in the gaps, or prepare for confusion and ghosting.`;
           } else {
             category = 'Low Clarity';
-            message = `Yikes. ${score}/100. That's not a clarity score—that's a cry for help. You've given us so little information that even AI is confused. And trust me, that's saying something. If you want actual candidates (not psychics), you need to fill in these blanks. All of them.`;
+            message = `Yikes. ${score}/100. That's not a clarity score, that's a cry for help. You've given us so little information that even AI is confused. And trust me, that's saying something. If you want actual candidates (not psychics), you need to fill in these blanks. All of them.`;
           }
           
           setClarityData({
@@ -382,7 +382,7 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
                 className="text-sm"
                 style={{ color: "#102a63", opacity: 0.7 }}
               >
-                This is completely normal — we&apos;re doing deep market
+                This is completely normal. We&apos;re doing deep market
                 research for you
               </p>
             </div>
@@ -478,7 +478,7 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
                 style={{ color: "#102a63", opacity: 0.8 }}
               >
                 While we work, remember: The best hires aren&apos;t
-                always the ones with the most experience — they&apos;re
+                always the ones with the most experience, they&apos;re
                 the ones who understand your mission and bring the
                 energy to execute it.
               </p>
@@ -509,28 +509,23 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="Just drop your job description here"
+              placeholder="Paste job URL here to auto-fill details"
               disabled={isLoading || success}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
             />
           </div>
           <button
             type="submit"
             disabled={!url.trim() || isLoading || success}
-            className="btn-primary px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+            className="btn-primary w-12 h-12 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 rounded-full"
+            title={isLoading ? "Analyzing..." : success ? "Done!" : "Analyze URL"}
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Analyzing...
-              </>
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : success ? (
-              <>
-                <CheckCircle2 className="w-5 h-5" />
-                Done!
-              </>
+              <CheckCircle2 className="w-5 h-5" />
             ) : (
-              'Analyze'
+              <Search className="w-5 h-5" />
             )}
           </button>
         </div>

@@ -58,7 +58,7 @@ export default function InteractiveResultsPreview() {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg text-slate-600 leading-relaxed"
           >
-            See a live example below — a clear, data-driven view of your best hiring options, including cost, timing, and risk tradeoffs.
+            See a live example below, a clear, data-driven view of your best hiring options, including cost, timing, and risk tradeoffs.
           </motion.p>
         </div>
 

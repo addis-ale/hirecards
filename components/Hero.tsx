@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import {
   Zap,
   Target,
@@ -21,10 +19,12 @@ import {
   GraduationCap,
   Star,
   ArrowRight,
+  ArrowDown,
   MousePointer2,
   ChevronDown,
   ChevronUp,
   FileText,
+  type ListX as JSX,
 } from "lucide-react"
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion"
 import { useState, useEffect, useRef } from "react"
@@ -36,61 +36,49 @@ interface AnalysisResult {
   score: number
   category: string
   message: string
-  icon: React.ReactNode
+  icon: JSX.Element
   isIncomplete?: boolean
   hasAnyData?: boolean
   isInvalidURL?: boolean
   isProfileURL?: boolean
 }
 
-const FloatingOrb = ({
-  delay,
-  duration,
+// Static orb component for background
+const StaticOrb = ({
   size,
   initialX,
   initialY,
-}: { delay: number; duration: number; size: number; initialX: number; initialY: number }) => (
-  <motion.div
-    className="absolute rounded-full blur-3xl opacity-[0.08] pointer-events-none"
+}: { size: number; initialX: number; initialY: number }) => (
+  <div
+    className="absolute rounded-full blur-3xl opacity-30 pointer-events-none"
     style={{
       width: size,
       height: size,
       left: `${initialX}%`,
       top: `${initialY}%`,
-      background: "linear-gradient(135deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)",
-    }}
-    animate={{
-      x: [0, 50, -30, 0],
-      y: [0, -40, 20, 0],
-      scale: [1, 1.2, 0.9, 1],
-    }}
-    transition={{
-      duration,
-      delay,
-      repeat: Number.POSITIVE_INFINITY,
-      ease: "easeInOut",
+      background: "linear-gradient(135deg, #0ea5e9 0%, #06b6d4 50%, #14b8a6 100%)",
     }}
   />
 )
 
+// Grid pattern background
 const GridPattern = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
     <div
       className="absolute inset-0 opacity-[0.03]"
       style={{
-        backgroundImage: `linear-gradient(#10b981 1px, transparent 1px), linear-gradient(90deg, #10b981 1px, transparent 1px)`,
+        backgroundImage: `linear-gradient(#0f172a 1.5px, transparent 1.5px), linear-gradient(90deg, #0f172a 1.5px, transparent 1.5px)`,
         backgroundSize: "60px 60px",
       }}
     />
   </div>
 )
 
-const AnimatedBeam = ({ delay }: { delay: number }) => (
-  <motion.div
-    className="absolute h-px bg-gradient-to-r from-transparent via-emerald-300 to-transparent"
-    style={{ width: "200px", left: "-200px", top: "50%" }}
-    animate={{ x: [0, 2000] }}
-    transition={{ duration: 4, delay, repeat: Number.POSITIVE_INFINITY, ease: "linear", repeatDelay: 2 }}
+// Static beam component (removed animation)
+const StaticBeam = () => (
+  <div
+    className="absolute h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent"
+    style={{ width: "100%", top: "50%" }}
   />
 )
 
@@ -114,6 +102,7 @@ export const Hero = () => {
   const springX = useSpring(mouseX, { stiffness: 50, damping: 20 })
   const springY = useSpring(mouseY, { stiffness: 50, damping: 20 })
 
+  // Mouse tracking for subtle parallax
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       if (containerRef.current) {
@@ -128,6 +117,7 @@ export const Hero = () => {
     return () => window.removeEventListener("mousemove", handleMouseMove)
   }, [mouseX, mouseY])
 
+  // Prevent body scroll when modal is open
   useEffect(() => {
     if (showChatModal) {
       const originalOverflow = document.body.style.overflow
@@ -515,134 +505,76 @@ export const Hero = () => {
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
-      style={{ background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%)" }}
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-b from-white via-emerald-50/30 to-white pt-20"
     >
-      {/* Animated background elements */}
+      {/* Static background elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <FloatingOrb delay={0} duration={20} size={600} initialX={-10} initialY={20} />
-        <FloatingOrb delay={5} duration={25} size={400} initialX={70} initialY={60} />
-        <FloatingOrb delay={10} duration={22} size={500} initialX={50} initialY={10} />
+        <div className="absolute top-20 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-green-200/20 rounded-full blur-3xl" />
       </div>
 
-      <GridPattern />
+      {/* Subtle Grid Pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(16,185,129,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(16,185,129,0.03)_1px,transparent_1px)] bg-[size:72px_72px] [mask-image:radial-gradient(ellipse_80%_50%_at_50%_50%,black,transparent)]" />
 
-      {/* Animated beams */}
-      <div className="absolute inset-0 overflow-hidden opacity-20">
-        <AnimatedBeam delay={0} />
-        <AnimatedBeam delay={2} />
-        <AnimatedBeam delay={4} />
-      </div>
 
-      {/* Radial gradient overlay */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: "radial-gradient(ellipse 80% 50% at 50% 50%, transparent 0%, rgba(255,255,255,0.9) 100%)",
-        }}
-      />
-
-      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-        <motion.div style={{ x: springX, y: springY }} className="text-center">
-          {/* Badge - light theme badge */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-emerald-200 bg-emerald-50 backdrop-blur-sm mb-8"
-          >
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-emerald-700 text-sm font-medium tracking-wide">AI-Powered Hiring Intelligence</span>
-          </motion.div>
-
-          {/* Main headline - dark text for light background */}
+      <div className="relative z-10 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="text-center">
+          {/* Main headline */}
           <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.1 }}
-            className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-balance"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-4 text-balance text-gray-900"
           >
-            <span className="text-slate-800">Stop </span>
-            <span className="relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-red-500 via-rose-500 to-orange-500 bg-clip-text text-transparent">
-                Guessing
-              </span>
-              <motion.span
-                className="absolute -inset-1 bg-gradient-to-r from-red-500/10 to-orange-500/10 blur-lg rounded-lg"
-                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-              />
-            </span>
+            13 Battle Cards That Tell You
             <br />
-            <span className="text-slate-800">Start </span>
-            <span className="relative inline-block">
-              <span className="relative z-10 bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-500 bg-clip-text text-transparent">
-                Hiring Right
-              </span>
-              <motion.span
-                className="absolute -inset-1 bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 blur-lg rounded-lg"
-                animate={{ opacity: [0.3, 0.6, 0.3] }}
-                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY, delay: 1 }}
-              />
+            <span className="relative inline-block" style={{ color: "#016B61" }}>
+              Exactly How to Hire
             </span>
           </motion.h1>
 
-          {/* Subheadline - slate text for light bg */}
+          {/* Subheadline */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            className="text-lg sm:text-xl md:text-2xl text-slate-600 max-w-3xl mx-auto mb-4 leading-relaxed text-pretty"
+            className="text-base sm:text-lg md:text-xl max-w-3xl mx-auto mb-6 leading-relaxed text-gray-600"
           >
-            Get an instant <span className="text-slate-800 font-semibold">reality check</span> on your job posting.
-            <br className="hidden sm:block" />
-            Know your <span className="text-emerald-600">hireability score</span> before you waste weeks.
+            Role clarity. Market intel. Comp data. Interview scripts. Outreach templates. Hiring plan. Everything you need to fill a role, generated in 5 minutes.
           </motion.p>
 
-          {/* Warning tag - light theme warning */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-rose-50 border border-rose-200 mb-10"
-          >
-            <AlertTriangle className="w-4 h-4 text-rose-500" />
-            <div className="text-rose-600 text-sm font-medium">
-              <span className="text-[25px]">Not an ATS</span> • Not a sourcing tool • Pure strategy
-            </div>
-          </motion.div>
-
-          {/* Input Section - light theme input box */}
+          {/* Input Section */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="max-w-2xl mx-auto mb-12"
+            className="max-w-2xl mx-auto mb-6"
           >
-            <div
-              className={`relative rounded-2xl transition-all duration-500 ${
-                isInputFocused
-                  ? "shadow-[0_0_40px_-10px_rgba(16,185,129,0.3)]"
-                  : "shadow-[0_0_20px_-10px_rgba(16,185,129,0.15)]"
-              }`}
-            >
-              {/* Gradient border effect */}
-              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-400 opacity-40" />
+            {/* Label above input */}
+            <div className="text-center mb-3">
+              <div className="flex items-center justify-center gap-2">
+                <ArrowDown className="w-5 h-5 animate-bounce" style={{ color: "#016B61" }} />
+                <p className="text-base md:text-lg font-semibold" style={{ color: "#016B61" }}>
+                  Paste your JD link or describe the role
+                </p>
+              </div>
+            </div>
 
-              <div className="relative bg-white rounded-2xl p-1.5">
-                <div className="bg-slate-50 rounded-xl p-4">
+            <div className="relative rounded-2xl shadow-[0_0_15px_-5px_rgba(16,185,129,0.2)]">
+              {/* Gradient border effect */}
+              <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-emerald-500 via-green-500 to-teal-500 opacity-50" />
+
+              <div className="relative bg-white backdrop-blur-xl rounded-2xl p-1">
+                <div className="bg-white rounded-xl p-3">
                   <Textarea
                     value={roleDescription}
                     onChange={(e) => setRoleDescription(e.target.value)}
                     onFocus={() => setIsInputFocused(true)}
                     onBlur={() => setIsInputFocused(false)}
-                    placeholder="Paste a job post URL or describe your role...
-
-Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
-                    className="bg-transparent border-0 shadow-none focus-visible:ring-0 resize-none text-base md:text-lg text-slate-800 placeholder:text-slate-400 min-h-[120px]"
+                    placeholder="e.g., https://jobs.company.com/senior-engineer or 'We need a senior full-stack developer...'"
+                    className="bg-transparent border-0 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0 focus:ring-0 focus:outline-none focus:border-0 resize-none text-sm md:text-base text-slate-900 placeholder:text-slate-400 min-h-[90px]"
+                    style={{ outline: 'none', boxShadow: 'none' }}
                     disabled={isAnalyzing}
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && !e.shiftKey) {
@@ -652,162 +584,37 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
                     }}
                   />
 
-                  {/* Collapsible Scraped Data Section */}
-                  <AnimatePresence>
-                    {parsedData && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: "auto" }}
-                        exit={{ opacity: 0, height: 0 }}
-                        transition={{ duration: 0.3 }}
-                        className="mt-4 pt-4 border-t border-slate-200"
-                      >
-                        <button
-                          onClick={() => setShowScrapedData(!showScrapedData)}
-                          className="w-full flex items-center justify-between p-3 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors group"
-                        >
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-4 h-4 text-emerald-600" />
-                            <span className="text-sm font-medium text-slate-600 group-hover:text-slate-800 transition-colors">
-                              View Scraped Data
-                            </span>
-                            <span className="text-xs text-slate-500 bg-white px-2 py-0.5 rounded-full">
-                              {parsedData.isURL ? "From URL" : "From Text"}
-                            </span>
-                          </div>
-                          {showScrapedData ? (
-                            <ChevronUp className="w-4 h-4 text-slate-500" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 text-slate-500" />
-                          )}
-                        </button>
 
-                        <AnimatePresence>
-                          {showScrapedData && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: "auto" }}
-                              exit={{ opacity: 0, height: 0 }}
-                              transition={{ duration: 0.2 }}
-                              className="mt-2 p-4 rounded-lg bg-white border border-slate-200 overflow-hidden"
-                            >
-                              <div className="max-h-[300px] overflow-y-auto space-y-3 text-sm">
-                                {parsedData.jobTitle && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Job Title:</span>
-                                    <span className="ml-2 text-slate-700">{parsedData.jobTitle}</span>
-                                  </div>
-                                )}
-                                {parsedData.department && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Department:</span>
-                                    <span className="ml-2 text-slate-700">{parsedData.department}</span>
-                                  </div>
-                                )}
-                                {parsedData.experienceLevel && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Experience Level:</span>
-                                    <span className="ml-2 text-slate-700">{parsedData.experienceLevel}</span>
-                                  </div>
-                                )}
-                                {parsedData.location && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Location:</span>
-                                    <span className="ml-2 text-slate-700">{parsedData.location}</span>
-                                  </div>
-                                )}
-                                {parsedData.workModel && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Work Model:</span>
-                                    <span className="ml-2 text-slate-700">{parsedData.workModel}</span>
-                                  </div>
-                                )}
-                                {parsedData.minSalary && parsedData.maxSalary && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Salary Range:</span>
-                                    <span className="ml-2 text-slate-700">
-                                      ${parsedData.minSalary} - ${parsedData.maxSalary}
-                                    </span>
-                                  </div>
-                                )}
-                                {parsedData.skills && parsedData.skills.length > 0 && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Skills:</span>
-                                    <div className="mt-1 flex flex-wrap gap-1">
-                                      {parsedData.skills.map((skill: string, index: number) => (
-                                        <span
-                                          key={index}
-                                          className="px-2 py-1 bg-emerald-50 border border-emerald-200 rounded text-emerald-700 text-xs"
-                                        >
-                                          {skill}
-                                        </span>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
-                                {parsedData.requirements && parsedData.requirements.length > 0 && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Requirements:</span>
-                                    <ul className="mt-1 ml-4 space-y-1 list-disc list-inside text-slate-700">
-                                      {parsedData.requirements.map((req: string, index: number) => (
-                                        <li key={index}>{req}</li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                )}
-                                {parsedData.timeline && (
-                                  <div>
-                                    <span className="text-slate-500 font-medium">Timeline:</span>
-                                    <span className="ml-2 text-slate-700">{parsedData.timeline}</span>
-                                  </div>
-                                )}
-                                {parsedData.confidence !== undefined && (
-                                  <div className="pt-2 border-t border-slate-200">
-                                    <span className="text-slate-500 font-medium">Confidence Score:</span>
-                                    <span className="ml-2 text-slate-700">
-                                      {Math.round(parsedData.confidence * 100)}%
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-slate-200">
-                    <div className="flex items-center gap-2 text-slate-500 text-sm">
-                      <MousePointer2 className="w-4 h-4" />
-                      <span>Press Enter to analyze</span>
+                  <div className="flex items-center justify-between mt-3 pt-3 border-t border-slate-200">
+                    <div className="flex items-center gap-2 text-slate-500 text-xs">
+                      <MousePointer2 className="w-3.5 h-3.5" />
+                      <span>Press Enter to run reality check</span>
                     </div>
 
                     <motion.button
                       onClick={handleAnalyze}
                       disabled={isAnalyzing || !roleDescription.trim()}
                       whileTap={{ scale: 0.98 }}
-                      className="group relative flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-base disabled:opacity-40 disabled:cursor-not-allowed transition-all overflow-hidden"
-                      style={{
-                        background:
-                          isAnalyzing || !roleDescription.trim()
-                            ? "#d1d5db"
-                            : "linear-gradient(135deg, #10b981 0%, #14b8a6 100%)",
-                      }}
+                      className={`group relative flex items-center gap-2 px-5 py-2 rounded-xl font-semibold text-sm transition-all overflow-hidden ${
+                        !roleDescription.trim() && !isAnalyzing
+                          ? "bg-white border-2 border-slate-200 text-slate-400 cursor-not-allowed"
+                          : "text-white shadow-lg"
+                      }`}
+                      style={roleDescription.trim() && !isAnalyzing ? { 
+                        background: "linear-gradient(to right, #016B61, #70B2B2)",
+                        boxShadow: "0 10px 25px -5px #016B6140"
+                      } : {}}
                     >
-                      {/* Button shine effect */}
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full transition-transform duration-700" />
-
                       {isAnalyzing ? (
                         <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span className="text-white">Analyzing...</span>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          <span>Running Reality Check...</span>
                         </>
                       ) : (
                         <>
-                          <Sparkles className="w-5 h-5 text-white" />
-                          <span className="text-white">Get Reality Check</span>
-                          <ArrowRight className="w-4 h-4 text-white" />
+                          <Sparkles className={`w-4 h-4 ${!roleDescription.trim() ? "text-slate-400" : "text-white"}`} />
+                          <span>Run Reality Check</span>
+                          <ArrowRight className={`w-4 h-4 ${!roleDescription.trim() ? "text-slate-400" : "text-white"} group-hover:translate-x-0.5 transition-transform`} />
                         </>
                       )}
                     </motion.button>
@@ -817,46 +624,42 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
             </div>
           </motion.div>
 
-          {/* Feature pills - light theme pills - removed floating hover effect */}
+          {/* Feature pills */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.7 }}
-            className="flex flex-wrap items-center justify-center gap-4"
+            transition={{ duration: 0.8, delay: 0.6 }}
+            className="flex flex-wrap items-center justify-center gap-3"
           >
             {[
-              { icon: Zap, text: "5-minute strategy", color: "from-amber-400 to-orange-400" },
-              { icon: Target, text: "Reality-based scoring", color: "from-emerald-400 to-teal-400" },
-              { icon: CheckCircle, text: "Fix issues before posting", color: "from-cyan-400 to-blue-400" },
-            ].map((feature, index) => (
-              <motion.div
+              { icon: Zap, text: "5-minute strategy", color: "from-amber-500 to-orange-500" },
+              { icon: Target, text: "Reality-based scoring", color: "from-cyan-500 to-teal-500" },
+              { icon: CheckCircle, text: "Fix issues before posting", color: "from-emerald-500 to-green-500" },
+            ].map((feature) => (
+              <div
                 key={feature.text}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                className="group flex items-center gap-3 px-5 py-3 rounded-full bg-white border border-slate-200 shadow-sm hover:shadow-md hover:border-slate-300 transition-all cursor-default"
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white border border-slate-200 backdrop-blur-sm shadow-sm"
               >
-                <div className={`p-2 rounded-full bg-gradient-to-br ${feature.color}`}>
-                  <feature.icon className="w-4 h-4 text-white" />
+                <div className={`w-7 h-7 flex items-center justify-center rounded-full bg-gradient-to-br ${feature.color}`}>
+                  <feature.icon className="w-3.5 h-3.5 text-white" />
                 </div>
-                <span className="text-slate-600 font-medium text-sm group-hover:text-slate-800 transition-colors">
+                <span className="text-slate-700 font-medium text-xs">
                   {feature.text}
                 </span>
-              </motion.div>
+              </div>
             ))}
           </motion.div>
-        </motion.div>
+        </div>
       </div>
 
-      {/* Full Screen Loading Dialog - light theme loading */}
+      {/* Full Screen Loading Dialog */}
       <AnimatePresence>
         {isAnalyzing && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            style={{ background: "linear-gradient(180deg, #ffffff 0%, #f9fafb 50%, #f3f4f6 100%)" }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-gray-50 via-white to-gray-100"
           >
             <style jsx global>{`
               body { overflow: hidden !important; }
@@ -867,80 +670,199 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
             `}</style>
 
             <div className="max-w-xl mx-auto px-6 text-center">
-              {/* Pulsing orb */}
-              <motion.div
-                className="w-24 h-24 mx-auto mb-8 rounded-full relative"
-                animate={{ scale: [1, 1.1, 1] }}
-                transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
-              >
-                <div className="absolute inset-0 rounded-full bg-gradient-to-r from-emerald-400 to-teal-400 blur-xl opacity-40" />
-                <div className="absolute inset-2 rounded-full bg-gradient-to-r from-emerald-500 to-teal-500 flex items-center justify-center">
-                  <Sparkles className="w-10 h-10 text-white" />
-                </div>
-              </motion.div>
+              {/* Header */}
+              <div className="mb-6">
+                <h2
+                  className="text-3xl md:text-4xl font-bold mb-2"
+                  style={{ color: "#102a63" }}
+                >
+                  KEEP THIS PAGE OPEN
+                </h2>
+                <p
+                  className="text-base md:text-lg"
+                  style={{ color: "#102a63", opacity: 0.8 }}
+                >
+                  Keep this page open to see your personalized hiring analysis!
+                </p>
+              </div>
 
-              <motion.h2
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className="text-2xl md:text-3xl font-bold text-slate-800 mb-2"
-              >
-                Analyzing Your Role
-              </motion.h2>
-              <p className="text-slate-600 mb-8">Keep this page open for your personalized analysis</p>
-
-              {/* Progress bar */}
-              <div className="mb-8">
-                <div className="flex justify-between mb-2">
-                  <span className="text-emerald-600 font-medium">Processing...</span>
-                  <span className="text-emerald-600 font-bold">{Math.round(loadingProgress)}%</span>
-                </div>
-                <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full relative bg-gradient-to-r from-emerald-500 to-teal-500"
-                    initial={{ width: 0 }}
-                    animate={{ width: `${loadingProgress}%` }}
-                    transition={{ duration: 0.3 }}
+              {/* Progress Bar */}
+              <div className="mb-3 w-full max-w-md mx-auto">
+                <div className="mb-2 flex items-center justify-between">
+                  <div className="flex items-center space-x-2">
+                    <Sparkles
+                      className="w-5 h-5 animate-pulse"
+                      style={{ color: "#278f8c" }}
+                    />
+                    <span
+                      className="text-sm font-medium"
+                      style={{ color: "#102a63" }}
+                    >
+                      Analyzing...
+                    </span>
+                  </div>
+                  <span
+                    className="text-lg font-bold"
+                    style={{ color: "#278f8c" }}
                   >
+                    {Math.round(loadingProgress)}%
+                  </span>
+                </div>
+                {/* Progress bar container */}
+                <div className="w-full h-3 bg-gray-200 rounded-full overflow-hidden shadow-inner">
+                  <div
+                    className="h-full rounded-full relative transition-all duration-300 ease-out"
+                    style={{
+                      width: `${loadingProgress}%`,
+                      backgroundColor: "#278f8c",
+                    }}
+                  >
+                    {/* Shimmer effect */}
                     <div
                       className="absolute inset-0 opacity-50"
                       style={{
-                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",
+                        background:
+                          "linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent)",
                         animation: "shimmer 2s infinite",
                       }}
                     />
-                  </motion.div>
+                  </div>
                 </div>
               </div>
 
-              {/* Status message */}
-              <motion.div
-                key={loadingMessageIndex}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="inline-flex items-center gap-3 px-5 py-3 rounded-xl bg-white border border-slate-200 shadow-sm"
-              >
-                {(() => {
-                  const IconComponent = loadingMessages[loadingMessageIndex].icon
-                  return <IconComponent className="w-5 h-5 text-emerald-600" />
-                })()}
-                <span className="text-slate-700">{loadingMessages[loadingMessageIndex].text}</span>
-              </motion.div>
+              {/* Time Estimate */}
+              <div className="mb-3 space-y-1">
+                <div
+                  className="inline-block px-3 py-1.5 rounded-full border-2 shadow-sm"
+                  style={{
+                    backgroundColor: "#d7f4f2",
+                    borderColor: "#278f8c",
+                  }}
+                >
+                  <p
+                    className="text-sm font-semibold"
+                    style={{ color: "#102a63" }}
+                  >
+                    Initial generation takes 30–45 seconds
+                  </p>
+                </div>
+                <p
+                  className="text-sm"
+                  style={{ color: "#102a63", opacity: 0.7 }}
+                >
+                  This is completely normal. We&apos;re doing deep market
+                  research for you
+                </p>
+              </div>
 
-              <p className="text-slate-500 text-sm mt-6">Initial generation takes 30-45 seconds</p>
+              {/* Status Messages */}
+              <div className="mb-3">
+                <p
+                  className="text-base md:text-lg font-medium mb-2"
+                  style={{ color: "#102a63" }}
+                >
+                  We&apos;re analyzing opportunities for you
+                </p>
+
+                {/* Progress Steps */}
+                <div className="flex items-center justify-center space-x-1.5 text-sm mb-3">
+                  <span
+                    className="font-medium animate-pulse"
+                    style={{ color: "#278f8c" }}
+                  >
+                    Starting
+                  </span>
+                  <span style={{ color: "#102a63", opacity: 0.4 }}>
+                    →
+                  </span>
+                  <span
+                    className="font-medium animate-pulse"
+                    style={{ color: "#278f8c", animationDelay: "0.5s" }}
+                  >
+                    Searching
+                  </span>
+                  <span style={{ color: "#102a63", opacity: 0.4 }}>
+                    →
+                  </span>
+                  <span
+                    className="font-medium animate-pulse"
+                    style={{ color: "#278f8c", animationDelay: "1s" }}
+                  >
+                    Analyzing
+                  </span>
+                  <span style={{ color: "#102a63", opacity: 0.4 }}>
+                    →
+                  </span>
+                  <span
+                    className="font-medium animate-pulse"
+                    style={{ color: "#278f8c", animationDelay: "1.5s" }}
+                  >
+                    Complete
+                  </span>
+                </div>
+
+                {/* Rotating Trust Messages */}
+                <div
+                  key={loadingMessageIndex}
+                  className="min-h-[45px] flex items-center justify-center px-2"
+                >
+                  <div
+                    className="px-3 py-2 rounded-lg bg-white shadow-md border flex items-center space-x-2 max-w-full"
+                    style={{ borderColor: "#d7f4f2" }}
+                  >
+                    {(() => {
+                      const IconComponent = loadingMessages[loadingMessageIndex].icon;
+                      return (
+                        <IconComponent
+                          className="w-4 h-4 flex-shrink-0"
+                          style={{ color: "#278f8c" }}
+                        />
+                      );
+                    })()}
+                    <p
+                      className="text-sm font-medium"
+                      style={{ color: "#278f8c" }}
+                    >
+                      {loadingMessages[loadingMessageIndex].text}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inspiration Section */}
+              <div
+                className="mt-4 p-3 rounded-lg bg-white shadow-md border-2"
+                style={{ borderColor: "#d7f4f2" }}
+              >
+                <p
+                  className="text-sm font-semibold mb-1"
+                  style={{ color: "#278f8c" }}
+                >
+                  Hiring Wisdom
+                </p>
+                <p
+                  className="text-sm leading-relaxed"
+                  style={{ color: "#102a63", opacity: 0.8 }}
+                >
+                  While we work, remember: The best hires aren&apos;t
+                  always the ones with the most experience, they&apos;re
+                  the ones who understand your mission and bring the
+                  energy to execute it.
+                </p>
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Chatbot Modal - light theme modal */}
+      {/* Chatbot Modal */}
       <AnimatePresence>
         {showChatModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-md"
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
             onClick={handleChatbotClose}
           >
             <motion.div
@@ -948,38 +870,54 @@ Example: 'Senior React Developer, NYC, $150-180k, 5+ years experience'"
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 25, stiffness: 300 }}
-              className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col border border-slate-200"
+              className="bg-white rounded-xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col"
               style={{ height: "85vh", maxHeight: "700px" }}
               onClick={(e) => e.stopPropagation()}
             >
-              <div className="flex items-center justify-between p-5 border-b border-slate-200 bg-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-500">
-                    <Sparkles className="w-5 h-5 text-white" />
+              <div
+                className="flex items-center justify-between px-6 py-4 border-b"
+                style={{ backgroundColor: "#f5f5f5" }}
+              >
+                <div className="flex items-center space-x-3">
+                  <Sparkles
+                    className="w-5 h-5 flex-shrink-0"
+                    style={{ color: "#278f8c" }}
+                  />
+                  <div>
+                    <h2
+                      className="text-lg font-bold leading-tight"
+                      style={{ color: "#102a63" }}
+                    >
+                      Complete Your Hiring Strategy
+                    </h2>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      Chat with AI to build your hiring strategy
+                    </p>
                   </div>
-                  <h2 className="text-lg font-bold text-slate-800">Complete Your Hiring Strategy</h2>
                 </div>
                 <button
                   onClick={handleChatbotClose}
-                  className="p-2 hover:bg-slate-200 rounded-lg transition-colors text-slate-500 hover:text-slate-800"
+                  className="p-2 hover:bg-gray-200 transition-colors flex-shrink-0"
+                  aria-label="Close"
                 >
                   <svg
                     className="w-5 h-5"
+                    style={{ color: "#102a63" }}
                     fill="none"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
                     viewBox="0 0 24 24"
                     stroke="currentColor"
                   >
-                    <path d="M6 18L18 6M6 6l12 12" />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
                   </svg>
                 </button>
               </div>
-              <div className="flex-1 min-h-0 flex flex-col bg-white">
-                <div className="p-4 flex-1 flex flex-col min-h-0">
-                  <ConversationalChatbot />
-                </div>
+              <div className="flex-1 overflow-y-auto">
+                <ConversationalChatbot />
               </div>
             </motion.div>
           </motion.div>

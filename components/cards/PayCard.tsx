@@ -32,7 +32,7 @@ export const PayCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Pay Card" subtitle="Compensation strategy and market data" Icon={DollarSign} density="compact">
+      <Section title="Pay Card" subtitle="What candidates expect to earn in this market and how your budget compares." Icon={DollarSign} density="compact">
         <div className="space-y-4">
           {/* Market Compensation */}
           <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">

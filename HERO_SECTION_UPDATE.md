@@ -38,7 +38,7 @@ Most roles fail before they even hit the market.
 Wrong scope. Wrong salary. Wrong expectations.
 Teams only find out 60–90 days later.
 
-Paste a job URL or add a few details — HireCards shows if the role is hireable, 
+Paste a job URL or add a few details. HireCards shows if the role is hireable, 
 what's off, how to fix it, and gives you a full hiring strategy in under 5 minutes.
 ```
 

@@ -30,7 +30,7 @@
 ---
 
 ### Issue 3: ✅ Chatbot Double-Checking Salary
-**Problem**: Even after user provided valid salary numbers, chatbot asked again with messages like "Translation: we're lowballing. Give me actual numbers—what's the sweet spot?"
+**Problem**: Even after user provided valid salary numbers, chatbot asked again with messages like "Translation: we're lowballing. Give me actual numbers. What's the sweet spot?"
 
 **Solution**:
 - Removed aggressive "competitive salary" validation from system prompt
