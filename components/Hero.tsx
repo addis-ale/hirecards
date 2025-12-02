@@ -892,7 +892,7 @@ export const Hero = () => {
                       Complete Your Hiring Strategy
                     </h2>
                     <p className="text-xs text-gray-500 mt-0.5">
-                      Paste a job URL below or build from scratch with our AI chatbot
+                      Chat with AI to build your hiring strategy
                     </p>
                   </div>
                 </div>

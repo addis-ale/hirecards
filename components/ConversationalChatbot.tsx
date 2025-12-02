@@ -474,119 +474,250 @@ export default function ConversationalChatbot() {
     setCurrentInput("");
     setError(null);
 
-    // Add user message
-    addUserMessage(userMessage);
-    setIsLoading(true);
+    // Check if the input is a URL
+    const urlPattern = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+    const isURL = urlPattern.test(userMessage);
 
-    try {
-      // STEP 1: Intelligent extraction from user message (real-time)
-      const extractionResponse = await fetch("/api/intelligent-extract", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          message: userMessage,
-          currentData: extractedData,
-        }),
-      });
-
-      const extractionResult = await extractionResponse.json();
+    if (isURL) {
+      // Handle URL - Show generating screen and process
+      addUserMessage(userMessage);
+      setIsGenerating(true); // Show the full loading screen
       
-      // Merge extracted data immediately before sending to chat API
-      let updatedExtractedData = { ...extractedData };
-      
-      if (extractionResult.success && extractionResult.hasNewData) {
-        // Update extracted data with new information
-        Object.keys(extractionResult.extracted).forEach((key) => {
-          if (extractionResult.extracted[key]) {
-            // For criticalSkills array, merge with existing
-            if (key === "criticalSkills" && Array.isArray(extractionResult.extracted[key])) {
-              const existingSkills = updatedExtractedData.criticalSkills || [];
-              const newSkills = extractionResult.extracted[key];
-              // Merge and deduplicate
-              updatedExtractedData.criticalSkills = [...new Set([...existingSkills, ...newSkills])];
-            } else {
-              (updatedExtractedData as any)[key] = extractionResult.extracted[key];
-            }
-          }
+      try {
+        const response = await fetch("/api/scrape-job", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url: userMessage }),
         });
 
-        // Update state
-        setExtractedData(updatedExtractedData);
+        const result = await response.json();
 
-        // Update completeness
-        const newFilledCount = countFilledFields(updatedExtractedData);
-        setCompleteness(Math.round((newFilledCount / TOTAL_FIELDS) * 100));
-      }
+        if (result.success && result.data) {
+          // Update extracted data with scraped information
+          const updatedData: Partial<ExtractedData> = {};
 
-      // STEP 2: Get AI response with the LATEST extracted data
-      const chatResponse = await fetch("/api/chat", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: conversationMessages.current,
-          extractedData: updatedExtractedData, // Use the updated data!
-        }),
-      });
+          if (result.data.roleTitle) updatedData.roleTitle = result.data.roleTitle;
+          if (result.data.department) updatedData.department = result.data.department;
+          if (result.data.experienceLevel) updatedData.experienceLevel = result.data.experienceLevel;
+          if (result.data.location) updatedData.location = result.data.location;
+          if (result.data.workModel) updatedData.workModel = result.data.workModel;
+          if (result.data.criticalSkills) {
+            if (Array.isArray(result.data.criticalSkills)) {
+              updatedData.criticalSkills = result.data.criticalSkills;
+            } else if (typeof result.data.criticalSkills === 'string') {
+              updatedData.criticalSkills = result.data.criticalSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+            }
+          }
+          if (result.data.minSalary) updatedData.minSalary = result.data.minSalary;
+          if (result.data.maxSalary) updatedData.maxSalary = result.data.maxSalary;
+          if (result.data.nonNegotiables) updatedData.nonNegotiables = result.data.nonNegotiables;
+          if (result.data.flexible) updatedData.flexible = result.data.flexible;
+          if (result.data.timeline) updatedData.timeline = result.data.timeline;
 
-      // Process chat response
-      const chatResult = await chatResponse.json();
-      if (chatResult.success) {
-        addAssistantMessage(chatResult.message);
-        
-        // Stop loading immediately after adding message
-        setIsLoading(false);
+          const newExtractedData = { ...extractedData, ...updatedData };
+          setExtractedData(newExtractedData);
 
-        // Save updated data to sessionStorage to prevent any resets
-        const formData = {
-          roleTitle: updatedExtractedData.roleTitle || "",
-          department: updatedExtractedData.department || "",
-          experienceLevel: updatedExtractedData.experienceLevel || "",
-          location: updatedExtractedData.location || "",
-          workModel: updatedExtractedData.workModel || "",
-          criticalSkills: updatedExtractedData.criticalSkills || [],
-          minSalary: updatedExtractedData.minSalary || "",
-          maxSalary: updatedExtractedData.maxSalary || "",
-          nonNegotiables: updatedExtractedData.nonNegotiables || "",
-          flexible: updatedExtractedData.flexible || "",
-          timeline: updatedExtractedData.timeline || "",
-        };
-        sessionStorage.setItem("formData", JSON.stringify(formData));
-        console.log("✅ Updated sessionStorage after user input:", formData);
+          const filledCount = countFilledFields(newExtractedData);
+          setCompleteness(Math.round((filledCount / TOTAL_FIELDS) * 100));
 
-        // Extract data in background (don't block UI)
-        extractDataFromConversation();
+          // Save to sessionStorage
+          const formData = {
+            roleTitle: newExtractedData.roleTitle || "",
+            department: newExtractedData.department || "",
+            experienceLevel: newExtractedData.experienceLevel || "",
+            location: newExtractedData.location || "",
+            workModel: newExtractedData.workModel || "",
+            criticalSkills: newExtractedData.criticalSkills || [],
+            minSalary: newExtractedData.minSalary || "",
+            maxSalary: newExtractedData.maxSalary || "",
+            nonNegotiables: newExtractedData.nonNegotiables || "",
+            flexible: newExtractedData.flexible || "",
+            timeline: newExtractedData.timeline || "",
+          };
+          sessionStorage.setItem("formData", JSON.stringify(formData));
 
-        // Check if assistant says it's complete
-        const completionPhrases = [
-          "i have everything",
-          "generate your hirecard",
-          "*generate* your hirecard",
-          "generating your hirecard",
-          "you actually finished",
-          "alright, you actually finished",
-          "let me roast"
-        ];
-        
-        const messageLower = chatResult.message.toLowerCase();
-        const isComplete = completionPhrases.some(phrase => messageLower.includes(phrase));
-        
-        if (isComplete) {
+          setIsGenerating(false); // Hide loading screen
+
+          // Provide feedback based on extraction results
           setTimeout(() => {
-            handleComplete();
-          }, 2000);
+            let greeting = "";
+            
+            if (filledCount === 0) {
+              greeting = "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
+            } else if (filledCount < TOTAL_FIELDS) {
+              greeting = `Pulled ${filledCount}/${TOTAL_FIELDS} fields. Could be worse.\n\n`;
+              
+              const missingFields: string[] = [];
+              if (!newExtractedData.roleTitle) missingFields.push("Role Title");
+              if (!newExtractedData.department) missingFields.push("Department");
+              if (!newExtractedData.experienceLevel) missingFields.push("Experience Level");
+              if (!newExtractedData.location) missingFields.push("Location");
+              if (!newExtractedData.workModel) missingFields.push("Work Model");
+              if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
+              if (!newExtractedData.minSalary || !newExtractedData.maxSalary) missingFields.push("Salary Range");
+              if (!newExtractedData.nonNegotiables) missingFields.push("Non-Negotiables");
+              if (!newExtractedData.timeline) missingFields.push("Timeline");
+              if (!newExtractedData.flexible) missingFields.push("Nice-to-Have Skills");
+              
+              greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
+              greeting += "Time to fill the gaps. No excuses.";
+              
+              if (!newExtractedData.roleTitle) {
+                greeting += "\n\nJob title? And if you're about to type 'Rockstar Ninja,' save us both the pain and don't.";
+              } else if (!newExtractedData.department) {
+                greeting += "\n\nDepartment? Engineering? Marketing? Or is this one of those 'cross-functional vibes-only' roles?";
+              } else if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) {
+                greeting += "\n\nMust-have skills? Not the fantasy wishlist. The actual deal-breakers.";
+              } else if (!newExtractedData.experienceLevel) {
+                greeting += "\n\nExperience level? Entry, mid, senior? Or the illegal combo: '10 years experience, entry-level pay'?";
+              } else if (!newExtractedData.nonNegotiables) {
+                greeting += "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
+              } else if (!newExtractedData.minSalary || !newExtractedData.maxSalary) {
+                greeting += "\n\nTime to talk numbers. What's your salary range? Min and max, please.";
+              } else if (!newExtractedData.location) {
+                greeting += "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
+              } else if (!newExtractedData.workModel) {
+                greeting += "\n\nRemote, hybrid, or office? Choose wisely. Office-only mandates are basically self-sabotage at this point.";
+              } else if (!newExtractedData.timeline) {
+                greeting += "\n\nHow fast do you need this filled? ASAP? Normal pace? Or 'we'll know it when we see it' mode?";
+              } else if (!newExtractedData.flexible) {
+                greeting += "\n\nNice-to-haves? The bonus skills that won't torpedo the hire if missing.";
+              }
+            } else {
+              greeting = "Okay, that URL was actually legit. Shocked. Pleasantly. 🎯\n\nAlright, let's roast this thing. Generating your HireCard...";
+              setTimeout(() => {
+                handleComplete();
+              }, 2000);
+            }
+            
+            addAssistantMessage(greeting);
+          }, 500);
+        } else {
+          setIsGenerating(false);
+          addAssistantMessage("Hmm, couldn't extract data from that URL. Either it's not a job posting, or the site is blocking us. Try copy-pasting the job description text instead?");
         }
-      } else {
-        setError(chatResult.error || "Failed to get response");
+      } catch (err) {
+        console.error("URL scraping error:", err);
+        setIsGenerating(false);
+        addAssistantMessage("Failed to process that URL. Try sharing the job details directly instead?");
+      }
+    } else {
+      // Handle regular text message
+      addUserMessage(userMessage);
+      setIsLoading(true);
+
+      try {
+        // STEP 1: Intelligent extraction from user message (real-time)
+        const extractionResponse = await fetch("/api/intelligent-extract", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            currentData: extractedData,
+          }),
+        });
+
+        const extractionResult = await extractionResponse.json();
+        
+        // Merge extracted data immediately before sending to chat API
+        let updatedExtractedData = { ...extractedData };
+        
+        if (extractionResult.success && extractionResult.hasNewData) {
+          // Update extracted data with new information
+          Object.keys(extractionResult.extracted).forEach((key) => {
+            if (extractionResult.extracted[key]) {
+              // For criticalSkills array, merge with existing
+              if (key === "criticalSkills" && Array.isArray(extractionResult.extracted[key])) {
+                const existingSkills = updatedExtractedData.criticalSkills || [];
+                const newSkills = extractionResult.extracted[key];
+                // Merge and deduplicate
+                updatedExtractedData.criticalSkills = [...new Set([...existingSkills, ...newSkills])];
+              } else {
+                (updatedExtractedData as any)[key] = extractionResult.extracted[key];
+              }
+            }
+          });
+
+          // Update state
+          setExtractedData(updatedExtractedData);
+
+          // Update completeness
+          const newFilledCount = countFilledFields(updatedExtractedData);
+          setCompleteness(Math.round((newFilledCount / TOTAL_FIELDS) * 100));
+        }
+
+        // STEP 2: Get AI response with the LATEST extracted data
+        const chatResponse = await fetch("/api/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            messages: conversationMessages.current,
+            extractedData: updatedExtractedData, // Use the updated data!
+          }),
+        });
+
+        // Process chat response
+        const chatResult = await chatResponse.json();
+        if (chatResult.success) {
+          addAssistantMessage(chatResult.message);
+          
+          // Stop loading immediately after adding message
+          setIsLoading(false);
+
+          // Save updated data to sessionStorage to prevent any resets
+          const formData = {
+            roleTitle: updatedExtractedData.roleTitle || "",
+            department: updatedExtractedData.department || "",
+            experienceLevel: updatedExtractedData.experienceLevel || "",
+            location: updatedExtractedData.location || "",
+            workModel: updatedExtractedData.workModel || "",
+            criticalSkills: updatedExtractedData.criticalSkills || [],
+            minSalary: updatedExtractedData.minSalary || "",
+            maxSalary: updatedExtractedData.maxSalary || "",
+            nonNegotiables: updatedExtractedData.nonNegotiables || "",
+            flexible: updatedExtractedData.flexible || "",
+            timeline: updatedExtractedData.timeline || "",
+          };
+          sessionStorage.setItem("formData", JSON.stringify(formData));
+          console.log("✅ Updated sessionStorage after user input:", formData);
+
+          // Extract data in background (don't block UI)
+          extractDataFromConversation();
+
+          // Check if assistant says it's complete
+          const completionPhrases = [
+            "i have everything",
+            "generate your hirecard",
+            "*generate* your hirecard",
+            "generating your hirecard",
+            "you actually finished",
+            "alright, you actually finished",
+            "let me roast"
+          ];
+          
+          const messageLower = chatResult.message.toLowerCase();
+          const isComplete = completionPhrases.some(phrase => messageLower.includes(phrase));
+          
+          if (isComplete) {
+            setTimeout(() => {
+              handleComplete();
+            }, 2000);
+          }
+        } else {
+          setError(chatResult.error || "Failed to get response");
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error("Chat error:", err);
+        setError("Something went wrong. Please try again.");
         setIsLoading(false);
       }
-    } catch (err) {
-      console.error("Chat error:", err);
-      setError("Something went wrong. Please try again.");
-      setIsLoading(false);
     }
   };
 
@@ -920,13 +1051,6 @@ export default function ConversationalChatbot() {
 
       {/* Debug Data Viewer - Hidden in modal */}
       {/* <DebugDataViewer storageKey="formData" title="Debug: Chat Data" /> */}
-      
-      {/* Job URL Input - Show at the beginning */}
-      {showURLInput && (
-        <div className="mb-2 px-4 pt-4 flex-shrink-0">
-          <JobURLInput onDataExtracted={handleURLDataExtracted} />
-        </div>
-      )}
 
       <div className="bg-white overflow-hidden flex flex-col flex-1 min-h-0">
         {/* Chat Header - Fixed at top */}
@@ -1036,7 +1160,7 @@ export default function ConversationalChatbot() {
               type="text"
               value={currentInput}
               onChange={(e) => setCurrentInput(e.target.value)}
-              placeholder="Type your message..."
+              placeholder="Type your message or paste a job URL..."
               disabled={isLoading}
               className="flex-1 px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
               style={{ minHeight: "48px", maxHeight: "48px" }}
@@ -1044,12 +1168,13 @@ export default function ConversationalChatbot() {
             <button
               type="submit"
               disabled={!currentInput.trim() || isLoading}
-              className="btn-primary px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 h-12 flex-shrink-0"
+              className="w-12 h-12 bg-[#278f8c] hover:bg-[#1f6f6c] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 rounded-full relative transition-all duration-200 shadow-lg hover:shadow-xl"
+              style={{ padding: 0 }}
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <Loader2 className="w-5 h-5 animate-spin text-white relative z-10" />
               ) : (
-                <Send className="w-5 h-5" />
+                <Send className="w-5 h-5 text-white relative z-10" />
               )}
             </button>
           </form>

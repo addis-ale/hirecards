@@ -509,28 +509,23 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
               type="text"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              placeholder="Just drop your job description here"
+              placeholder="Paste job URL here to auto-fill details"
               disabled={isLoading || success}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-[#278f8c] focus:border-transparent disabled:bg-gray-100 disabled:cursor-not-allowed h-12"
             />
           </div>
           <button
             type="submit"
             disabled={!url.trim() || isLoading || success}
-            className="btn-primary px-6 py-2 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+            className="btn-primary w-12 h-12 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center flex-shrink-0 rounded-full"
+            title={isLoading ? "Analyzing..." : success ? "Done!" : "Analyze URL"}
           >
             {isLoading ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Analyzing...
-              </>
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : success ? (
-              <>
-                <CheckCircle2 className="w-5 h-5" />
-                Done!
-              </>
+              <CheckCircle2 className="w-5 h-5" />
             ) : (
-              'Analyze'
+              <Search className="w-5 h-5" />
             )}
           </button>
         </div>
