@@ -38,9 +38,13 @@ export function useChatAPI({
 
       const extractionResult = await extractionResponse.json();
       
+      console.log("🔍 Intelligent extraction result:", extractionResult);
+      
       let updatedExtractedData = { ...extractedData };
       
       if (extractionResult.success && extractionResult.hasNewData) {
+        console.log("✅ New data extracted:", extractionResult.extracted);
+        
         Object.keys(extractionResult.extracted).forEach((key) => {
           if (extractionResult.extracted[key]) {
             if (key === "criticalSkills" && Array.isArray(extractionResult.extracted[key])) {
@@ -53,7 +57,10 @@ export function useChatAPI({
           }
         });
 
+        console.log("📦 Updated extracted data after merge:", updatedExtractedData);
         setExtractedData(updatedExtractedData);
+      } else {
+        console.log("⚠️ No new data extracted from message");
       }
 
       // Step 2: Get AI response with the latest extracted data
@@ -88,6 +95,9 @@ export function useChatAPI({
           timeline: updatedExtractedData.timeline || "",
         };
         sessionStorage.setItem("formData", JSON.stringify(formData));
+        
+        // Save to sessionStorage after each update
+        sessionStorage.setItem("formData", JSON.stringify(updatedExtractedData));
         
         return { success: true, message: chatResult.message, updatedData: updatedExtractedData };
       } else {

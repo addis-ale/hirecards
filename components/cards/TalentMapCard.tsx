@@ -1,161 +1,93 @@
 "use client";
 
 import React from "react";
-import { Users, Target, AlertTriangle, Wrench, XCircle, Eye, Clock } from "lucide-react";
+import { Map, Building2 } from "lucide-react";
 import { Section } from "@/components/ui/Section";
-import { Callout } from "@/components/ui/Callout";
+import { Pill } from "@/components/ui/Pill";
 
-export const TalentMapCard = () => {
-  const primaryFeeders = [
-    "Adyen",
-    "bunq",
-    "Booking",
-    "bol",
-    "Picnic",
-    "PayPal",
-    "Klarna",
-    "Revolut",
-    "Mollie-like scaleups"
-  ];
+interface TalentMapCardProps {
+  primaryFeeders: string[];
+  secondaryFeeders: string[];
+  dataSource?: string;
+}
 
-  const secondaryFeeders = [
-    "ING",
-    "Rabobank",
-    "ABN AMRO",
-    "Modern data consultancies"
-  ];
-
-  const avoidList = [
-    "Legacy BI teams",
-    "Excel-heavy organizations",
-    "Candidates with no ownership experience",
-    "Pure analysts dressed as engineers"
-  ];
-
-  const redFlags = [
-    "Candidates who \"maintained dashboards\" rather than built modelling ecosystems",
-    "Builders of internal-only tools who never shipped product-facing analytics"
-  ];
-
-  const donts = [
-    "Target early-stage startups, modelling maturity tends to be low",
-    "Target banking analytics teams without validating modelling experience"
-  ];
-
-  const fixes = [
-    "Prioritize candidates frustrated by data chaos or slow product cycles",
-    "Target people who own domains, not maintain pipelines"
-  ];
+export const TalentMapCard = ({
+  primaryFeeders,
+  secondaryFeeders,
+  dataSource
+}: TalentMapCardProps) => {
+  
+  console.log("🗺️ TalentMapCard received props:", { primaryFeeders, secondaryFeeders, dataSource });
+  
+  if (!primaryFeeders || primaryFeeders.length === 0) {
+    return (
+      <div className="p-8 bg-red-50 border border-red-200 rounded-lg">
+        <h3 className="text-lg font-bold text-red-600 mb-2">No Dynamic Data Available</h3>
+        <p className="text-sm text-red-700">LinkedIn data was not loaded. Generate cards again.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
-      <Section title="Talent Map Card" subtitle="Where the strongest candidates come from, companies, locations, and common backgrounds." Icon={Users} density="compact">
-        <div className="space-y-4">
-          {/* Primary Feeder Companies */}
-          <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">
-            <div className="flex items-start gap-3">
-              <Target className="w-5 h-5 text-emerald-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
-                  Primary Feeder Companies
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {primaryFeeders.map((company, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"
-                    >
-                      {company}
-                    </span>
-                  ))}
-                </div>
-              </div>
+      <Section title="Talent Map Card" subtitle="Where the best candidates come from based on LinkedIn hiring data." Icon={Map} density="compact">
+        <div className="space-y-6">
+          {dataSource && (
+            <p className="text-xs text-gray-500 bg-blue-50 p-3 rounded-lg border border-blue-200">
+              {dataSource}
+            </p>
+          )}
+
+          {/* Primary Feeders */}
+          <div>
+            <div className="flex items-center gap-2 mb-3">
+              <Building2 className="w-5 h-5 text-[#278f8c]" />
+              <h3 className="font-bold text-base" style={{ color: "#102a63" }}>
+                Primary Feeder Companies (Top Hiring)
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600 mb-3">
+              Companies actively hiring for similar roles on LinkedIn
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {primaryFeeders.length > 0 ? (
+                primaryFeeders.map((company, idx) => (
+                  <Pill key={idx} tone="green">{company}</Pill>
+                ))
+              ) : (
+                <p className="text-sm text-gray-500">No primary feeders found in LinkedIn data</p>
+              )}
             </div>
           </div>
 
-          {/* Secondary Feeder Companies */}
-          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
-            <div className="flex items-start gap-3">
-              <Target className="w-5 h-5 text-blue-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
+          {/* Secondary Feeders */}
+          {secondaryFeeders && secondaryFeeders.length > 0 && (
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Building2 className="w-5 h-5 text-blue-600" />
+                <h3 className="font-bold text-base" style={{ color: "#102a63" }}>
                   Secondary Feeder Companies
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {secondaryFeeders.map((company, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200"
-                    >
-                      {company}
-                    </span>
-                  ))}
-                </div>
+                </h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {secondaryFeeders.map((company, idx) => (
+                  <Pill key={idx} tone="blue">{company}</Pill>
+                ))}
               </div>
             </div>
+          )}
+
+          {/* Insights */}
+          <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+            <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
+              Where to Source
+            </h4>
+            <ul className="space-y-1 text-sm text-gray-700">
+              <li>• Target candidates from these {primaryFeeders.length} companies currently hiring</li>
+              <li>• Look for candidates with 2-5 years at these organizations</li>
+              <li>• Check for similar job titles and responsibilities</li>
+            </ul>
           </div>
-
-          {/* Avoid */}
-          <div className="rounded-xl border border-gray-300 p-4 bg-gradient-to-br from-gray-50 to-white">
-            <div className="flex items-start gap-3">
-              <XCircle className="w-5 h-5 text-gray-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
-                  Avoid
-                </h4>
-                <ul className="list-disc pl-5 space-y-1 marker:text-gray-600">
-                  {avoidList.map((item, idx) => (
-                    <li key={idx} className="text-[13px] leading-snug text-gray-700">
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Brutal Truth */}
-          <Callout tone="danger" title="💥 Brutal Truth">
-            Everyone is chasing the same top 10 companies. You won&apos;t win them on comp. You must win them on scope and shipping velocity.
-          </Callout>
-
-          {/* Red Flags */}
-          <Section title="⚠️ Red Flags" Icon={AlertTriangle} tone="danger">
-            <ul className="list-disc pl-5 space-y-2 marker:text-red-600">
-              {redFlags.map((flag, idx) => (
-                <li key={idx} className="text-[13px] leading-snug text-red-700">
-                  {flag}
-                </li>
-              ))}
-            </ul>
-          </Section>
-
-          {/* Don't Do This */}
-          <Section title="❌ Don't Do This" Icon={XCircle} tone="danger">
-            <ul className="list-disc pl-5 space-y-2 marker:text-red-600">
-              {donts.map((dont, idx) => (
-                <li key={idx} className="text-[13px] leading-snug text-red-700">
-                  {dont}
-                </li>
-              ))}
-            </ul>
-          </Section>
-
-          {/* Fix This Now */}
-          <Section title="🔧 Fix This Now" Icon={Wrench} tone="success">
-            <ul className="list-disc pl-5 space-y-2 marker:text-emerald-600">
-              {fixes.map((fix, idx) => (
-                <li key={idx} className="text-[13px] leading-snug text-emerald-800">
-                  {fix}
-                </li>
-              ))}
-            </ul>
-          </Section>
-
-          {/* Hidden Bottleneck */}
-          <Callout tone="warning" title="🔍 Hidden Bottleneck">
-            You&apos;re not just fighting for attention, you&apos;re fighting for credibility.
-          </Callout>
         </div>
       </Section>
     </div>

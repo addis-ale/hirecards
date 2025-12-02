@@ -1,8 +1,11 @@
 // Chat Types - Extracted from ConversationalChatbot
 
 export interface Message {
+  id: string,
   role: "user" | "assistant" | "system";
   content: string;
+  timestamp: Date;
+  suggestions?: string[] | undefined
 }
 
 export interface ExtractedData {

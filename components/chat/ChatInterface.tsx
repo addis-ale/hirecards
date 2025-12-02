@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Send, AlertCircle } from "lucide-react";
+import { useChatbot } from "../ChatbotProvider";
 import {
   Conversation,
   ConversationContent,
@@ -20,6 +21,7 @@ import JobURLInput from "../JobURLInput";
 
 export default function ChatInterface() {
   const router = useRouter();
+  const { closeChatbot } = useChatbot();
   const {
     messages,
     setMessages,
@@ -78,6 +80,7 @@ export default function ChatInterface() {
       role: "user",
       content,
       timestamp: new Date(),
+      
     };
     setMessages((prev) => [...prev, message]);
     conversationMessages.current.push({
@@ -96,6 +99,7 @@ export default function ChatInterface() {
   });
 
   const handleComplete = useCallback(async () => {
+    console.log("🎯 handleComplete called - Starting card generation");
     setIsGenerating(true);
 
     const formData = {
@@ -145,13 +149,31 @@ export default function ChatInterface() {
       if (result.success) {
         sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
         sessionStorage.setItem("sessionId", result.sessionId);
+        
+        // Set progress to 100% before redirecting
+        setGeneratingProgress(100);
+        
+        // Small delay to show 100% completion
+        setTimeout(() => {
+          console.log("✅ Cards generated successfully, closing modal and redirecting");
+          // Close the chatbot modal first
+          closeChatbot();
+          // Then redirect after a brief moment
+          setTimeout(() => {
+            router.push("/results");
+          }, 100);
+        }, 500);
+      } else {
+        console.error("Card generation failed:", result.error);
+        setIsGenerating(false);
+        setError("Failed to generate cards. Please try again.");
       }
     } catch (error) {
       console.error("Error generating cards:", error);
+      setIsGenerating(false);
+      setError("Something went wrong. Please try again.");
     }
-
-    router.push("/results");
-  }, [extractedData, router]);
+  }, [extractedData, router, setIsGenerating, setGeneratingProgress, setError, closeChatbot]);
 
   // Cycle through generating messages
   useEffect(() => {
@@ -308,53 +330,155 @@ export default function ChatInterface() {
       const result = await sendChatMessage(userMessage);
 
       if (result?.success) {
-        // Check for completion phrases
-        const completionPhrases = [
-          "i have everything",
-          "generate your hirecard",
-          "generating your hirecard",
-        ];
+        let finalData = result.updatedData || extractedData;
         
-        const messageLower = result.message.toLowerCase();
-        const isComplete = completionPhrases.some(phrase => messageLower.includes(phrase));
+        // Fallback: If AI didn't extract anything but we're asking for a specific field, use the user's raw input
+        if (currentMissingField.current) {
+          console.log(`🔍 Checking field: ${currentMissingField.current}`);
+          const fallbackData = { ...finalData };
+          let needsFallback = false;
+          
+          if (currentMissingField.current === "flexible" && !finalData.flexible) {
+            fallbackData.flexible = userMessage.toLowerCase() === "none" ? "None" : userMessage;
+            needsFallback = true;
+          } else if (currentMissingField.current === "nonNegotiables" && !finalData.nonNegotiables) {
+            fallbackData.nonNegotiables = userMessage;
+            needsFallback = true;
+          } else if (currentMissingField.current === "timeline" && !finalData.timeline) {
+            fallbackData.timeline = userMessage;
+            needsFallback = true;
+          }
+          
+          if (needsFallback) {
+            finalData = fallbackData;
+            console.log("⚠️ AI didn't extract, using fallback:", finalData);
+          }
+        }
         
-        if (isComplete) {
+        // Update extracted data with the new values from AI
+        setExtractedData(finalData);
+        
+        // Save to sessionStorage
+        sessionStorage.setItem("formData", JSON.stringify(finalData));
+        
+        // Check completeness after AI response
+        const currentFilledCount = countFilledFields(finalData);
+        const completenessPercentage = Math.round((currentFilledCount / totalFields) * 100);
+
+        console.log(`📊 Progress check: ${currentFilledCount}/${totalFields} fields (${completenessPercentage}%)`);
+
+        // If 100% complete, auto-generate cards
+        if (currentFilledCount >= totalFields) {
+          console.log("🚀 ALL FIELDS COMPLETE! Generating cards...");
+          addAssistantMessage(`\n\n✅ Perfect! All ${totalFields} fields complete (100%).\n\nGenerating your HireCards now...`);
+          
+          // Set generating state
+          setIsGenerating(true);
+          
+          // Trigger generation
           setTimeout(() => {
             handleComplete();
-          }, 2000);
+          }, 1500);
+        } else {
+          // Always show progress and ask for next missing field
+          const nextQuestion = askForNextMissingField(finalData);
+          const progressMessage = `\n\n📊 Progress: ${currentFilledCount}/${totalFields} fields (${completenessPercentage}%)\n\n${nextQuestion}`;
+          addAssistantMessage(progressMessage);
         }
+
       }
     }
   };
 
   const handleURLDataExtracted = (data: any) => {
+    const updatedData = { ...extractedData, ...data };
     updateExtractedData(data);
     setShowURLInput(false);
     
     // Save to sessionStorage
-    const formData = {
-      ...extractedData,
-      ...data,
-    };
-    sessionStorage.setItem("formData", JSON.stringify(formData));
+    sessionStorage.setItem("formData", JSON.stringify(updatedData));
 
     setTimeout(() => {
-      const filledCount = countFilledFields({ ...extractedData, ...data });
-      let greeting = "";
+      const filledCount = countFilledFields(updatedData);
+      const completenessPercentage = Math.round((filledCount / totalFields) * 100);
       
       if (filledCount === 0) {
-        greeting = "That URL didn't contain job posting data. Let's start fresh - what role are you hiring for?";
+        addAssistantMessage("That URL didn't contain job posting data. Let's start fresh - what role are you hiring for?");
       } else if (filledCount < totalFields) {
-        greeting = `Pulled ${filledCount}/${totalFields} fields. What else can you tell me about this role?`;
+        // Identify missing fields
+        const missingFields = [];
+        if (!updatedData.roleTitle) missingFields.push("Role Title");
+        if (!updatedData.department) missingFields.push("Department");
+        if (!updatedData.experienceLevel) missingFields.push("Experience Level");
+        if (!updatedData.location) missingFields.push("Location");
+        if (!updatedData.workModel) missingFields.push("Work Model");
+        if (!updatedData.criticalSkills || updatedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
+        if (!updatedData.minSalary || !updatedData.maxSalary) missingFields.push("Salary Range");
+        if (!updatedData.nonNegotiables) missingFields.push("Non-Negotiables");
+        if (!updatedData.flexible) missingFields.push("Nice-to-Haves");
+        if (!updatedData.timeline) missingFields.push("Timeline");
+
+        let message = `Great! I've extracted **${filledCount} out of ${totalFields}** required fields (${completenessPercentage}% complete).\n\n`;
+        message += `**Missing fields:**\n${missingFields.map(f => `- ${f}`).join('\n')}\n\n`;
+        message += `Let's fill in the gaps. ${askForNextMissingField(updatedData)}`;
+        
+        addAssistantMessage(message);
       } else {
-        greeting = "Perfect! I have everything I need. Generating your HireCard...";
+        addAssistantMessage("Perfect! I have everything I need (10/10 fields complete). Generating your HireCards now...");
         setTimeout(() => {
           handleComplete();
         }, 2000);
       }
-      
-      addAssistantMessage(greeting);
     }, 500);
+  };
+
+  // Track which field we're currently asking for
+  const currentMissingField = useRef<string | null>(null);
+
+  // Helper function to ask for the next missing field
+  const askForNextMissingField = (data: any): string => {
+    if (!data.roleTitle) {
+      currentMissingField.current = "roleTitle";
+      return "What's the job title you're hiring for?";
+    }
+    if (!data.department) {
+      currentMissingField.current = "department";
+      return "Which department is this role in?";
+    }
+    if (!data.experienceLevel) {
+      currentMissingField.current = "experienceLevel";
+      return "What experience level are you looking for (Entry/Mid/Senior/Lead)?";
+    }
+    if (!data.location) {
+      currentMissingField.current = "location";
+      return "Where is this role located?";
+    }
+    if (!data.workModel) {
+      currentMissingField.current = "workModel";
+      return "What's the work model (Remote/Hybrid/On-site)?";
+    }
+    if (!data.criticalSkills || data.criticalSkills.length === 0) {
+      currentMissingField.current = "criticalSkills";
+      return "What are the critical skills required for this role?";
+    }
+    if (!data.minSalary || !data.maxSalary) {
+      currentMissingField.current = "salary";
+      return "What's your salary budget for this role (e.g., $100k - $150k)?";
+    }
+    if (!data.nonNegotiables) {
+      currentMissingField.current = "nonNegotiables";
+      return "What are the absolute must-haves for this role?";
+    }
+    if (!data.flexible) {
+      currentMissingField.current = "flexible";
+      return "What skills or qualifications would be nice to have but aren't required? (Type 'none' if there aren't any)";
+    }
+    if (!data.timeline) {
+      currentMissingField.current = "timeline";
+      return "When do you need this person to start?";
+    }
+    currentMissingField.current = null;
+    return "What else can you tell me about this role?";
   };
 
   return (

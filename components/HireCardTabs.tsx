@@ -51,6 +51,22 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   const [showShareHint, setShowShareHint] = useState(false);
   const [showDownloadHint, setShowDownloadHint] = useState(false);
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  
+  // Load cards data from sessionStorage
+  const [cardsData, setCardsData] = React.useState<any>({});
+
+  React.useEffect(() => {
+    const battleCards = sessionStorage.getItem("battleCards");
+    if (battleCards) {
+      try {
+        const parsed = JSON.parse(battleCards);
+        setCardsData(parsed);
+        console.log("📊 Loaded cards data:", parsed);
+      } catch (err) {
+        console.error("Failed to parse cards data:", err);
+      }
+    }
+  }, []);
 
   const tabs = [
     { id: "reality", label: "Reality Card", Icon: Target },
@@ -118,21 +134,23 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   };
 
   const renderCardContent = () => {
+    console.log("🎴 Rendering card:", activeTab, "with data:", cardsData[activeTab]);
+    
     switch (activeTab) {
       case "reality":
-        return <RealityCard />;
+        return <RealityCard {...cardsData.reality} />;
       case "role":
-        return <RoleCard />;
+        return <RoleCard {...cardsData.role} />;
       case "skill":
-        return <SkillCard />;
+        return <SkillCard {...cardsData.skill} />;
       case "market":
-        return <MarketCard />;
+        return <MarketCard {...cardsData.market} />;
       case "talentmap":
-        return <TalentMapCard />;
+        return <TalentMapCard {...cardsData.talentmap} />;
       case "pay":
-        return <PayCard />;
+        return <PayCard {...cardsData.pay} />;
       case "funnel":
-        return <FunnelCard />;
+        return <FunnelCard {...cardsData.funnel} />;
       case "fit":
         return <FitCard />;
       case "message":

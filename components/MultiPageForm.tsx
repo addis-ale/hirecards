@@ -154,7 +154,7 @@ export default function MultiPageForm() {
             Quick Start: Paste a Job URL
           </h3>
           <p className="text-sm text-gray-600 mb-4">
-            Have a job posting URL? We'll extract the details automatically.
+            Have a job posting URL? We will extract the details automatically.
           </p>
           <JobURLInput onDataExtracted={handleURLDataExtracted} />
           <button

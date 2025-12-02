@@ -22,6 +22,20 @@ export function useCompletenessTracking(extractedData: ExtractedData) {
     // Salary range as ONE field (both min and max needed)
     if (data.minSalary && data.maxSalary) count++;
     
+    console.log("📊 Field count calculation:", {
+      roleTitle: !!data.roleTitle,
+      department: !!data.department,
+      experienceLevel: !!data.experienceLevel,
+      location: !!data.location,
+      workModel: !!data.workModel,
+      criticalSkills: !!(data.criticalSkills && data.criticalSkills.length > 0),
+      nonNegotiables: !!data.nonNegotiables,
+      flexible: !!data.flexible,
+      timeline: !!data.timeline,
+      salary: !!(data.minSalary && data.maxSalary),
+      totalCount: count
+    });
+    
     return count;
   }, []);
 

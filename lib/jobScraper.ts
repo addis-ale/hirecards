@@ -36,29 +36,57 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
 
     // Try ScrapingBee first (handles JS-rendered pages)
     if (SCRAPINGBEE_API_KEY) {
-      console.log("🐝 Using ScrapingBee API...");
-      const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(
-        url
-      )}&render_js=true&premium_proxy=true&country_code=us`;
+      try {
+        console.log("🐝 Using ScrapingBee API...");
+        const scrapingBeeUrl = `https://app.scrapingbee.com/api/v1/?api_key=${SCRAPINGBEE_API_KEY}&url=${encodeURIComponent(
+          url
+        )}&render_js=true&premium_proxy=true&country_code=us&wait=5000`;
 
-      const response = await axios.get(scrapingBeeUrl, {
-        timeout: 30000,
-      });
+        const response = await axios.get(scrapingBeeUrl, {
+          timeout: 60000, // 60 seconds for complex pages
+          maxRedirects: 5,
+        });
 
-      html = response.data;
+        html = response.data;
+        console.log("✅ ScrapingBee successful");
+      } catch (scrapingBeeError) {
+        console.warn("⚠️ ScrapingBee failed, falling back to direct request:", 
+          scrapingBeeError instanceof Error ? scrapingBeeError.message : "Unknown error"
+        );
+        
+        // Fallback to direct request
+        const response = await axios.get(url, {
+          headers: {
+            "User-Agent":
+              "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+            Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Accept-Encoding": "gzip, deflate, br",
+          },
+          timeout: 15000,
+          maxRedirects: 5,
+        });
+
+        html = response.data;
+        console.log("✅ Direct request fallback successful");
+      }
     } else {
-      // Fallback to direct axios request
-      console.log("📡 Using direct HTTP request...");
+      // No ScrapingBee API key - use direct request
+      console.log("📡 Using direct HTTP request (no ScrapingBee API key)...");
       const response = await axios.get(url, {
         headers: {
           "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
           Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+          "Accept-Language": "en-US,en;q=0.9",
+          "Accept-Encoding": "gzip, deflate, br",
         },
         timeout: 15000,
+        maxRedirects: 5,
       });
 
       html = response.data;
+      console.log("✅ Direct request successful");
     }
 
     // Parse HTML with cheerio

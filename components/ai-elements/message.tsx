@@ -5,13 +5,14 @@ import { Bot, User } from "lucide-react";
 import { ReactNode } from "react";
 
 interface MessageProps {
-  from: "user" | "assistant";
   children: ReactNode;
   className?: string;
+  role: string;
+  timestamp: string;
 }
 
-export function Message({ from, children, className }: MessageProps) {
-  const isUser = from === "user";
+export function Message({  children, className }: MessageProps) {
+  const isUser = true
 
   return (
     <div

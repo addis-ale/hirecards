@@ -24,7 +24,7 @@ export default function GeneratingLoadingScreen({ progress, messageIndex }: Gene
 
   return (
     <div 
-      className="absolute inset-0 z-50 flex items-center justify-center overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center overflow-y-auto"
       style={{ backgroundColor: "#f5f5f5" }}
     >
       <style jsx global>{`

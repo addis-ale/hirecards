@@ -16,6 +16,8 @@ export interface ScrapedJobData {
 export interface ParsedJobData {
   isJobPosting: boolean;
   jobTitle: string | null;
+  company: string | null;
+  source: string | null;
   location: string | null;
   workModel: string | null;
   experienceLevel: string | null;

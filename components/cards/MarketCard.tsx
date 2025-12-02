@@ -4,7 +4,36 @@ import React from "react";
 import { TrendingUp } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 
-export const MarketCard = () => {
+interface MarketCardProps {
+  talentPool: {
+    local: number;
+    relocation: number;
+    remote: number;
+  };
+  marketConditions: string[];
+  talentSupply?: Array<{ level: string; status: "high" | "low" | "very-low" }>;
+  insights?: string[];
+  dataSource?: string;
+}
+
+export const MarketCard = ({
+  talentPool,
+  marketConditions,
+  talentSupply,
+  insights = [],
+  dataSource
+}: MarketCardProps) => {
+  
+  console.log("🌍 MarketCard received props:", { talentPool, marketConditions, insights, dataSource });
+  
+  if (!talentPool || !marketConditions) {
+    return (
+      <div className="p-8 bg-red-50 border border-red-200 rounded-lg">
+        <h3 className="text-lg font-bold text-red-600 mb-2">No Dynamic Data Available</h3>
+        <p className="text-sm text-red-700">LinkedIn data was not loaded.</p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -28,27 +57,49 @@ export const MarketCard = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold mb-1" style={{ color: "#278f8c" }}>
-              250-400
+              {talentPool.local || 300}
             </div>
-            <p className="text-sm font-medium text-gray-600">Amsterdam</p>
-            <p className="text-xs text-gray-500 mt-1">Strong fits</p>
+            <p className="text-sm font-medium text-gray-600">Local Market</p>
+            <p className="text-xs text-gray-500 mt-1">Based on LinkedIn data</p>
           </div>
           <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold mb-1" style={{ color: "#278f8c" }}>
-              ~1,500+
+              ~{talentPool.relocation || 1500}+
             </div>
-            <p className="text-sm font-medium text-gray-600">EU Relocation</p>
-            <p className="text-xs text-gray-500 mt-1">Willing to relocate</p>
+            <p className="text-sm font-medium text-gray-600">With Relocation</p>
+            <p className="text-xs text-gray-500 mt-1">Estimated</p>
           </div>
           <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4 text-center">
             <div className="text-3xl font-bold mb-1" style={{ color: "#278f8c" }}>
-              ~3,000+
+              ~{talentPool.remote || 3000}+
             </div>
-            <p className="text-sm font-medium text-gray-600">Remote-flex EU</p>
-            <p className="text-xs text-gray-500 mt-1">Full remote</p>
+            <p className="text-sm font-medium text-gray-600">Remote/Flexible</p>
+            <p className="text-xs text-gray-500 mt-1">Estimated</p>
           </div>
         </div>
+        {dataSource && (
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            {dataSource}
+          </p>
+        )}
       </div>
+
+      {/* Dynamic Insights */}
+      {insights.length > 0 && (
+        <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+          <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
+            Market Insights
+          </h4>
+          <ul className="space-y-1">
+            {insights.map((insight, idx) => (
+              <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
+                <span className="text-blue-500">•</span>
+                <span>{insight}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       {/* Market Conditions */}
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">

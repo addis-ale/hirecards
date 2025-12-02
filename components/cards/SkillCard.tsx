@@ -5,7 +5,32 @@ import { Code, CheckCircle2, Hammer, AlertTriangle, Brain, Users } from "lucide-
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 
-export const SkillCard = () => {
+interface SkillCardProps {
+  coreSkills: string[];
+  productSkills: string[];
+  behavioralSkills: string[];
+  insights?: string[];
+  dataSource?: string;
+}
+
+export const SkillCard = ({
+  coreSkills,
+  productSkills,
+  behavioralSkills,
+  insights = [],
+  dataSource
+}: SkillCardProps) => {
+  
+  console.log("🎯 SkillCard received props:", { coreSkills, productSkills, behavioralSkills, insights, dataSource });
+  
+  if (!coreSkills || !productSkills || !behavioralSkills) {
+    return (
+      <div className="p-8 bg-red-50 border border-red-200 rounded-lg">
+        <h3 className="text-lg font-bold text-red-600 mb-2">No Dynamic Data Available</h3>
+        <p className="text-sm text-red-700">LinkedIn data was not loaded.</p>
+      </div>
+    );
+  }
   return (
     <div className="space-y-6">
       <Section title="Skill Card" subtitle="The must-have abilities, tools, and experience needed to perform the role." Icon={Code} density="compact">
@@ -17,19 +42,35 @@ export const SkillCard = () => {
               <span>Core Technical Skills</span>
             </h3>
             <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-blue-600">
-              {[
-                "Advanced SQL",
-                "dbt modelling",
-                "Dimensional modelling",
-                "BI tools",
-                "Pipeline building"
-              ].map((skill, idx) => (
+              {coreSkills.map((skill, idx) => (
                 <li key={idx} className="text-[13px] leading-snug" style={{ color: "#102a63" }}>
                   {skill}
                 </li>
               ))}
             </ul>
+            {dataSource && (
+              <p className="text-xs text-gray-500 mt-2">
+                {dataSource}
+              </p>
+            )}
           </div>
+
+          {/* Dynamic Insights */}
+          {insights.length > 0 && (
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+              <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
+                LinkedIn Analysis
+              </h4>
+              <ul className="space-y-1">
+                {insights.map((insight, idx) => (
+                  <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
+                    <span className="text-blue-500">•</span>
+                    <span>{insight}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Product Skills */}
           <div>
@@ -38,11 +79,7 @@ export const SkillCard = () => {
               <span>Product Skills</span>
             </h3>
             <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-purple-600">
-              {[
-                "Define clear metrics",
-                "Shape analytics UX",
-                "Model business logic"
-              ].map((skill, idx) => (
+              {productSkills.map((skill, idx) => (
                 <li key={idx} className="text-[13px] leading-snug" style={{ color: "#102a63" }}>
                   {skill}
                 </li>
@@ -57,12 +94,7 @@ export const SkillCard = () => {
               <span>Behavioural Skills</span>
             </h3>
             <ul className="list-disc pl-5 space-y-1 md:columns-2 md:gap-8 marker:text-green-600">
-              {[
-                "Ownership mindset",
-                "Handles ambiguity",
-                "Clear communication",
-                "Quality focused"
-              ].map((skill, idx) => (
+              {behavioralSkills.map((skill, idx) => (
                 <li key={idx} className="text-[13px] leading-snug" style={{ color: "#102a63" }}>
                   {skill}
                 </li>

@@ -103,10 +103,10 @@ export default function LoadingScreen({ progress, messageIndex }: LoadingScreenP
         {/* Info Box */}
         <div className="mt-4 p-3 rounded-lg bg-white shadow-md border-2" style={{ borderColor: "#d7f4f2" }}>
           <p className="text-sm font-semibold mb-1" style={{ color: "#278f8c" }}>
-            What We're Doing
+            What We are Doing
           </p>
           <p className="text-sm leading-relaxed" style={{ color: "#102a63", opacity: 0.8 }}>
-            We're extracting role details, requirements, salary info, and analyzing the job description 
+            We are extracting role details, requirements, salary info, and analyzing the job description 
             quality to give you the best insights.
           </p>
         </div>

@@ -5,12 +5,32 @@ import { DollarSign, TrendingUp, AlertTriangle, Wrench, XCircle, Eye, Clock } fr
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 
-export const PayCard = () => {
-  const marketComp = [
-    { label: "Base", value: "€85k–€100k" },
-    { label: "Total comp", value: "€95k–€115k" },
-    { label: "Published range", value: "€6,100–€7,900/month" },
-  ];
+interface PayCardProps {
+  marketComp: Array<{ label: string; value: string }>;
+  recommendedRange: string;
+  insights?: string[];
+  dataSource?: string;
+}
+
+export const PayCard = ({ 
+  marketComp,
+  recommendedRange,
+  insights = [],
+  dataSource
+}: PayCardProps) => {
+  
+  // Debug: Log what props we received
+  console.log("💳 PayCard received props:", { marketComp, recommendedRange, insights, dataSource });
+  
+  // If no data, show error
+  if (!marketComp || !recommendedRange) {
+    return (
+      <div className="p-8 bg-red-50 border border-red-200 rounded-lg">
+        <h3 className="text-lg font-bold text-red-600 mb-2">No Dynamic Data Available</h3>
+        <p className="text-sm text-red-700">LinkedIn data was not loaded. Generate cards again with LinkedIn scraping enabled.</p>
+      </div>
+    );
+  }
 
   const redFlags = [
     "Candidate wants >20% above internal band",
@@ -67,11 +87,33 @@ export const PayCard = () => {
                   Recommended Hire Range
                 </h4>
                 <p className="text-lg font-bold" style={{ color: "#278f8c" }}>
-                  €90k–€105k for top-tier senior
+                  {recommendedRange}
                 </p>
+                {dataSource && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    {dataSource}
+                  </p>
+                )}
               </div>
             </div>
           </div>
+
+          {/* Dynamic Insights */}
+          {insights.length > 0 && (
+            <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
+              <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
+                Market Insights
+              </h4>
+              <ul className="space-y-1">
+                {insights.map((insight, idx) => (
+                  <li key={idx} className="text-xs text-gray-700 flex items-start gap-2">
+                    <span className="text-blue-500">•</span>
+                    <span>{insight}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Brutal Truth */}
           <Callout tone="danger" title="💥 Brutal Truth">
