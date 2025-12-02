@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { useChatbot } from "./ChatbotProvider";
 import HeroSection from "./hero/HeroSection";
 
