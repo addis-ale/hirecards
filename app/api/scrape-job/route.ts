@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeJobURL, parseScrapedJobData } from "@/lib/jobScraper";
+import { validateAuth } from "@/lib/auth-helpers";
 
 /**
  * API endpoint to scrape job description from URL
@@ -7,6 +8,12 @@ import { scrapeJobURL, parseScrapedJobData } from "@/lib/jobScraper";
  * Body: { url: string }
  */
 export async function POST(request: NextRequest) {
+  // Validate authentication
+  const auth = await validateAuth();
+  if (!auth.authenticated) {
+    return auth.response;
+  }
+
   try {
     const { url } = await request.json();
 

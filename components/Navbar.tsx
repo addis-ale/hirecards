@@ -2,17 +2,27 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
-import { Menu, X, Sparkles } from "lucide-react";
+import { Menu, X, Sparkles, LogOut, User } from "lucide-react";
 import { useChatbot } from "./ChatbotProvider";
+import { useAuth } from "./AuthProvider";
+import { useRouter } from "next/navigation";
 
 export default function Navbar() {
   const { openChatbot } = useChatbot();
+  const { user, signOut } = useAuth();
+  const router = useRouter();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const lastScrollY = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  const handleSignOut = async () => {
+    await signOut();
+    router.push("/");
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -97,18 +107,51 @@ export default function Navbar() {
               >
                 Testimonials
               </Link>
-              <Link
-                href="/dashboard"
-                className="text-black/80 hover:text-black transition-colors font-medium text-sm"
-              >
-                My HireCards
-              </Link>
-              <button 
-                onClick={() => openChatbot()}
-                className="btn-primary px-4 py-2 text-sm"
-              >
-                Get Started
-              </button>
+              {user && (
+                <Link
+                  href="/dashboard"
+                  className="text-black/80 hover:text-black transition-colors font-medium text-sm"
+                >
+                  My HireCards
+                </Link>
+              )}
+              {user ? (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowUserMenu(!showUserMenu)}
+                    className="flex items-center space-x-2 px-4 py-2 rounded-lg bg-[#278f8c] text-white hover:bg-[#1f7673] transition-colors text-sm font-medium"
+                  >
+                    <User className="w-4 h-4" />
+                    <span>{user.email?.split('@')[0]}</span>
+                  </button>
+                  {showUserMenu && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl py-2 z-50">
+                      <button
+                        onClick={handleSignOut}
+                        className="w-full flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="text-black/80 hover:text-black transition-colors font-medium text-sm"
+                  >
+                    Login
+                  </Link>
+                  <button 
+                    onClick={() => openChatbot()}
+                    className="btn-primary px-4 py-2 text-sm"
+                  >
+                    Get Started
+                  </button>
+                </>
+              )}
             </div>
 
             {/* Mobile Menu Button */}
@@ -186,33 +229,81 @@ export default function Navbar() {
               >
                 Testimonials
               </Link>
-              <Link
-                href="/dashboard"
-                className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
-                style={{
-                  color: "rgba(255, 255, 255, 0.9)",
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = "#D7F4F2";
-                  e.currentTarget.style.color = "rgb(16, 42, 99)";
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = "transparent";
-                  e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
-                }}
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                My HireCards
-              </Link>
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  openChatbot(); // Already wrapped, no need to change
-                }}
-                className="block btn-primary px-4 py-2 text-sm text-center mt-4 w-full"
-              >
-                Get Started
-              </button>
+              {user && (
+                <Link
+                  href="/dashboard"
+                  className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
+                  style={{
+                    color: "rgba(255, 255, 255, 0.9)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#D7F4F2";
+                    e.currentTarget.style.color = "rgb(16, 42, 99)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
+                  }}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  My HireCards
+                </Link>
+              )}
+              {user ? (
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleSignOut();
+                  }}
+                  className="block w-full text-left font-medium text-sm py-2 px-3 rounded-lg transition-all"
+                  style={{
+                    color: "rgba(255, 255, 255, 0.9)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = "#D7F4F2";
+                    e.currentTarget.style.color = "rgb(16, 42, 99)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = "transparent";
+                    e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
+                  }}
+                >
+                  <div className="flex items-center space-x-2">
+                    <LogOut className="w-4 h-4" />
+                    <span>Sign Out</span>
+                  </div>
+                </button>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="block font-medium text-sm py-2 px-3 rounded-lg transition-all"
+                    style={{
+                      color: "rgba(255, 255, 255, 0.9)",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = "#D7F4F2";
+                      e.currentTarget.style.color = "rgb(16, 42, 99)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = "transparent";
+                      e.currentTarget.style.color = "rgba(255, 255, 255, 0.9)";
+                    }}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                  >
+                    Login
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      openChatbot();
+                    }}
+                    className="block btn-primary px-4 py-2 text-sm text-center mt-4 w-full"
+                  >
+                    Get Started
+                  </button>
+                </>
+              )}
             </div>
           </div>
         )}

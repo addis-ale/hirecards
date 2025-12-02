@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { scrapeJobURL, parseScrapedJobData } from "@/lib/jobScraper";
+import { validateAuth } from "@/lib/auth-helpers";
 
 interface ParsedRole {
   jobTitle: string;
@@ -20,6 +21,11 @@ interface ParsedRole {
 }
 
 export async function POST(request: NextRequest) {
+  // Validate authentication
+  const auth = await validateAuth();
+  if (!auth.authenticated) {
+    return auth.response;
+  }
   try {
     const { input } = await request.json();
 

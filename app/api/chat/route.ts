@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateAuth } from "@/lib/auth-helpers";
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -6,6 +7,12 @@ interface Message {
 }
 
 export async function POST(request: NextRequest) {
+  // Validate authentication
+  const auth = await validateAuth();
+  if (!auth.authenticated) {
+    return auth.response;
+  }
+
   try {
     const { messages, extractedData } = await request.json();
 

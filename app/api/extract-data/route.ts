@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateAuth } from "@/lib/auth-helpers";
 
 export async function POST(request: NextRequest) {
+  // Validate authentication
+  const auth = await validateAuth();
+  if (!auth.authenticated) {
+    return auth.response;
+  }
+
   try {
     const { messages } = await request.json();
 

@@ -1,10 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
+import { validateAuth } from "@/lib/auth-helpers";
 
 /**
  * Intelligent extraction endpoint
  * Analyzes user messages in real-time and extracts structured job information
  */
 export async function POST(request: NextRequest) {
+  // Validate authentication
+  const auth = await validateAuth();
+  if (!auth.authenticated) {
+    return auth.response;
+  }
+
   try {
     const { message, currentData } = await request.json();
 
