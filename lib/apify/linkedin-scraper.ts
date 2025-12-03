@@ -111,6 +111,10 @@ export async function scrapeLinkedInJobs(
     );
 
     console.log(`✅ Scraped ${results.length} LinkedIn jobs`);
+    console.log("####################################################")
+    console.log(results)
+    console.log("####################################################")
+
     return results as LinkedInJobResult[];
   } catch (error) {
     console.error("❌ LinkedIn scraping error:", error);
