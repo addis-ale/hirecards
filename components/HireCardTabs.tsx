@@ -2,21 +2,22 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Share2, LayoutDashboard, Briefcase, Code, TrendingUp, Map, DollarSign, Target, BarChart3, UserCheck, MessageSquare, Send, Mic, ClipboardList, CalendarCheck, Lock } from "lucide-react";
+import { Download, Share2, LayoutDashboard, Briefcase, Code, TrendingUp, Map, DollarSign, Target, BarChart3, UserCheck, MessageSquare, Send, Mic, ClipboardList, CalendarCheck, Lock, Edit2, Save } from "lucide-react";
+import { EditModeProvider } from "./EditModeContext";
 import { OverviewCard } from "./cards/OverviewCard";
-import { RoleCard } from "./cards/RoleCard";
-import { SkillCard } from "./cards/SkillCard";
-import { MarketCard } from "./cards/MarketCard";
-import { TalentMapCard } from "./cards/TalentMapCard";
-import { PayCard } from "./cards/PayCard";
-import { RealityCard } from "./cards/RealityCard";
-import { FunnelCard } from "./cards/FunnelCard";
-import { FitCard } from "./cards/FitCard";
-import { MessageCard } from "./cards/MessageCard";
-import { OutreachCard } from "./cards/OutreachCard";
-import { InterviewCard } from "./cards/InterviewCard";
-import { ScorecardCard } from "./cards/ScorecardCard";
-import { PlanCard } from "./cards/PlanCard";
+import { EditableRealityCard } from "./cards/EditableRealityCard";
+import { EditableRoleCard } from "./cards/EditableRoleCard";
+import { EditableSkillCard } from "./cards/EditableSkillCard";
+import { EditableMarketCard } from "./cards/EditableMarketCard";
+import { EditableTalentMapCard } from "./cards/EditableTalentMapCard";
+import { EditablePayCard } from "./cards/EditablePayCard";
+import { EditableFunnelCard } from "./cards/EditableFunnelCard";
+import { EditableFitCard } from "./cards/EditableFitCard";
+import { EditableMessageCard } from "./cards/EditableMessageCard";
+import { EditableOutreachCard } from "./cards/EditableOutreachCard";
+import { EditableInterviewCard } from "./cards/EditableInterviewCard";
+import { EditableScorecardCard } from "./cards/EditableScorecardCard";
+import { EditablePlanCard } from "./cards/EditablePlanCard";
 
 interface HireCardTabsProps {
   isSubscribed?: boolean;
@@ -51,6 +52,7 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   const [showShareHint, setShowShareHint] = useState(false);
   const [showDownloadHint, setShowDownloadHint] = useState(false);
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const tabs = [
     { id: "reality", label: "Reality Card", Icon: Target },
@@ -120,31 +122,31 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   const renderCardContent = () => {
     switch (activeTab) {
       case "reality":
-        return <RealityCard />;
+        return <EditableRealityCard />;
       case "role":
-        return <RoleCard />;
+        return <EditableRoleCard />;
       case "skill":
-        return <SkillCard />;
+        return <EditableSkillCard />;
       case "market":
-        return <MarketCard />;
+        return <EditableMarketCard />;
       case "talentmap":
-        return <TalentMapCard />;
+        return <EditableTalentMapCard />;
       case "pay":
-        return <PayCard />;
+        return <EditablePayCard />;
       case "funnel":
-        return <FunnelCard />;
+        return <EditableFunnelCard />;
       case "fit":
-        return <FitCard />;
+        return <EditableFitCard />;
       case "message":
-        return <MessageCard />;
+        return <EditableMessageCard />;
       case "outreach":
-        return <OutreachCard />;
+        return <EditableOutreachCard />;
       case "interview":
-        return <InterviewCard />;
+        return <EditableInterviewCard />;
       case "scorecard":
-        return <ScorecardCard />;
+        return <EditableScorecardCard />;
       case "plan":
-        return <PlanCard />;
+        return <EditablePlanCard />;
       default:
         return (
           <div className="text-center py-12">
@@ -152,6 +154,16 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
             <p className="text-sm text-gray-400">More detailed content coming soon...</p>
           </div>
         );
+    }
+  };
+
+  const handleToggleEdit = () => {
+    if (isEditMode) {
+      // Saving - trigger save to sessionStorage (already automatic in each card)
+      setIsEditMode(false);
+    } else {
+      // Enter edit mode
+      setIsEditMode(true);
     }
   };
 
@@ -194,8 +206,30 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
           )}
         </div>
 
-        {/* Share & Download Buttons */}
+        {/* Edit/Save & Share & Download Buttons */}
         <div className="flex gap-3">
+          {/* Edit/Save Button */}
+          <button
+            onClick={handleToggleEdit}
+            className={`flex items-center gap-2 px-4 py-2 border-2 rounded-lg transition-all font-medium ${
+              isEditMode
+                ? "bg-emerald-500 border-emerald-500 text-white hover:bg-emerald-600"
+                : "border-[#278f8c] text-[#278f8c] hover:bg-[#278f8c] hover:text-white"
+            }`}
+          >
+            {isEditMode ? (
+              <>
+                <Save className="w-4 h-4" />
+                <span className="text-sm">Save Changes</span>
+              </>
+            ) : (
+              <>
+                <Edit2 className="w-4 h-4" />
+                <span className="text-sm">Edit Cards</span>
+              </>
+            )}
+          </button>
+
           {/* Share Button */}
           <div 
             className="relative"
@@ -371,7 +405,9 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
           {/* Card Content */}
           <div className="flex-1 min-w-0 h-full overflow-y-auto">
             <div className="p-6 md:p-8">
-              {renderCardContent()}
+              <EditModeProvider isEditMode={isEditMode}>
+                {renderCardContent()}
+              </EditModeProvider>
             </div>
           </div>
         </div>
