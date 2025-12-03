@@ -101,21 +101,39 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
       return;
     }
     
-    const selectedCardNames = selectedCards
-      .map(id => tabs.find(tab => tab.id === id)?.label)
-      .join(", ");
+    // Get job title from sessionStorage
+    let jobTitle = "Untitled Role";
+    try {
+      const formData = sessionStorage.getItem("formData") || sessionStorage.getItem("heroAnalysisData");
+      if (formData) {
+        const parsed = JSON.parse(formData);
+        jobTitle = parsed.roleTitle || jobTitle;
+      }
+    } catch (err) {
+      console.error("Failed to get job title:", err);
+    }
     
-    // TODO: Implement share functionality with selected cards
+    // Build the share URL with selected cards and job title
+    const baseUrl = window.location.origin;
+    const cardsParam = selectedCards.join(",");
+    const encodedTitle = encodeURIComponent(jobTitle);
+    const shareUrl = `${baseUrl}/shared-card-preview?cards=${cardsParam}&title=${encodedTitle}`;
+    
+    // Try native share API first
     if (navigator.share) {
       navigator.share({
-        title: "HireCard Strategy",
-        text: `Check out my hiring strategy: ${selectedCardNames}`,
-        url: window.location.href,
+        title: `HireCard Strategy - ${jobTitle}`,
+        text: `Check out my hiring strategy for ${jobTitle}`,
+        url: shareUrl,
       }).catch(err => console.log("Share failed:", err));
     } else {
-      // Fallback: Copy link
-      navigator.clipboard.writeText(window.location.href);
-      alert(`Link copied to clipboard!\nSharing: ${selectedCardNames}`);
+      // Fallback: Copy link to clipboard
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        alert(`✅ Share link copied to clipboard!\n\nAnyone with this link can view your selected ${selectedCards.length} card${selectedCards.length !== 1 ? 's' : ''} for "${jobTitle}".`);
+      }).catch(() => {
+        // If clipboard fails, show the URL
+        alert(`Share this link:\n\n${shareUrl}`);
+      });
     }
   };
 
