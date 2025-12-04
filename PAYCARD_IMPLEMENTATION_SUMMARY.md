@@ -129,7 +129,7 @@ if (result.success && result.hasSalaryData) {
 ### Required Environment Variable
 ```bash
 # .env.local
-APIFY_API_TOKEN=apify_api_9lQMVoqtz7EI6tUSAEPFhXnJYAdRUg0UfYg8
+APIFY_API_TOKEN=process.env.APIFY_TOKEN
 ```
 
 ### Dependencies Added

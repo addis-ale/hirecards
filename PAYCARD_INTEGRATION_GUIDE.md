@@ -344,7 +344,7 @@ Visit: `http://localhost:3000/test-paycard`
 ### "APIFY_API_TOKEN not configured"
 ```bash
 # Add to .env.local
-APIFY_API_TOKEN=apify_api_9lQMVoqtz7EI6tUSAEPFhXnJYAdRUg0UfYg8
+APIFY_API_TOKEN=process.env.APIFY_TOKEN
 
 # Restart dev server
 npm run dev
