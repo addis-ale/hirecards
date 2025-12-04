@@ -53,6 +53,64 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   const [showDownloadHint, setShowDownloadHint] = useState(false);
   const [hoveredTab, setHoveredTab] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
+  
+  // Dynamic data for cards
+  const [payCardData, setPayCardData] = useState<any>(null);
+  const [marketCardData, setMarketCardData] = useState<any>(null);
+  const [roleCardData, setRoleCardData] = useState<any>(null);
+  const [enrichmentLoading, setEnrichmentLoading] = useState(false);
+
+  // Load enriched data from sessionStorage (already enriched by chatbot)
+  React.useEffect(() => {
+    console.log("🚀 ============================================");
+    console.log("🚀 HIRECARD TABS: LOADING ENRICHED DATA");
+    console.log("🚀 ============================================");
+
+    // Check if data was already enriched by chatbot
+    const enrichedPayCardStr = sessionStorage.getItem("enrichedPayCard");
+    const enrichedMarketCardStr = sessionStorage.getItem("enrichedMarketCard");
+    const enrichedRoleCardStr = sessionStorage.getItem("enrichedRoleCard");
+
+    if (enrichedPayCardStr) {
+      try {
+        const data = JSON.parse(enrichedPayCardStr);
+        console.log("✅ Loading pre-enriched PayCard data");
+        setPayCardData(data);
+      } catch (e) {
+        console.error("❌ Failed to parse PayCard data:", e);
+      }
+    } else {
+      console.log("⚠️ No pre-enriched PayCard data found");
+    }
+
+    if (enrichedMarketCardStr) {
+      try {
+        const data = JSON.parse(enrichedMarketCardStr);
+        console.log("✅ Loading pre-enriched MarketCard data");
+        setMarketCardData(data);
+      } catch (e) {
+        console.error("❌ Failed to parse MarketCard data:", e);
+      }
+    } else {
+      console.log("⚠️ No pre-enriched MarketCard data found");
+    }
+
+    if (enrichedRoleCardStr) {
+      try {
+        const data = JSON.parse(enrichedRoleCardStr);
+        console.log("✅ Loading pre-enriched RoleCard data");
+        setRoleCardData(data);
+      } catch (e) {
+        console.error("❌ Failed to parse RoleCard data:", e);
+      }
+    } else {
+      console.log("⚠️ No pre-enriched RoleCard data found");
+    }
+
+    console.log("🚀 ============================================");
+    console.log("🚀 DATA LOADING COMPLETE");
+    console.log("🚀 ============================================");
+  }, []);
 
   const tabs = [
     { id: "reality", label: "Reality Card", Icon: Target },
@@ -142,15 +200,18 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
       case "reality":
         return <EditableRealityCard />;
       case "role":
-        return <EditableRoleCard />;
+        console.log("📋 Rendering EditableRoleCard with data:", roleCardData ? "YES" : "NO");
+        return <EditableRoleCard data={roleCardData} />;
       case "skill":
         return <EditableSkillCard />;
       case "market":
-        return <EditableMarketCard />;
+        console.log("📊 Rendering EditableMarketCard with data:", marketCardData ? "YES" : "NO");
+        return <EditableMarketCard data={marketCardData} />;
       case "talentmap":
         return <EditableTalentMapCard />;
       case "pay":
-        return <EditablePayCard />;
+        console.log("💳 Rendering EditablePayCard with data:", payCardData ? "YES" : "NO");
+        return <EditablePayCard data={payCardData} />;
       case "funnel":
         return <EditableFunnelCard />;
       case "fit":

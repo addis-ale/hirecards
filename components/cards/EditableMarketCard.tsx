@@ -4,18 +4,91 @@ import React, { useState, useEffect } from "react";
 import { TrendingUp } from "lucide-react";
 import { EditableText, EditableList } from "@/components/EditableCard";
 
-export const EditableMarketCard = () => {
-  const [amsterdamCount, setAmsterdamCount] = useState("250-400");
-  const [euRelocationCount, setEuRelocationCount] = useState("~1,500+");
-  const [remoteFlexCount, setRemoteFlexCount] = useState("~3,000+");
-  const [marketConditions, setMarketConditions] = useState([
-    "Top talent is employed",
-    "High competition",
-    "Outbound required"
-  ]);
-  const [brutalTruth, setBrutalTruth] = useState(
-    "Strict location + low comp = long search."
+interface MarketCardProps {
+  data?: {
+    talentAvailability?: {
+      total: number;
+      qualified: number;
+      currentlyEmployed: number;
+      openToWork: number;
+    };
+    supplyDemand?: {
+      openJobs: number;
+      availableCandidates: number;
+      ratio: string;
+      marketTightness: string;
+    };
+    insights?: string[];
+    redFlags?: string[];
+    opportunities?: string[];
+    geographic?: {
+      primaryLocations: string[];
+      remoteAvailability: number;
+    };
+  };
+}
+
+export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
+  console.log("📊 ============================================");
+  console.log("📊 EDITABLE MARKET CARD RENDER");
+  console.log("📊 ============================================");
+  console.log("📊 Received data prop:", data ? "YES" : "NO");
+  if (data) {
+    console.log("📊 Data content:", JSON.stringify(data, null, 2));
+  }
+  
+  // Initialize from data or use defaults
+  const [amsterdamCount, setAmsterdamCount] = useState(
+    data?.talentAvailability?.total 
+      ? `${data.talentAvailability.total}` 
+      : "250-400"
   );
+  const [euRelocationCount, setEuRelocationCount] = useState(
+    data?.supplyDemand?.availableCandidates 
+      ? `~${Math.round(data.supplyDemand.availableCandidates * 0.3)}+` 
+      : "~1,500+"
+  );
+  const [remoteFlexCount, setRemoteFlexCount] = useState(
+    data?.supplyDemand?.availableCandidates 
+      ? `~${Math.round(data.supplyDemand.availableCandidates * 0.6)}+` 
+      : "~3,000+"
+  );
+  const [marketConditions, setMarketConditions] = useState(
+    data?.redFlags && data.redFlags.length > 0
+      ? data.redFlags
+      : [
+          "Top talent is employed",
+          "High competition",
+          "Outbound required"
+        ]
+  );
+  const [brutalTruth, setBrutalTruth] = useState(
+    data?.insights && data.insights.length > 0
+      ? data.insights[0]
+      : "Strict location + low comp = long search."
+  );
+
+  // Update when data changes
+  useEffect(() => {
+    console.log("📊 useEffect triggered - data changed");
+    if (data?.talentAvailability?.total) {
+      console.log("📊 Updating amsterdamCount from data:", data.talentAvailability.total);
+      setAmsterdamCount(`${data.talentAvailability.total}`);
+    }
+    if (data?.supplyDemand?.availableCandidates) {
+      console.log("📊 Updating counts from availableCandidates:", data.supplyDemand.availableCandidates);
+      setEuRelocationCount(`~${Math.round(data.supplyDemand.availableCandidates * 0.3)}+`);
+      setRemoteFlexCount(`~${Math.round(data.supplyDemand.availableCandidates * 0.6)}+`);
+    }
+    if (data?.redFlags && data.redFlags.length > 0) {
+      console.log("📊 Updating marketConditions from data:", data.redFlags.length, "items");
+      setMarketConditions(data.redFlags);
+    }
+    if (data?.insights && data.insights.length > 0) {
+      console.log("📊 Updating brutalTruth from insights:", data.insights[0]);
+      setBrutalTruth(data.insights[0]);
+    }
+  }, [data]);
 
   useEffect(() => {
     const data = {
