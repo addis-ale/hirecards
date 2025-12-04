@@ -6,39 +6,102 @@ import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableKeyValue, EditableList, EditableText } from "@/components/EditableCard";
 
-export const EditablePayCard = () => {
-  const [marketComp, setMarketComp] = useState([
-    { label: "Base", value: "€85k–€100k" },
-    { label: "Total comp", value: "€95k–€115k" },
-    { label: "Published range", value: "€6,100–€7,900/month" },
-  ]);
+interface PayCardProps {
+  data?: {
+    marketCompensation?: Array<{ label: string; value: string }>;
+    recommendedRange?: string;
+    location?: string;
+    currency?: string;
+    brutalTruth?: string;
+    redFlags?: string[];
+    donts?: string[];
+    fixes?: string[];
+    hiddenBottleneck?: string;
+    timelineToFailure?: string;
+  };
+}
+
+export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
+  console.log("💳 ============================================");
+  console.log("💳 EDITABLE PAY CARD RENDER");
+  console.log("💳 ============================================");
+  console.log("💳 Received data prop:", data ? "YES" : "NO");
+  if (data) {
+    console.log("💳 Data content:", JSON.stringify(data, null, 2));
+  }
+  
+  // Initialize from data or use defaults
+  const [marketComp, setMarketComp] = useState(
+    data?.marketCompensation || [
+      { label: "Base", value: "€85k–€100k" },
+      { label: "Total comp", value: "€95k–€115k" },
+      { label: "Published range", value: "€6,100–€7,900/month" },
+    ]
+  );
   const [recommendedRange, setRecommendedRange] = useState(
-    "€90k–€105k for top-tier senior"
+    data?.recommendedRange || "€90k–€105k for top-tier senior"
   );
   const [brutalTruth, setBrutalTruth] = useState(
-    "If you offer €80k, you will not hire a senior. You will hire someone who thinks they're senior."
+    data?.brutalTruth || "If you offer €80k, you will not hire a senior. You will hire someone who thinks they're senior."
   );
-  const [redFlags, setRedFlags] = useState([
-    "Candidate wants >20% above internal band",
-    "Company refuses to budge on comp",
-    "Internal equity blocks competitive offers",
-  ]);
-  const [donts, setDonts] = useState([
-    "Hide comp until final stage",
-    "Use equity as compensation if it's not meaningful",
-    "Expect senior technical talent at mid-level pay",
-  ]);
-  const [fixes, setFixes] = useState([
-    "Align comp band before launching the search",
-    "Offer clarity upfront",
-    "Highlight ownership + product impact as value drivers",
-  ]);
+  const [redFlags, setRedFlags] = useState(
+    data?.redFlags || [
+      "Candidate wants >20% above internal band",
+      "Company refuses to budge on comp",
+      "Internal equity blocks competitive offers",
+    ]
+  );
+  const [donts, setDonts] = useState(
+    data?.donts || [
+      "Hide comp until final stage",
+      "Use equity as compensation if it's not meaningful",
+      "Expect senior technical talent at mid-level pay",
+    ]
+  );
+  const [fixes, setFixes] = useState(
+    data?.fixes || [
+      "Align comp band before launching the search",
+      "Offer clarity upfront",
+      "Highlight ownership + product impact as value drivers",
+    ]
+  );
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
-    "Your comp is competing with remote US employers you can't see."
+    data?.hiddenBottleneck || "Your comp is competing with remote US employers you can't see."
   );
   const [timelineToFailure, setTimelineToFailure] = useState(
-    "If comp approval takes >5 days → expect candidate rejection."
+    data?.timelineToFailure || "If comp approval takes >5 days → expect candidate rejection."
   );
+
+  // Update when data prop changes
+  useEffect(() => {
+    console.log("💳 useEffect triggered - data changed");
+    if (data?.marketCompensation) {
+      console.log("💳 Updating marketComp from data:", data.marketCompensation);
+      setMarketComp(data.marketCompensation);
+    }
+    if (data?.recommendedRange) {
+      console.log("💳 Updating recommendedRange from data:", data.recommendedRange);
+      setRecommendedRange(data.recommendedRange);
+    }
+    if (data?.brutalTruth) {
+      console.log("💳 Updating brutalTruth from data:", data.brutalTruth);
+      setBrutalTruth(data.brutalTruth);
+    }
+    if (data?.redFlags) {
+      console.log("💳 Updating redFlags from data:", data.redFlags.length, "items");
+      setRedFlags(data.redFlags);
+    }
+    if (data?.donts) {
+      console.log("💳 Updating donts from data:", data.donts.length, "items");
+      setDonts(data.donts);
+    }
+    if (data?.fixes) {
+      console.log("💳 Updating fixes from data:", data.fixes.length, "items");
+      setFixes(data.fixes);
+    }
+    if (data?.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
+    if (data?.timelineToFailure) setTimelineToFailure(data.timelineToFailure);
+  }, [data]);
 
   // Save to sessionStorage
   useEffect(() => {
@@ -86,7 +149,7 @@ export const EditablePayCard = () => {
               <TrendingUp className="w-5 h-5 text-emerald-700 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
                 <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>
-                  Market Compensation (Amsterdam)
+                  Market Compensation ({data?.location || "Amsterdam"})
                 </h4>
                 <EditableKeyValue
                   data={marketComp}

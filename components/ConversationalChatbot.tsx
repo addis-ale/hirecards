@@ -172,6 +172,10 @@ export default function ConversationalChatbot() {
 
     sessionStorage.setItem("formData", JSON.stringify(formData));
 
+    console.log("🚀 ============================================");
+    console.log("🚀 CHATBOT: GENERATING CARDS + ENRICHMENT");
+    console.log("🚀 ============================================");
+
     try {
       // Map to API expected format
       const apiFormData = {
@@ -191,6 +195,8 @@ export default function ConversationalChatbot() {
         companySize: "Not specified",
       };
 
+      // STEP 1: Generate base cards (fast)
+      console.log("📊 Step 1: Generating base cards...");
       const response = await fetch("/api/generate-cards", {
         method: "POST",
         headers: {
@@ -204,11 +210,88 @@ export default function ConversationalChatbot() {
       if (result.success) {
         sessionStorage.setItem("battleCards", JSON.stringify(result.cards));
         sessionStorage.setItem("sessionId", result.sessionId);
+        console.log("✅ Base cards generated");
       }
+
+      // STEP 2: Enrich cards with Apify data (slow - 1-2 minutes)
+      // Call all enrichment APIs in parallel
+      console.log("📊 Step 2: Enriching cards with market data...");
+      console.log("   This will take 1-2 minutes (Apify scraping)");
+
+      const [payResponse, marketResponse, roleResponse] = await Promise.all([
+        fetch('/api/enrich-salary', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scrapedJobData: formData }),
+        }),
+        fetch('/api/enrich-market', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scrapedJobData: formData }),
+        }),
+        fetch('/api/enrich-role', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ scrapedJobData: formData }),
+        }),
+      ]);
+
+      console.log("📊 Enrichment responses received");
+      console.log("   PayCard:", payResponse.status);
+      console.log("   MarketCard:", marketResponse.status);
+      console.log("   RoleCard:", roleResponse.status);
+
+      const [payData, marketData, roleData] = await Promise.all([
+        payResponse.json(),
+        marketResponse.json(),
+        roleResponse.json(),
+      ]);
+
+      // Store enriched data in sessionStorage
+      if (payData.success && payData.payCardData) {
+        console.log("✅ PayCard enriched");
+        sessionStorage.setItem("enrichedPayCard", JSON.stringify(payData.payCardData));
+        // Store full response for debugging
+        sessionStorage.setItem("apifyPayCardFullResponse", JSON.stringify(payData));
+        
+        // Store RAW jobs array if available in metadata
+        if (payData.rawJobs) {
+          console.log("💾 Storing raw jobs data for PayCard:", payData.rawJobs.length, "jobs");
+          sessionStorage.setItem("apifyRawJobsData_PayCard", JSON.stringify(payData.rawJobs));
+        }
+      }
+      if (marketData.success && marketData.marketCardData) {
+        console.log("✅ MarketCard enriched");
+        sessionStorage.setItem("enrichedMarketCard", JSON.stringify(marketData.marketCardData));
+        // Store full response for debugging
+        sessionStorage.setItem("apifyMarketCardFullResponse", JSON.stringify(marketData));
+        
+        // Store RAW jobs and profiles arrays if available
+        if (marketData.rawJobs) {
+          console.log("💾 Storing raw jobs data for MarketCard:", marketData.rawJobs.length, "jobs");
+          sessionStorage.setItem("apifyRawJobsData_MarketCard", JSON.stringify(marketData.rawJobs));
+        }
+        if (marketData.rawProfiles) {
+          console.log("💾 Storing raw profiles data for MarketCard:", marketData.rawProfiles.length, "profiles");
+          sessionStorage.setItem("apifyRawProfilesData", JSON.stringify(marketData.rawProfiles));
+        }
+      }
+      if (roleData.success && roleData.roleCardData) {
+        console.log("✅ RoleCard enriched");
+        sessionStorage.setItem("enrichedRoleCard", JSON.stringify(roleData.roleCardData));
+        // Store full response for debugging
+        sessionStorage.setItem("apifyRoleCardFullResponse", JSON.stringify(roleData));
+      }
+
+      console.log("🚀 ============================================");
+      console.log("🚀 ENRICHMENT COMPLETE - NAVIGATING TO RESULTS");
+      console.log("🚀 ============================================");
+
     } catch (error) {
-      console.error("Error generating cards:", error);
+      console.error("Error generating/enriching cards:", error);
     }
 
+    // Navigate AFTER enrichment completes
     router.push("/results");
   }, [extractedData, router]);
 

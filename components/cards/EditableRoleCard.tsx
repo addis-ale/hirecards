@@ -7,34 +7,62 @@ import { Callout } from "@/components/ui/Callout";
 import { Pill } from "@/components/ui/Pill";
 import { EditableText, EditableList } from "@/components/EditableCard";
 
-export const EditableRoleCard = () => {
+interface RoleCardProps {
+  data?: {
+    roleSummary?: string;
+    outcomes?: string[];
+    redFlags?: string[];
+    donts?: string[];
+    fixes?: string[];
+    brutalTruth?: string;
+    whatGreatLooksLike?: string[];
+  };
+}
+
+export const EditableRoleCard: React.FC<RoleCardProps> = ({ data }) => {
+  console.log("📋 ============================================");
+  console.log("📋 EDITABLE ROLE CARD RENDER");
+  console.log("📋 ============================================");
+  console.log("📋 Received data prop:", data ? "YES" : "NO");
+  if (data) {
+    console.log("📋 Data content:", JSON.stringify(data, null, 2));
+  }
+
   const [roleSummary, setRoleSummary] = useState(
-    "Build production-grade analytics models, own modelling standards, and partner with teams to ship features."
+    data?.roleSummary || "Build production-grade analytics models, own modelling standards, and partner with teams to ship features."
   );
-  const [outcomes, setOutcomes] = useState([
-    "Deliver stable dbt models",
-    "Replace legacy pipelines",
-    "Ship analytics features",
-    "Improve data quality",
-    "Mentor team members",
-  ]);
-  const [redFlags, setRedFlags] = useState([
-    "Generic job description",
-    "Buzzwords over outcomes",
-    "No clear ownership",
-  ]);
-  const [donts, setDonts] = useState([
-    "Copy competitor JDs",
-    "Hide data complexity",
-    "List 20+ responsibilities",
-  ]);
-  const [fixes, setFixes] = useState([
-    "Show real challenges upfront",
-    "Focus on outcomes not tasks",
-    "Align stakeholders early",
-  ]);
+  const [outcomes, setOutcomes] = useState(
+    data?.outcomes || [
+      "Deliver stable dbt models",
+      "Replace legacy pipelines",
+      "Ship analytics features",
+      "Improve data quality",
+      "Mentor team members",
+    ]
+  );
+  const [redFlags, setRedFlags] = useState(
+    data?.redFlags || [
+      "Generic job description",
+      "Buzzwords over outcomes",
+      "No clear ownership",
+    ]
+  );
+  const [donts, setDonts] = useState(
+    data?.donts || [
+      "Copy competitor JDs",
+      "Hide data complexity",
+      "List 20+ responsibilities",
+    ]
+  );
+  const [fixes, setFixes] = useState(
+    data?.fixes || [
+      "Show real challenges upfront",
+      "Focus on outcomes not tasks",
+      "Align stakeholders early",
+    ]
+  );
   const [brutalTruth, setBrutalTruth] = useState(
-    "Be honest about the data debt. Seniors will discover it anyway."
+    data?.brutalTruth || "Be honest about the data debt. Seniors will discover it anyway."
   );
 
   // Save to sessionStorage whenever data changes
@@ -50,18 +78,47 @@ export const EditableRoleCard = () => {
     sessionStorage.setItem("editableRoleCard", JSON.stringify(data));
   }, [roleSummary, outcomes, redFlags, donts, fixes, brutalTruth]);
 
+  // Update when data prop changes
+  useEffect(() => {
+    console.log("📋 useEffect triggered - data changed");
+    if (data?.roleSummary) {
+      console.log("📋 Updating roleSummary from data");
+      setRoleSummary(data.roleSummary);
+    }
+    if (data?.outcomes) {
+      console.log("📋 Updating outcomes from data:", data.outcomes.length, "items");
+      setOutcomes(data.outcomes);
+    }
+    if (data?.redFlags) {
+      console.log("📋 Updating redFlags from data:", data.redFlags.length, "items");
+      setRedFlags(data.redFlags);
+    }
+    if (data?.donts) {
+      console.log("📋 Updating donts from data:", data.donts.length, "items");
+      setDonts(data.donts);
+    }
+    if (data?.fixes) {
+      console.log("📋 Updating fixes from data:", data.fixes.length, "items");
+      setFixes(data.fixes);
+    }
+    if (data?.brutalTruth) {
+      console.log("📋 Updating brutalTruth from data");
+      setBrutalTruth(data.brutalTruth);
+    }
+  }, [data]);
+
   // Load from sessionStorage on mount
   useEffect(() => {
     const saved = sessionStorage.getItem("editableRoleCard");
     if (saved) {
       try {
-        const data = JSON.parse(saved);
-        if (data.roleSummary) setRoleSummary(data.roleSummary);
-        if (data.outcomes) setOutcomes(data.outcomes);
-        if (data.redFlags) setRedFlags(data.redFlags);
-        if (data.donts) setDonts(data.donts);
-        if (data.fixes) setFixes(data.fixes);
-        if (data.brutalTruth) setBrutalTruth(data.brutalTruth);
+        const savedData = JSON.parse(saved);
+        if (savedData.roleSummary) setRoleSummary(savedData.roleSummary);
+        if (savedData.outcomes) setOutcomes(savedData.outcomes);
+        if (savedData.redFlags) setRedFlags(savedData.redFlags);
+        if (savedData.donts) setDonts(savedData.donts);
+        if (savedData.fixes) setFixes(savedData.fixes);
+        if (savedData.brutalTruth) setBrutalTruth(savedData.brutalTruth);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }

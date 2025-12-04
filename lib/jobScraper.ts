@@ -45,27 +45,122 @@ const SCRAPINGBEE_API_KEY = process.env.SCRAPINGBEE_API_KEY;
  * Scrape a job description from a URL using ScrapingBee
  */
 export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
-  try {
-    console.log("🚀 ScrapingBee scrape:", url);
-
-    const response = await axios.get("https://app.scrapingbee.com/api/v1/", {
+  // Helper: fetch HTML via ScrapingBee
+  const fetchViaBee = async () => {
+    if (!SCRAPINGBEE_API_KEY) {
+      throw new Error("SCRAPINGBEE_API_KEY not configured");
+    }
+    
+    console.log("🐝 Calling ScrapingBee with render_js...");
+    
+    const response = await axios.get("https://app.scrapingbee.com/api/v1", {
       params: {
         api_key: SCRAPINGBEE_API_KEY,
-        url,
-        // Important: enable JS rendering
+        url: url,
         render_js: "true",
         premium_proxy: "true",
-        wait: "5000", // wait extra for React pages
+        wait: "5000",
+        wait_for: "body",
       },
+      timeout: 30000,
+      maxRedirects: 5,
     });
+    
+    if (response.status !== 200) {
+      throw new Error(`ScrapingBee returned status ${response.status}`);
+    }
+    
+    return response.data as string;
+  };
 
-    const html = response.data;
+  // Helper: fetch HTML directly (best-effort)
+  const fetchDirect = async () => {
+    const response = await axios.get(url, {
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept-Language": "en-US,en;q=0.9",
+      },
+      timeout: 20000,
+      maxRedirects: 5,
+      validateStatus: (s) => s >= 200 && s < 400,
+    });
+    return response.data as string;
+  };
+
+  // Puppeteer removed - not compatible with serverless deployments
+  // ScrapingBee handles JavaScript rendering
+
+  // Helper: detect if HTML is a React/JS shell that needs rendering
+  const isJavaScriptShell = (html: string): boolean => {
+    const lowerHtml = html.toLowerCase();
+    return (
+      lowerHtml.includes("you need to enable javascript") ||
+      lowerHtml.includes("enable javascript to run this app") ||
+      (lowerHtml.includes("<div id=\"root\"></div>") && html.length < 5000) ||
+      (lowerHtml.includes("<div id=\"app\"></div>") && html.length < 5000)
+    );
+  };
+
+  try {
+    console.log("🚀 scrapeJobURL:", url);
+
+    let html: string | null = null;
+    let usedPuppeteer = false;
+
+    // Strategy 1: Try ScrapingBee if configured
+    if (SCRAPINGBEE_API_KEY) {
+      try {
+        html = await fetchViaBee();
+        
+        // Check if we got a JS shell
+        if (isJavaScriptShell(html)) {
+          console.warn("⚠️ ScrapingBee returned JS shell, page may need more rendering time");
+          // Still use it - might have some content
+        } else {
+          console.log("✅ Scraping via ScrapingBee successful");
+        }
+      } catch (err: any) {
+        const status = err?.response?.status;
+        const message = err?.response?.data?.message || err?.message || '';
+        
+        // Check if it's a credits/limit issue
+        if (status === 401 || message.includes('limit reached') || message.includes('credit')) {
+          console.error(
+            `❌ ScrapingBee: Out of credits or limit reached`
+          );
+          console.error(`   Message: ${message}`);
+          console.warn(`⚠️ Falling back to direct fetch (may not work for JS-heavy sites)`);
+          // Fall through to direct fetch
+        } else {
+          console.error(
+            `❌ ScrapingBee failed${status ? ` (status ${status})` : ""}: ${message}`
+          );
+          throw new Error(`ScrapingBee failed: ${message}`);
+        }
+      }
+    }
+
+    // Strategy 2: Try direct fetch if ScrapingBee didn't work
+    if (!html) {
+      try {
+        console.log("🔄 Trying direct fetch...");
+        html = await fetchDirect();
+        console.log("✅ Direct fetch successful");
+      } catch (err) {
+        console.error("❌ All scraping methods failed");
+        throw new Error("Unable to fetch page content. Please ensure SCRAPINGBEE_API_KEY is configured.");
+      }
+    }
+
+    if (!html || typeof html !== "string" || html.length < 100) {
+      throw new Error("Empty or invalid HTML fetched");
+    }
+
     const $ = cheerio.load(html);
-
     const hostname = new URL(url).hostname.toLowerCase();
 
     let scrapedData: ScrapedJobData;
-
     if (hostname.includes("linkedin.com")) {
       scrapedData = scrapeLinkedIn($, url);
     } else if (hostname.includes("indeed.com")) {
@@ -84,13 +179,14 @@ export async function scrapeJobURL(url: string): Promise<ScrapedJobData> {
       scrapedData = scrapeGenericJobBoard($, url);
     }
 
-    console.log("✅ ScrapingBee success");
     return scrapedData;
   } catch (error) {
-    console.error("❌ ScrapingBee error:", error);
-    throw new Error("Failed to scrape job URL using ScrapingBee");
+    console.error("❌ scrapeJobURL error:", error);
+    throw new Error("Failed to scrape job URL");
   }
 }
+
+// Puppeteer helper removed - using ScrapingBee for all rendering
 
 /**
  * Scrape LinkedIn job postings
