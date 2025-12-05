@@ -6,13 +6,18 @@
 import { ApifyClient } from 'apify-client';
 
 const APIFY_API_TOKEN = process.env.APIFY_API_TOKEN;
-const LINKEDIN_JOBS_ACTOR_ID = 'BHzefUZlZRKWxkTck';
+const LINKEDIN_JOBS_ACTOR_ID = 'JkfTWxtpgfvcRQn3p';
 
+// New actor supports direct parameters: job_title, location, and optional filters.
 interface LinkedInJobScraperInput {
-  jobTitle: string;
-  location: string;
-  experienceLevel: '1' | '2' | '3' | '4' | '5'; // 1=Entry, 2=Mid, 3=Senior, 4=Lead, 5=Executive
-  maxJobsPerSearch?: number;
+  job_title?: string;
+  location?: string;
+  jobs_entries?: number; // optional
+  experience_level?: string; // '1'..'6'
+  job_type?: string;        // 'F','P','C','T','V','I','O'
+  work_schedule?: string;   // '1','2','3'
+  job_post_time?: string;   // 'r86400','r604800','r2592000'
+  start_jobs?: number;      // optional, default 0
 }
 
 export interface LinkedInJob {
@@ -77,11 +82,17 @@ export async function scrapeLinkedInJobs(
   try {
     console.log('🔍 Scraping LinkedIn jobs:', { jobTitle, location, experienceLevel, maxJobs });
 
+    // Build actor input directly (no-cookies actor supports job_title + location)
     const input: LinkedInJobScraperInput = {
-      jobTitle,
-      location,
-      experienceLevel: mapExperienceLevelToApify(experienceLevel),
-      maxJobsPerSearch: maxJobs,
+      job_title: jobTitle,
+      location: location,
+      // jobs_entries intentionally omitted to let actor default handle paging
+      // Optional filters can be set here if needed
+      // experience_level: mapExperienceLevelToApify(experienceLevel),
+      // job_type: 'F',
+      // work_schedule: '1',
+      // job_post_time: 'r604800',
+      // start_jobs: 0,
     };
 
     // Run the actor with a timeout
@@ -96,7 +107,30 @@ export async function scrapeLinkedInJobs(
 
     console.log(`📊 Found ${items.length} jobs from LinkedIn`);
 
-    return items as LinkedInJob[];
+    // Post-filter: Title must include full target title (substring), Location must include target location
+    const allJobs = items as LinkedInJob[];
+
+    const filtered = allJobs.filter((job) => {
+      const title = (job.title || '').toLowerCase();
+      const loc = (job.location || '').toLowerCase();
+      const targetTitle = jobTitle.toLowerCase();
+      const targetLoc = location.toLowerCase();
+
+      const titleMatches = title.includes(targetTitle);
+      const locationMatches = loc.includes(targetLoc);
+
+      return titleMatches && locationMatches;
+    });
+
+    console.log(`🔍 After strict filter (title subset + exact place): ${filtered.length}/${allJobs.length} jobs kept`);
+    if (filtered.length === 0) {
+      console.warn('⚠️ No jobs matched strict criteria. Actor likely returned irrelevant results.');
+    } else {
+      console.log('✅ Sample matched jobs:');
+      filtered.slice(0, 3).forEach(j => console.log(`   - ${j.title} @ ${j.companyName} (${j.location})`));
+    }
+
+    return filtered;
   } catch (error) {
     console.error('❌ Error scraping LinkedIn jobs:', error);
     return [];
