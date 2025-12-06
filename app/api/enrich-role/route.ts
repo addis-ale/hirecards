@@ -55,10 +55,12 @@ export async function POST(request: NextRequest) {
       },
     };
 
-    console.log("📋 ============================================");
-    console.log("📋 FINAL RESPONSE");
-    console.log("📋 ============================================");
-    console.log(JSON.stringify(response, null, 2));
+    console.log("🟡 ============================================");
+    console.log("🟡 FINAL RESPONSE");
+    console.log("🟡 ============================================");
+    console.log("✅ Response prepared successfully");
+    console.log("   Has role data:", response.success);
+    // Note: Not logging full response to avoid console spam
 
     return NextResponse.json(response);
   } catch (error) {
