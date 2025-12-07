@@ -5,8 +5,15 @@ import { CalendarCheck, Calendar, TrendingUp, AlertTriangle, Wrench, XCircle, Za
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableText } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
-export const EditablePlanCard = () => {
+export const EditablePlanCard = ({
+  onNavigateToCard,
+  currentCardId
+}: {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+} = {}) => {
   const [first7Days, setFirst7Days] = useState([
     "Finalize RoleCard",
     "Align scorecard",
@@ -50,13 +57,43 @@ export const EditablePlanCard = () => {
     "Calibrate early → avoid sourcing the wrong persona",
     "Keep stakeholders aligned weekly"
   ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Enforce 24h feedback",
+      impact: "+0.3",
+      tooltip: "Speed is your biggest competitive edge in this market.",
+      talentPoolImpact: "+20% acceptance",
+      riskReduction: "-20% dropout"
+    },
+    {
+      fix: "Pre-block calendars",
+      impact: "+0.2",
+      tooltip: "Prevents long gaps between rounds that seniors won't tolerate.",
+      talentPoolImpact: "+15% faster loops",
+      riskReduction: "-12% stall"
+    },
+    {
+      fix: "2 outbound waves weekly",
+      impact: "+0.2",
+      tooltip: "Senior roles require consistent outbound volume to avoid pipeline starvation.",
+      talentPoolImpact: "+25% pipeline",
+      riskReduction: "-10% starvation"
+    },
+    {
+      fix: "Early calibration",
+      impact: "+0.2",
+      tooltip: "Adjust expectations before the funnel fills with mismatched candidates.",
+      talentPoolImpact: "+10% match quality",
+      riskReduction: "-15% restart"
+    }
+  ]);
 
   useEffect(() => {
     const data = {
-      first7Days, weeklyRhythm, brutalTruth, redFlags, donts, fixes, fastestPath
+      first7Days, weeklyRhythm, brutalTruth, redFlags, donts, fixes, fastestPath, scoreImpactRows
     };
     sessionStorage.setItem("editablePlanCard", JSON.stringify(data));
-  }, [first7Days, weeklyRhythm, brutalTruth, redFlags, donts, fixes, fastestPath]);
+  }, [first7Days, weeklyRhythm, brutalTruth, redFlags, donts, fixes, fastestPath, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editablePlanCard");
@@ -79,7 +116,7 @@ export const EditablePlanCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Plan Card" subtitle="Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well." Icon={CalendarCheck} density="compact">
+      <Section subtitle="Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well." Icon={CalendarCheck} density="compact" collapsible={true} defaultExpanded={false}>
         <div className="space-y-4">
           {/* First 7 Days */}
           <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
@@ -175,6 +212,7 @@ export const EditablePlanCard = () => {
           </div>
         </div>
       </Section>
+
     </div>
   );
 };

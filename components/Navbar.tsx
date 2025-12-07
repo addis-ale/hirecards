@@ -13,35 +13,71 @@ export default function Navbar() {
   const [isScrolling, setIsScrolling] = useState(false);
   const lastScrollY = useRef(0);
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
+  const isVisibleRef = useRef(true);
+  const isScrollingRef = useRef(false);
+  const isScrolledRef = useRef(false);
 
   useEffect(() => {
+    let ticking = false;
+    let rafId: number | null = null;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      if (!ticking) {
+        rafId = window.requestAnimationFrame(() => {
+          const currentScrollY = window.scrollY;
+          const wasScrolled = currentScrollY > 10;
 
-      setIsScrolled(currentScrollY > 10);
+          // Only update isScrolled if value changed
+          if (isScrolledRef.current !== wasScrolled) {
+            isScrolledRef.current = wasScrolled;
+            setIsScrolled(wasScrolled);
+          }
 
-      // Clear existing timeout
-      if (scrollTimeout.current) {
-        clearTimeout(scrollTimeout.current);
+          // Clear existing timeout
+          if (scrollTimeout.current) {
+            clearTimeout(scrollTimeout.current);
+          }
+
+          // Hide navbar when scrolling down
+          if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+            if (isVisibleRef.current) {
+              isVisibleRef.current = false;
+              setIsVisible(false);
+            }
+            if (!isScrollingRef.current) {
+              isScrollingRef.current = true;
+              setIsScrolling(true);
+            }
+          } else if (currentScrollY < lastScrollY.current) {
+            // Show immediately when scrolling up
+            if (!isVisibleRef.current) {
+              isVisibleRef.current = true;
+              setIsVisible(true);
+            }
+            if (isScrollingRef.current) {
+              isScrollingRef.current = false;
+              setIsScrolling(false);
+            }
+          }
+
+          lastScrollY.current = currentScrollY;
+
+          // Show navbar when scrolling stops
+          scrollTimeout.current = setTimeout(() => {
+            if (!isVisibleRef.current) {
+              isVisibleRef.current = true;
+              setIsVisible(true);
+            }
+            if (isScrollingRef.current) {
+              isScrollingRef.current = false;
+              setIsScrolling(false);
+            }
+          }, 150);
+
+          ticking = false;
+        });
+        ticking = true;
       }
-
-      // Hide navbar when scrolling down
-      if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
-        setIsVisible(false);
-        setIsScrolling(true);
-      } else if (currentScrollY < lastScrollY.current) {
-        // Show immediately when scrolling up
-        setIsVisible(true);
-        setIsScrolling(false);
-      }
-
-      lastScrollY.current = currentScrollY;
-
-      // Show navbar when scrolling stops
-      scrollTimeout.current = setTimeout(() => {
-        setIsVisible(true);
-        setIsScrolling(false);
-      }, 150);
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
@@ -49,6 +85,9 @@ export default function Navbar() {
       window.removeEventListener("scroll", handleScroll);
       if (scrollTimeout.current) {
         clearTimeout(scrollTimeout.current);
+      }
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
       }
     };
   }, []);

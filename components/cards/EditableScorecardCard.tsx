@@ -5,8 +5,15 @@ import { ClipboardList, Target, AlertTriangle, Wrench, XCircle } from "lucide-re
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableText } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
-export const EditableScorecardCard = () => {
+export const EditableScorecardCard = ({
+  onNavigateToCard,
+  currentCardId
+}: {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+} = {}) => {
   const [competencies, setCompetencies] = useState([
     "Modelling",
     "Data quality discipline",
@@ -32,13 +39,42 @@ export const EditableScorecardCard = () => {
     "Include \"negative examples\" for clarity",
     "Force a documented vote per interviewer"
   ]);
+  const [evaluationMapping, setEvaluationMapping] = useState([
+    { stage: "Stage 1 — Recruiter Screen", competencies: "Communication, Ownership" },
+    { stage: "Stage 2 — Technical Deep Dive", competencies: "Modelling, Reliability" },
+    { stage: "Stage 3 — Product Collaboration", competencies: "Product Thinking, Collaboration" },
+    { stage: "Stage 4 — Values & Ownership", competencies: "Ownership, Communication (advanced)" }
+  ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Add simple behavioural anchors",
+      impact: "+0.2",
+      tooltip: "Helps interviewers calibrate consistently.",
+      talentPoolImpact: "+10% signal quality",
+      riskReduction: "-12% misalignment"
+    },
+    {
+      fix: "Standardise feedback format",
+      impact: "+0.2",
+      tooltip: "Speeds up decisions and reduces vague scoring.",
+      talentPoolImpact: "+8% faster flow",
+      riskReduction: "-10% churn"
+    },
+    {
+      fix: "Weekly calibration (15 min)",
+      impact: "+0.2",
+      tooltip: "Keeps everyone aligned on what \"good\" is.",
+      talentPoolImpact: "+12% accuracy",
+      riskReduction: "-15% disagreement"
+    }
+  ]);
 
   useEffect(() => {
     const data = {
-      competencies, rating1, rating2, rating3, rating4, brutalTruth, donts, fixes
+      competencies, rating1, rating2, rating3, rating4, brutalTruth, donts, fixes, evaluationMapping, scoreImpactRows
     };
     sessionStorage.setItem("editableScorecardCard", JSON.stringify(data));
-  }, [competencies, rating1, rating2, rating3, rating4, brutalTruth, donts, fixes]);
+  }, [competencies, rating1, rating2, rating3, rating4, brutalTruth, donts, fixes, evaluationMapping, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableScorecardCard");
@@ -53,6 +89,8 @@ export const EditableScorecardCard = () => {
         if (data.brutalTruth) setBrutalTruth(data.brutalTruth);
         if (data.donts) setDonts(data.donts);
         if (data.fixes) setFixes(data.fixes);
+        if (data.evaluationMapping) setEvaluationMapping(data.evaluationMapping);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -62,7 +100,7 @@ export const EditableScorecardCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Scorecard Card" subtitle="A simple evaluation framework to keep the team aligned and reduce bias." Icon={ClipboardList} density="compact">
+      <Section subtitle="A simple evaluation framework to keep the team aligned and reduce bias." Icon={ClipboardList} density="compact" collapsible={true} defaultExpanded={false}>
         <div className="space-y-4">
           {/* Competencies */}
           <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
@@ -167,17 +205,37 @@ export const EditableScorecardCard = () => {
             />
           </Section>
 
-          {/* Fix This Now */}
-          <Section title="🔧 Fix This Now" Icon={Wrench} tone="success">
-            <EditableList
-              items={fixes}
-              onChange={setFixes}
-              itemClassName="text-[13px] leading-snug text-emerald-800"
-              markerColor="text-emerald-600"
-            />
-          </Section>
+          {/* Who Evaluates What */}
+          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>
+              Who Evaluates What (Mapped to Interview Loop)
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-blue-100 border-b-2 border-blue-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-blue-900">Stage</th>
+                    <th className="px-4 py-3 text-left font-semibold text-blue-900">Competencies</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-100">
+                  {evaluationMapping.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
+                      <td className="px-4 py-3 font-medium text-gray-900">{item.stage}</td>
+                      <td className="px-4 py-3 text-gray-700">{item.competencies}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-xs text-gray-600 mt-3 italic">No one evaluates everything — each stage has a purpose.</p>
+          </div>
+
+          {/* Fix This Now — Score Impact Table */}
+          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />
         </div>
       </Section>
+
     </div>
   );
 };

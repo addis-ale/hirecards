@@ -5,8 +5,15 @@ import { BarChart3, TrendingUp, AlertTriangle, Wrench, XCircle } from "lucide-re
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableKeyValue, EditableText } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
-export const EditableFunnelCard = () => {
+export const EditableFunnelCard = ({
+  onNavigateToCard,
+  currentCardId
+}: {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+} = {}) => {
   const [funnelStages, setFunnelStages] = useState([
     { label: "Outreach", value: "120–150" },
     { label: "Positive replies", value: "20–25" },
@@ -44,13 +51,48 @@ export const EditableFunnelCard = () => {
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
     "Your first screening question: If the recruiter can't articulate the product impact clearly → conversion dies."
   );
+  const [funnelHealthComparison, setFunnelHealthComparison] = useState([
+    { type: "Healthy (48–72 hr flow, clear comp, strong message)", outcome: "Hire in 25–35 days" },
+    { type: "Typical (slow communication, vague JD)", outcome: "Hire in 50–70 days" },
+    { type: "Broken (4–5 rounds, unprepared interviewers)", outcome: "Restart at week 6" }
+  ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Warm candidates every 48–72h",
+      impact: "+0.2",
+      tooltip: "Seniors vanish if they think they're not a priority.",
+      talentPoolImpact: "+12% retention",
+      riskReduction: "-10% ghosting"
+    },
+    {
+      fix: "Remove long take-homes (>2h)",
+      impact: "+0.2",
+      tooltip: "Seniors don't do unpaid labour; they drop instantly.",
+      talentPoolImpact: "+10% conversion",
+      riskReduction: "-15% stage abandonment"
+    },
+    {
+      fix: "Block interviewer calendars ahead of time",
+      impact: "+0.2",
+      tooltip: "Eliminates week-long delays and funnel decay.",
+      talentPoolImpact: "+15% pipeline speed",
+      riskReduction: "-12% delay risk"
+    },
+    {
+      fix: "Pre-align comp & share early",
+      impact: "+0.2",
+      tooltip: "Prevents late-stage rejection or negotiation collapse.",
+      talentPoolImpact: "+10% offer success",
+      riskReduction: "-10% offer collapse"
+    }
+  ]);
 
   useEffect(() => {
     const data = {
-      funnelStages, benchmarks, brutalTruth, redFlags, donts, fixes, hiddenBottleneck
+      funnelStages, benchmarks, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, funnelHealthComparison, scoreImpactRows
     };
     sessionStorage.setItem("editableFunnelCard", JSON.stringify(data));
-  }, [funnelStages, benchmarks, brutalTruth, redFlags, donts, fixes, hiddenBottleneck]);
+  }, [funnelStages, benchmarks, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, funnelHealthComparison, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableFunnelCard");
@@ -64,6 +106,8 @@ export const EditableFunnelCard = () => {
         if (data.donts) setDonts(data.donts);
         if (data.fixes) setFixes(data.fixes);
         if (data.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
+        if (data.funnelHealthComparison) setFunnelHealthComparison(data.funnelHealthComparison);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -73,7 +117,7 @@ export const EditableFunnelCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Funnel Card" subtitle="The volume of outreach and interviews you'll need to fill the role." Icon={BarChart3} density="compact">
+      <Section subtitle="The volume of outreach and interviews you'll need to fill the role." Icon={BarChart3} density="compact" collapsible={true} defaultExpanded={false}>
         <div className="space-y-4">
           {/* Expected Funnel */}
           <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
@@ -136,15 +180,33 @@ export const EditableFunnelCard = () => {
             />
           </Section>
 
-          {/* Fix This Now */}
-          <Section title="🔧 Fix This Now" Icon={Wrench} tone="success">
-            <EditableList
-              items={fixes}
-              onChange={setFixes}
-              itemClassName="text-[13px] leading-snug text-emerald-800"
-              markerColor="text-emerald-600"
-            />
-          </Section>
+          {/* Funnel Health Comparison */}
+          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>
+              Funnel Health Comparison
+            </h4>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-blue-100 border-b-2 border-blue-200">
+                  <tr>
+                    <th className="px-4 py-3 text-left font-semibold text-blue-900">Funnel Type</th>
+                    <th className="px-4 py-3 text-left font-semibold text-blue-900">Outcome</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-blue-100">
+                  {funnelHealthComparison.map((item, idx) => (
+                    <tr key={idx} className="hover:bg-blue-50/50 transition-colors">
+                      <td className="px-4 py-3 font-medium text-gray-900">{item.type}</td>
+                      <td className="px-4 py-3 text-gray-700">{item.outcome}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* Fix This Now — Score Impact Table */}
+          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" />
 
           {/* Hidden Bottleneck */}
           <Callout tone="warning" title="🔍 Hidden Bottleneck">
@@ -156,6 +218,7 @@ export const EditableFunnelCard = () => {
           </Callout>
         </div>
       </Section>
+
     </div>
   );
 };

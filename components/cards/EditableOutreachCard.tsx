@@ -5,7 +5,13 @@ import { Send, AlertTriangle, X, Wrench, Search, Clock } from "lucide-react";
 import { Callout } from "@/components/ui/Callout";
 import { EditableText, EditableList } from "@/components/EditableCard";
 
-export const EditableOutreachCard = () => {
+export const EditableOutreachCard = ({
+  onNavigateToCard,
+  currentCardId
+}: {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+} = {}) => {
   const [introduction, setIntroduction] = useState(
     "Short, sharp messages built around what this persona actually cares about: product impact, ownership, modelling quality, and shipping."
   );
@@ -83,18 +89,6 @@ export const EditableOutreachCard = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-          <Send className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-            Outreach Card
-          </h2>
-          <p className="text-sm text-gray-600">Ready-to-send email and DM templates for reaching ideal candidates.</p>
-        </div>
-      </div>
 
       {/* Introduction */}
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
@@ -245,6 +239,7 @@ export const EditableOutreachCard = () => {
           </div>
         </div>
       </div>
+
     </div>
   );
 };

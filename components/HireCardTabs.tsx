@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Download, Share2, LayoutDashboard, Briefcase, Code, TrendingUp, Map, DollarSign, Target, BarChart3, UserCheck, MessageSquare, Send, Mic, ClipboardList, CalendarCheck, Lock, Edit2, Save } from "lucide-react";
+import { LayoutDashboard, Briefcase, Code, TrendingUp, Map, DollarSign, Target, BarChart3, UserCheck, MessageSquare, Send, Mic, ClipboardList, CalendarCheck, Lock } from "lucide-react";
 import { EditModeProvider } from "./EditModeContext";
 import { OverviewCard } from "./cards/OverviewCard";
 import { EditableRealityCard } from "./cards/EditableRealityCard";
+import { ImprovementSignalsPanel } from "./ImprovementSignalsPanel";
 import { EditableRoleCard } from "./cards/EditableRoleCard";
 import { EditableSkillCard } from "./cards/EditableSkillCard";
 import { EditableMarketCard } from "./cards/EditableMarketCard";
@@ -21,6 +22,7 @@ import { EditablePlanCard } from "./cards/EditablePlanCard";
 
 interface HireCardTabsProps {
   isSubscribed?: boolean;
+  initialCardId?: string;
 }
 
 // Helper function to get card descriptions for tooltips
@@ -43,16 +45,21 @@ const getCardDescription = (id: string): string => {
   return descriptions[id] || "Card details";
 };
 
-export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false }) => {
-  const [activeTab, setActiveTab] = useState("reality");
-  const [tooltipTab, setTooltipTab] = useState<string | null>(null);
-  const [selectedCards, setSelectedCards] = useState<string[]>(["reality"]); // Default: Reality card selected
-  const [isSelectionMode, setIsSelectionMode] = useState(false);
-  const [showSelectionHint, setShowSelectionHint] = useState(false);
-  const [showShareHint, setShowShareHint] = useState(false);
-  const [showDownloadHint, setShowDownloadHint] = useState(false);
-  const [hoveredTab, setHoveredTab] = useState<string | null>(null);
+export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false, initialCardId }) => {
+  const [activeTab, setActiveTab] = useState(initialCardId || "reality");
+  
+  // Update active tab when initialCardId changes
+  React.useEffect(() => {
+    if (initialCardId) {
+      setActiveTab(initialCardId);
+    }
+  }, [initialCardId]);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [showImprovementPanel, setShowImprovementPanel] = useState(false);
+  const [realityScore, setRealityScore] = useState(5.5);
+  const [realityCardData, setRealityCardData] = useState<any>(null);
+  const [acceptedImprovementsBoost, setAcceptedImprovementsBoost] = useState(0);
+  const lastRealityScoreRef = useRef<number>(5.5);
   
   // Dynamic data for cards
   const [payCardData, setPayCardData] = useState<any>(null);
@@ -128,104 +135,82 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
     { id: "plan", label: "Plan Card", Icon: CalendarCheck },
   ];
 
-  const toggleCardSelection = (cardId: string) => {
-    setSelectedCards(prev => 
-      prev.includes(cardId) 
-        ? prev.filter(id => id !== cardId)
-        : [...prev, cardId]
-    );
-  };
 
-  const selectAllCards = () => {
-    setSelectedCards(tabs.map(tab => tab.id));
-  };
-
-  const deselectAllCards = () => {
-    setSelectedCards([]);
-  };
-
-  const handleDownload = () => {
-    if (selectedCards.length === 0) {
-      alert("👈 Select cards first!\n\nCheck the circles next to the cards in the sidebar to choose what you want to download.");
-      return;
-    }
-    // TODO: Implement PDF download with selected cards
-    alert(`Download functionality coming soon!\nSelected cards: ${selectedCards.join(", ")}`);
-  };
-
-  const handleShare = () => {
-    if (selectedCards.length === 0) {
-      alert("👈 Select cards first!\n\nCheck the circles next to the cards in the sidebar to choose what you want to share.");
-      return;
-    }
-    
-    // Get job title from sessionStorage
-    let jobTitle = "Untitled Role";
-    try {
-      const formData = sessionStorage.getItem("formData") || sessionStorage.getItem("heroAnalysisData");
-      if (formData) {
-        const parsed = JSON.parse(formData);
-        jobTitle = parsed.roleTitle || jobTitle;
+  // Load reality card data for improvement panel
+  React.useEffect(() => {
+    const saved = sessionStorage.getItem("editableRealityCard");
+    if (saved) {
+      try {
+        const data = JSON.parse(saved);
+        setRealityCardData(data);
+      } catch (e) {
+        console.error("Failed to load reality card data:", e);
       }
-    } catch (err) {
-      console.error("Failed to get job title:", err);
     }
-    
-    // Build the share URL with selected cards and job title
-    const baseUrl = window.location.origin;
-    const cardsParam = selectedCards.join(",");
-    const encodedTitle = encodeURIComponent(jobTitle);
-    const shareUrl = `${baseUrl}/shared-card-preview?cards=${cardsParam}&title=${encodedTitle}`;
-    
-    // Try native share API first
-    if (navigator.share) {
-      navigator.share({
-        title: `HireCard Strategy - ${jobTitle}`,
-        text: `Check out my hiring strategy for ${jobTitle}`,
-        url: shareUrl,
-      }).catch(err => console.log("Share failed:", err));
-    } else {
-      // Fallback: Copy link to clipboard
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        alert(`✅ Share link copied to clipboard!\n\nAnyone with this link can view your selected ${selectedCards.length} card${selectedCards.length !== 1 ? 's' : ''} for "${jobTitle}".`);
-      }).catch(() => {
-        // If clipboard fails, show the URL
-        alert(`Share this link:\n\n${shareUrl}`);
-      });
+  }, [activeTab, isEditMode]);
+
+  const handleRealityScoreChange = useCallback((score: number) => {
+    // Only update if score actually changed
+    if (lastRealityScoreRef.current !== score) {
+      lastRealityScoreRef.current = score;
+      setRealityScore(score);
+      // Update reality card data when score changes
+      const saved = sessionStorage.getItem("editableRealityCard");
+      if (saved) {
+        try {
+          const data = JSON.parse(saved);
+          setRealityCardData(data);
+        } catch (e) {
+          console.error("Failed to update reality card data:", e);
+        }
+      }
     }
+  }, []);
+
+  const handleNavigateToCard = (cardId: string) => {
+    setActiveTab(cardId);
   };
 
   const renderCardContent = () => {
+    const commonProps = {
+      onNavigateToCard: handleNavigateToCard,
+      currentCardId: activeTab,
+    };
+
     switch (activeTab) {
       case "reality":
-        return <EditableRealityCard />;
+        return <EditableRealityCard 
+          onScoreChange={handleRealityScoreChange} 
+          acceptedImprovementsBoost={acceptedImprovementsBoost}
+          {...commonProps}
+        />;
       case "role":
         console.log("📋 Rendering EditableRoleCard with data:", roleCardData ? "YES" : "NO");
-        return <EditableRoleCard data={roleCardData} />;
+        return <EditableRoleCard data={roleCardData} {...commonProps} />;
       case "skill":
-        return <EditableSkillCard />;
+        return <EditableSkillCard {...commonProps} />;
       case "market":
         console.log("📊 Rendering EditableMarketCard with data:", marketCardData ? "YES" : "NO");
-        return <EditableMarketCard data={marketCardData} />;
+        return <EditableMarketCard data={marketCardData} {...commonProps} />;
       case "talentmap":
-        return <EditableTalentMapCard />;
+        return <EditableTalentMapCard {...commonProps} />;
       case "pay":
         console.log("💳 Rendering EditablePayCard with data:", payCardData ? "YES" : "NO");
-        return <EditablePayCard data={payCardData} />;
+        return <EditablePayCard data={payCardData} {...commonProps} />;
       case "funnel":
-        return <EditableFunnelCard />;
+        return <EditableFunnelCard {...commonProps} />;
       case "fit":
-        return <EditableFitCard />;
+        return <EditableFitCard {...commonProps} />;
       case "message":
-        return <EditableMessageCard />;
+        return <EditableMessageCard {...commonProps} />;
       case "outreach":
-        return <EditableOutreachCard />;
+        return <EditableOutreachCard {...commonProps} />;
       case "interview":
-        return <EditableInterviewCard />;
+        return <EditableInterviewCard {...commonProps} />;
       case "scorecard":
-        return <EditableScorecardCard />;
+        return <EditableScorecardCard {...commonProps} />;
       case "plan":
-        return <EditablePlanCard />;
+        return <EditablePlanCard {...commonProps} />;
       default:
         return (
           <div className="text-center py-12">
@@ -248,266 +233,55 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
 
   return (
     <div className="w-full">
-      {/* Action Buttons */}
-      <div className="flex justify-between items-center gap-3 mb-6">
-        {/* Selection Controls */}
-        <div 
-          className="flex items-center gap-3 relative"
-          onMouseEnter={() => setShowSelectionHint(true)}
-          onMouseLeave={() => setShowSelectionHint(false)}
-        >
-          <span className="text-sm font-medium" style={{ color: "#102a63" }}>
-            {selectedCards.length} card{selectedCards.length !== 1 ? 's' : ''} selected
-          </span>
-          <button
-            onClick={selectAllCards}
-            className="text-sm text-[#278f8c] hover:underline font-medium"
-          >
-            Select All
-          </button>
-          <button
-            onClick={deselectAllCards}
-            className="text-sm text-gray-500 hover:underline font-medium"
-          >
-            Clear
-          </button>
-          
-          {/* Hint Tooltip */}
-          {showSelectionHint && (
-            <div className="absolute top-full left-0 mt-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-              <div 
-                className="bg-[#102a63] text-white text-xs rounded-lg px-4 py-2 shadow-lg max-w-xs"
-              >
-                <p className="font-medium mb-1">💡 Select cards to share or download</p>
-                <p className="text-gray-300">Check the circles next to each card in the sidebar to customize what you want to export.</p>
-              </div>
-            </div>
-          )}
-        </div>
 
-        {/* Edit/Save & Share & Download Buttons */}
-        <div className="flex gap-3">
-          {/* Edit/Save Button */}
-          <button
-            onClick={handleToggleEdit}
-            className={`flex items-center gap-2 px-4 py-2 border-2 rounded-lg transition-all font-medium ${
-              isEditMode
-                ? "bg-emerald-500 border-emerald-500 text-white hover:bg-emerald-600"
-                : "border-[#278f8c] text-[#278f8c] hover:bg-[#278f8c] hover:text-white"
-            }`}
-          >
-            {isEditMode ? (
-              <>
-                <Save className="w-4 h-4" />
-                <span className="text-sm">Save Changes</span>
-              </>
-            ) : (
-              <>
-                <Edit2 className="w-4 h-4" />
-                <span className="text-sm">Edit Cards</span>
-              </>
-            )}
-          </button>
 
-          {/* Share Button */}
-          <div 
-            className="relative"
-            onMouseEnter={() => selectedCards.length === 0 && setShowShareHint(true)}
-            onMouseLeave={() => setShowShareHint(false)}
-          >
-            <button
-              onClick={handleShare}
-              disabled={selectedCards.length === 0}
-              className="flex items-center gap-2 px-4 py-2 border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ color: "#102a63" }}
-            >
-              <Share2 className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                Share {selectedCards.length > 0 && `(${selectedCards.length})`}
-              </span>
-            </button>
-            
-            {/* Tooltip for disabled state */}
-            {showShareHint && selectedCards.length === 0 && (
-              <div className="absolute bottom-full right-0 mb-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <div className="bg-[#102a63] text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                  ← Select cards from the sidebar first
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Download Button */}
-          <div 
-            className="relative"
-            onMouseEnter={() => selectedCards.length === 0 && setShowDownloadHint(true)}
-            onMouseLeave={() => setShowDownloadHint(false)}
-          >
-            <button
-              onClick={handleDownload}
-              disabled={selectedCards.length === 0}
-              className="flex items-center gap-2 px-4 py-2 bg-[#278f8c] text-white rounded-lg hover:bg-[#1a6764] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download className="w-4 h-4" />
-              <span className="text-sm font-medium">
-                Download PDF {selectedCards.length > 0 && `(${selectedCards.length})`}
-              </span>
-            </button>
-            
-            {/* Tooltip for disabled state */}
-            {showDownloadHint && selectedCards.length === 0 && (
-              <div className="absolute bottom-full right-0 mb-2 z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
-                <div className="bg-[#102a63] text-white text-xs rounded-lg px-3 py-2 shadow-lg whitespace-nowrap">
-                  ← Select cards from the sidebar first
-                </div>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Container with border */}
-      <div className="bg-white rounded-lg shadow-lg overflow-visible">
-        <div className="flex h-[800px] overflow-hidden">
-          {/* Sidebar Navigation */}
-          <div 
-            className="w-64 flex-shrink-0 border-r border-gray-200 h-full overflow-y-auto overflow-x-visible relative"
-            onMouseEnter={() => setIsSelectionMode(true)}
-            onMouseLeave={() => setIsSelectionMode(false)}
-          >
-            <div className="p-2 space-y-1">
-              {tabs.map((tab) => (
-                <div key={tab.id} className="relative">
-                  <button
-                    data-tab-id={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      setTooltipTab(null);
-                    }}
-                    onMouseEnter={() => {
-                      setTooltipTab(tab.id);
-                      setHoveredTab(tab.id);
-                    }}
-                    onMouseLeave={() => {
-                      setTooltipTab(null);
-                      setHoveredTab(null);
-                    }}
-                    className={`
-                      w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all rounded-lg text-left
-                      ${activeTab === tab.id
-                        ? "bg-[#278f8c] text-white shadow-md"
-                        : "text-gray-700 hover:bg-gray-50"
-                      }
-                    `}
-                  >
-                    <tab.Icon className="w-5 h-5 flex-shrink-0" />
-                    <span className="flex-1">{tab.label}</span>
-                    
-                    {/* Custom circular checkbox with checkmark - shows on hover or when selected */}
-                    {(hoveredTab === tab.id || selectedCards.includes(tab.id)) && (
-                      <div
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleCardSelection(tab.id);
-                        }}
-                        className={`w-5 h-5 rounded-full border-2 cursor-pointer flex-shrink-0 flex items-center justify-center transition-all ${
-                          selectedCards.includes(tab.id)
-                            ? activeTab === tab.id 
-                              ? "bg-white border-white" 
-                              : "bg-[#278f8c] border-[#278f8c]"
-                            : activeTab === tab.id 
-                              ? "border-white" 
-                              : "border-gray-400"
-                        } animate-in fade-in zoom-in duration-200`}
-                      >
-                        {selectedCards.includes(tab.id) && (
-                          <svg 
-                            className="w-3 h-3" 
-                            viewBox="0 0 12 12" 
-                            fill="none"
-                            style={{ 
-                              stroke: activeTab === tab.id ? "#278f8c" : "#ffffff"
-                            }}
-                          >
-                            <path 
-                              d="M2 6L4.5 8.5L10 3" 
-                              strokeWidth="2" 
-                              strokeLinecap="round" 
-                              strokeLinejoin="round"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                    )}
-                  </button>
-
-                  {/* Tooltip on Hover */}
-                  <AnimatePresence>
-                    {tooltipTab === tab.id && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ duration: 0.2 }}
-                        className="fixed z-[9999] w-80 pointer-events-none"
-                        style={{
-                          left: `${(document.querySelector(`button[data-tab-id="${tab.id}"]`) as HTMLElement)?.getBoundingClientRect().right + 16 || 0}px`,
-                          top: `${(document.querySelector(`button[data-tab-id="${tab.id}"]`) as HTMLElement)?.getBoundingClientRect().top || 0}px`,
-                        }}
-                      >
-                        <div 
-                          className="bg-white border-2 border-[#278f8c] rounded-xl shadow-2xl p-4 relative pointer-events-auto"
-                          onMouseEnter={() => setTooltipTab(tab.id)}
-                          onMouseLeave={() => setTooltipTab(null)}
-                        >
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="p-2 bg-[#d7f4f2] rounded-lg">
-                              <tab.Icon size={18} className="text-[#278f8c]" />
-                            </div>
-                            <h4 className="font-bold text-[#102a63]">{tab.label}</h4>
-                          </div>
-                          <p className="text-sm text-slate-600 leading-relaxed">
-                            {getCardDescription(tab.id)}
-                          </p>
-                          {/* Arrow pointer pointing left */}
-                          <div className="absolute left-0 top-4 -ml-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-white"></div>
-                          <div className="absolute left-0 top-4 -ml-3 w-0 h-0 border-t-[9px] border-t-transparent border-b-[9px] border-b-transparent border-r-[9px] border-r-[#278f8c]"></div>
-                        </div>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Card Content */}
-          <div className="flex-1 min-w-0 h-full overflow-y-auto">
-            <div className="p-6 md:p-8">
-              <EditModeProvider isEditMode={isEditMode}>
-                {renderCardContent()}
-              </EditModeProvider>
-            </div>
-          </div>
+      {/* Main Content Area - Full Width */}
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+              <div className="p-4 md:p-5 min-h-[600px]">
+          <EditModeProvider isEditMode={isEditMode}>
+            {renderCardContent()}
+          </EditModeProvider>
         </div>
       </div>
       
-      {/* Hide scrollbar styling */}
-      <style jsx global>{`
-        .overflow-y-auto::-webkit-scrollbar {
-          width: 6px;
-        }
-        .overflow-y-auto::-webkit-scrollbar-track {
-          background: transparent;
-        }
-        .overflow-y-auto::-webkit-scrollbar-thumb {
-          background: #cbd5e1;
-          border-radius: 3px;
-        }
-        .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-          background: #94a3b8;
-        }
-      `}</style>
+
+      {/* Floating Message Icon - Bottom Right Corner */}
+      <motion.button
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.95 }}
+        onClick={() => setShowImprovementPanel(true)}
+        className="fixed bottom-6 right-6 z-40 w-14 h-14 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-full shadow-lg flex items-center justify-center transition-all hover:shadow-xl"
+        title="Get improvement suggestions"
+      >
+        <MessageSquare className="w-6 h-6" />
+        {/* Notification badge if there are suggestions */}
+        {realityCardData && (
+          <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold animate-pulse">
+            !
+          </span>
+        )}
+      </motion.button>
+
+      {/* Improvement Signals Panel */}
+      <ImprovementSignalsPanel
+        isOpen={showImprovementPanel}
+        onClose={() => setShowImprovementPanel(false)}
+        currentScore={realityScore}
+        cardData={realityCardData}
+        onApplySuggestion={(signalId, targetTab, scoreIncrease) => {
+          // Track accepted improvement and its score increase
+          if (scoreIncrease) {
+            setAcceptedImprovementsBoost(prev => prev + scoreIncrease);
+          }
+          console.log("Applying suggestion:", signalId, "score boost:", scoreIncrease);
+        }}
+        onNavigateToTab={(tabId) => {
+          setActiveTab(tabId);
+          setShowImprovementPanel(false);
+        }}
+      />
     </div>
   );
 };

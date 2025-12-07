@@ -1,0 +1,187 @@
+import { 
+  Target, Briefcase, Code, TrendingUp, Map, DollarSign, 
+  BarChart3, UserCheck, MessageSquare, Mic, ClipboardList, CalendarCheck 
+} from "lucide-react";
+import { CardPreviewData } from "@/components/cards/CardPreview";
+
+export const cardCategories = [
+  {
+    id: "foundation",
+    name: "Foundation",
+    description: "Core understanding of the role and requirements",
+    color: "purple",
+    gradient: "bg-gradient-to-br from-purple-600 to-indigo-600",
+  },
+  {
+    id: "market",
+    name: "Market Intelligence",
+    description: "Understanding the talent landscape and competition",
+    color: "blue",
+    gradient: "bg-gradient-to-br from-blue-600 to-cyan-600",
+  },
+  {
+    id: "outreach",
+    name: "Outreach & Engagement",
+    description: "Finding and connecting with the right candidates",
+    color: "emerald",
+    gradient: "bg-gradient-to-br from-emerald-600 to-teal-600",
+  },
+  {
+    id: "selection",
+    name: "Selection",
+    description: "Evaluating and choosing the best candidates",
+    color: "amber",
+    gradient: "bg-gradient-to-br from-amber-600 to-orange-600",
+  },
+  {
+    id: "onboarding",
+    name: "Onboarding",
+    description: "Setting up new hires for success",
+    color: "indigo",
+    gradient: "bg-gradient-to-br from-indigo-600 to-purple-600",
+  },
+];
+
+export const allCards: CardPreviewData[] = [
+  {
+    id: "reality",
+    label: "Reality Card",
+    shortLabel: "Reality",
+    impact: "+1.0",
+    category: "foundation",
+    teaser: "The brutal truth about making this hire. Understand feasibility, market conditions, and what actually helps or hurts your case. Get the unvarnished reality check.",
+    icon: Target,
+    color: "purple",
+    gradient: "bg-gradient-to-br from-purple-600 to-indigo-600",
+  },
+  {
+    id: "role",
+    label: "Role Card",
+    shortLabel: "Role",
+    impact: "+1.0",
+    category: "foundation",
+    teaser: "What this person will actually do and what success looks like in the first 6–12 months. Clear expectations and outcomes that matter.",
+    icon: Briefcase,
+    color: "purple",
+    gradient: "bg-gradient-to-br from-purple-600 to-indigo-600",
+  },
+  {
+    id: "skill",
+    label: "Skill Card",
+    shortLabel: "Skill",
+    impact: "+0.8",
+    category: "foundation",
+    teaser: "The must-have abilities, tools, and experience needed to perform the role. Separate critical skills from nice-to-haves.",
+    icon: Code,
+    color: "purple",
+    gradient: "bg-gradient-to-br from-purple-600 to-indigo-600",
+  },
+  {
+    id: "market",
+    label: "Market Card",
+    shortLabel: "Market",
+    impact: "+0.9",
+    category: "market",
+    teaser: "How big the talent pool is and how competitive the market is for this profile. Real market dynamics and what you're up against.",
+    icon: TrendingUp,
+    color: "blue",
+    gradient: "bg-gradient-to-br from-blue-600 to-cyan-600",
+  },
+  {
+    id: "talentmap",
+    label: "Talent Map Card",
+    shortLabel: "Talent Map",
+    impact: "+0.6",
+    category: "market",
+    teaser: "Where the strongest candidates come from, companies, locations, and common backgrounds. Your treasure map to top talent.",
+    icon: Map,
+    color: "blue",
+    gradient: "bg-gradient-to-br from-blue-600 to-cyan-600",
+  },
+  {
+    id: "pay",
+    label: "Pay Card",
+    shortLabel: "Pay",
+    impact: "+0.8",
+    category: "market",
+    teaser: "What candidates expect to earn in this market and how your budget compares. Compensation insights that win candidates.",
+    icon: DollarSign,
+    color: "blue",
+    gradient: "bg-gradient-to-br from-blue-600 to-cyan-600",
+  },
+  {
+    id: "funnel",
+    label: "Funnel Card",
+    shortLabel: "Funnel",
+    impact: "+0.8",
+    category: "outreach",
+    teaser: "The volume of outreach and interviews you'll need to fill the role. Realistic conversion rates and pipeline requirements.",
+    icon: BarChart3,
+    color: "emerald",
+    gradient: "bg-gradient-to-br from-emerald-600 to-teal-600",
+  },
+  {
+    id: "fit",
+    label: "Fit Card",
+    shortLabel: "Fit",
+    impact: "+0.7",
+    category: "outreach",
+    teaser: "What motivates this persona, what they care about, and what usually makes them say yes or no. Understand their decision drivers.",
+    icon: UserCheck,
+    color: "emerald",
+    gradient: "bg-gradient-to-br from-emerald-600 to-teal-600",
+  },
+  {
+    id: "message",
+    label: "Message Card",
+    shortLabel: "Message",
+    impact: "+0.6",
+    category: "outreach",
+    teaser: "How to pitch the role in a way that actually gets replies. Compelling messaging that cuts through the noise.",
+    icon: MessageSquare,
+    color: "emerald",
+    gradient: "bg-gradient-to-br from-emerald-600 to-teal-600",
+  },
+  {
+    id: "interview",
+    label: "Interview Card",
+    shortLabel: "Interview",
+    impact: "+0.9",
+    category: "selection",
+    teaser: "The recommended interview process and competencies to assess at each stage. Structured evaluation that finds the best fit.",
+    icon: Mic,
+    color: "amber",
+    gradient: "bg-gradient-to-br from-amber-600 to-orange-600",
+  },
+  {
+    id: "scorecard",
+    label: "Scorecard Card",
+    shortLabel: "Scorecard",
+    impact: "+0.6",
+    category: "selection",
+    teaser: "A simple evaluation framework to keep the team aligned and reduce bias. Consistent scoring that leads to better decisions.",
+    icon: ClipboardList,
+    color: "amber",
+    gradient: "bg-gradient-to-br from-amber-600 to-orange-600",
+  },
+  {
+    id: "plan",
+    label: "Plan Card",
+    shortLabel: "Plan",
+    impact: "+0.9",
+    category: "onboarding",
+    teaser: "Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well. A clear roadmap to success.",
+    icon: CalendarCheck,
+    color: "indigo",
+    gradient: "bg-gradient-to-br from-indigo-600 to-purple-600",
+  },
+];
+
+export const getCardById = (id: string): CardPreviewData | undefined => {
+  return allCards.find(card => card.id === id);
+};
+
+export const getCardsByCategory = (categoryId: string): CardPreviewData[] => {
+  return allCards.filter(card => card.category === categoryId);
+};
+

@@ -1,17 +1,31 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Target, AlertTriangle, CheckCircle, Clock } from "lucide-react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Target, AlertTriangle, CheckCircle, Clock, TrendingUp } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableText, EditableList } from "@/components/EditableCard";
+import { ScoreProgressRing } from "@/components/ScoreProgressRing";
+import { calculateRealityScore, getScoreLabel, getScoreSubtext } from "@/components/RealityScoreCalculator";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
-export const EditableRealityCard = () => {
+export const EditableRealityCard = ({ 
+  onScoreChange,
+  acceptedImprovementsBoost = 0,
+  onNavigateToCard,
+  currentCardId
+}: { 
+  onScoreChange?: (score: number) => void;
+  acceptedImprovementsBoost?: number;
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+}) => {
   const [feasibilityScore, setFeasibilityScore] = useState("5.5/10");
   const [feasibilityTitle, setFeasibilityTitle] = useState("Possible with alignment and speed");
   const [feasibilitySubtext, setFeasibilitySubtext] = useState(
     "Not possible with slow process or strict constraints"
   );
+  const [previousScore, setPreviousScore] = useState<number | undefined>(undefined);
   const [realityCheck1, setRealityCheck1] = useState(
     "This hire is feasible but challenging. You're not sourcing an entry-level analyst, you're competing for senior Analytics Engineers who are already employed, well-compensated, and selective about where they go next."
   );
@@ -47,16 +61,63 @@ export const EditableRealityCard = () => {
   const [bottomLine2, setBottomLine2] = useState(
     "Post-and-pray, take 4-6 weeks to decide, and lowball on comp, you won't."
   );
+  const [whatsReallyGoingOn, setWhatsReallyGoingOn] = useState(
+    "You're competing for senior Analytics Engineers who are: fully employed, well-paid, selective, not browsing job boards for fun. If your scope, messaging, and speed aren't sharp, you're effectively entering the race with untied shoelaces."
+  );
+  const [redFlags, setRedFlags] = useState([
+    "JD reads like BI maintenance",
+    "Stakeholders give different definitions of success",
+    "No owner for modelling standards",
+    "\"Comp is still being figured out\""
+  ]);
+  const [donts, setDonts] = useState([
+    "Post-and-pray",
+    "Pretend data debt is tiny (they'll find it faster than you think)",
+    "Add every nice-to-have into the JD",
+    "Start sourcing before alignment is real, not imagined"
+  ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Align on 3 non-negotiable skills",
+      impact: "+0.2",
+      tooltip: "Why it matters: Removes noisy requirements. Reduces friction with HM.",
+      talentPoolImpact: "+18% available market",
+      riskReduction: "-10% restart risk"
+    },
+    {
+      fix: "Pre-approve comp guardrails",
+      impact: "+0.3",
+      tooltip: "Why it matters: Prevents late rejections; seniors won't move without clarity.",
+      talentPoolImpact: "+22% candidate engagement",
+      riskReduction: "-20% offer-fail risk"
+    },
+    {
+      fix: "Pre-block interview slots",
+      impact: "+0.2",
+      tooltip: "Why it matters: Time kills deals. Removes hidden bottlenecks.",
+      talentPoolImpact: "+12% conversion",
+      riskReduction: "-15% dropout risk"
+    },
+    {
+      fix: "Clarify modelling ownership",
+      impact: "+0.3",
+      tooltip: "Why it matters: Seniors reject vague jobs instantly.",
+      talentPoolImpact: "+15% persona match",
+      riskReduction: "-25% misalignment risk"
+    }
+  ]);
 
   useEffect(() => {
     const data = {
       feasibilityScore, feasibilityTitle, feasibilitySubtext,
       realityCheck1, realityCheck2, keyInsights, helpsCase, hurtsCase,
-      hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2
+      hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2,
+      whatsReallyGoingOn, redFlags, donts, scoreImpactRows
     };
     sessionStorage.setItem("editableRealityCard", JSON.stringify(data));
   }, [feasibilityScore, feasibilityTitle, feasibilitySubtext, realityCheck1, realityCheck2, 
-      keyInsights, helpsCase, hurtsCase, hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2]);
+      keyInsights, helpsCase, hurtsCase, hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2,
+      whatsReallyGoingOn, redFlags, donts, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableRealityCard");
@@ -75,6 +136,10 @@ export const EditableRealityCard = () => {
         if (data.timelineToFailure) setTimelineToFailure(data.timelineToFailure);
         if (data.bottomLine1) setBottomLine1(data.bottomLine1);
         if (data.bottomLine2) setBottomLine2(data.bottomLine2);
+        if (data.whatsReallyGoingOn) setWhatsReallyGoingOn(data.whatsReallyGoingOn);
+        if (data.redFlags) setRedFlags(data.redFlags);
+        if (data.donts) setDonts(data.donts);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -82,80 +147,118 @@ export const EditableRealityCard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Calculate dynamic score based on card data + accepted improvements
+  const calculatedScore = useMemo(() => {
+    const baseScore = calculateRealityScore({
+      feasibilityScore,
+      helpsCase,
+      hurtsCase,
+      keyInsights,
+      realityCheck1,
+      realityCheck2,
+      hiddenBottleneck,
+      timelineToFailure,
+      bottomLine1,
+      bottomLine2,
+    });
+    // Add accepted improvements boost (capped at 10)
+    return Math.min(10, baseScore + acceptedImprovementsBoost);
+  }, [feasibilityScore, helpsCase, hurtsCase, keyInsights, realityCheck1, realityCheck2, hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2, acceptedImprovementsBoost]);
+
+  // Track previous calculated score to prevent unnecessary updates
+  const previousCalculatedScoreRef = useRef<number | undefined>(undefined);
+
+  // Update score when it changes
+  useEffect(() => {
+    if (calculatedScore !== undefined && previousCalculatedScoreRef.current !== calculatedScore) {
+      previousCalculatedScoreRef.current = calculatedScore;
+      onScoreChange?.(calculatedScore);
+      // Update previous score after a delay to show change animation
+      const timer = setTimeout(() => {
+        setPreviousScore(calculatedScore);
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [calculatedScore, onScoreChange]);
+
+  // Auto-update title and subtext based on calculated score (optional - commented out to preserve user edits)
+  // Uncomment if you want automatic updates, but this may overwrite user customizations
+  // useEffect(() => {
+  //   const expectedTitle = getScoreLabel(calculatedScore);
+  //   const expectedSubtext = getScoreSubtext(calculatedScore);
+  //   setFeasibilityTitle(expectedTitle);
+  //   setFeasibilitySubtext(expectedSubtext);
+  // }, [calculatedScore]);
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-          <Target className="w-6 h-6 text-white" />
+
+      {/* Feasibility Score with Progress Ring */}
+      <div className="bg-gradient-to-br from-[#278f8c] to-[#1a6764] text-white rounded-xl p-8">
+        <p className="text-sm font-medium mb-4 opacity-90 text-center">Feasibility Score</p>
+        
+        <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-4">
+          {/* Progress Ring */}
+          <div className="flex-shrink-0">
+            <ScoreProgressRing
+              currentScore={calculatedScore}
+              previousScore={previousScore}
+              maxScore={10}
+              size={140}
+              strokeWidth={10}
+              showChange={true}
+            />
+          </div>
+          
+          {/* Score Details */}
+          <div className="flex-1 text-center md:text-left">
+            <div className="text-4xl font-bold mb-2">{calculatedScore.toFixed(1)}/10</div>
+            <div className="text-lg font-medium mb-2">
+              <EditableText
+                value={feasibilityTitle}
+                onChange={setFeasibilityTitle}
+                className="text-lg font-medium text-white"
+                style={{ color: 'white' }}
+              />
+            </div>
+            <div className="text-sm opacity-90">
+              <EditableText
+                value={feasibilitySubtext}
+                onChange={setFeasibilitySubtext}
+                className="text-sm text-white opacity-90"
+                style={{ color: 'white' }}
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-            Reality Card
-          </h2>
-          <p className="text-sm text-gray-600">Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.</p>
+
+        {/* Manual Score Override (Optional) */}
+        <div className="mt-4 pt-4 border-t border-white/20">
+          <div className="text-xs opacity-75 mb-2 text-center">Manual Override (Optional)</div>
+          <div className="flex items-center justify-center gap-2">
+            <EditableText
+              value={feasibilityScore}
+              onChange={setFeasibilityScore}
+              className="text-sm font-medium text-white bg-white/10 px-3 py-1 rounded"
+              style={{ color: 'white' }}
+              placeholder="5.5/10"
+            />
+            <span className="text-xs opacity-75">(Auto-calculated: {calculatedScore.toFixed(1)}/10)</span>
+          </div>
         </div>
       </div>
 
-      {/* Feasibility Score */}
-      <div className="bg-gradient-to-br from-[#278f8c] to-[#1a6764] text-white rounded-xl p-8 text-center">
-        <p className="text-sm font-medium mb-2 opacity-90">Feasibility Score</p>
-        <div className="text-6xl font-bold mb-3">
-          <EditableText
-            value={feasibilityScore}
-            onChange={setFeasibilityScore}
-            className="text-6xl font-bold text-white"
-            style={{ color: 'white' }}
-          />
-        </div>
-        <div className="text-xl font-medium mb-2">
-          <EditableText
-            value={feasibilityTitle}
-            onChange={setFeasibilityTitle}
-            className="text-xl font-medium text-white"
-            style={{ color: 'white' }}
-          />
-        </div>
-        <div className="text-sm opacity-80">
-          <EditableText
-            value={feasibilitySubtext}
-            onChange={setFeasibilitySubtext}
-            className="text-sm text-white opacity-80"
-            style={{ color: 'white' }}
-          />
-        </div>
-      </div>
-
-      {/* Reality Check */}
+      {/* What's Really Going On */}
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
         <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-          Reality Check
+          What's Really Going On
         </h3>
         <EditableText
-          value={realityCheck1}
-          onChange={setRealityCheck1}
-          className="text-sm leading-relaxed mb-3"
-          style={{ color: "#102a63" }}
-          multiline
-        />
-        <EditableText
-          value={realityCheck2}
-          onChange={setRealityCheck2}
+          value={whatsReallyGoingOn}
+          onChange={setWhatsReallyGoingOn}
           className="text-sm leading-relaxed"
           style={{ color: "#102a63" }}
           multiline
-        />
-      </div>
-
-      {/* Key Insights */}
-      <div>
-        <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-          Key Insights
-        </h3>
-        <EditableList
-          items={keyInsights}
-          onChange={setKeyInsights}
-          itemClassName="text-sm"
-          markerColor="text-blue-500"
         />
       </div>
 
@@ -185,14 +288,37 @@ export const EditableRealityCard = () => {
         />
       </div>
 
-      {/* Hidden Bottleneck */}
-      <Callout tone="danger" title="Hidden Bottleneck">
+      {/* Brutal Truth */}
+      <Callout tone="danger" title="Brutal Truth">
         <EditableText
           value={hiddenBottleneck}
           onChange={setHiddenBottleneck}
           multiline
         />
       </Callout>
+
+      {/* Red Flags */}
+      <Section title="Red Flags" Icon={AlertTriangle} tone="danger" collapsible={true} defaultExpanded={false}>
+        <EditableList
+          items={redFlags}
+          onChange={setRedFlags}
+          itemClassName="text-sm text-red-700"
+          markerColor="text-red-600"
+        />
+      </Section>
+
+      {/* Don't Do This */}
+      <Section title="Don't Do This" Icon={AlertTriangle} tone="danger" collapsible={true} defaultExpanded={false}>
+        <EditableList
+          items={donts}
+          onChange={setDonts}
+          itemClassName="text-sm text-red-700"
+          markerColor="text-red-600"
+        />
+      </Section>
+
+      {/* Fix This Now — Score Impact Table */}
+      <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" />
 
       {/* Timeline to Failure */}
       <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
@@ -212,27 +338,35 @@ export const EditableRealityCard = () => {
         </div>
       </div>
 
+
       {/* Bottom Line */}
       <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6">
         <h3 className="font-bold text-lg mb-3 flex items-center gap-2" style={{ color: "#102a63" }}>
           <Target className="w-5 h-5 text-[#278f8c]" />
-          The Bottom Line
+          Bottom Line
         </h3>
         <div className="space-y-3">
-          <EditableText
-            value={bottomLine1}
-            onChange={setBottomLine1}
-            className="text-sm text-gray-800"
-            multiline
-          />
-          <EditableText
-            value={bottomLine2}
-            onChange={setBottomLine2}
-            className="text-sm text-gray-800"
-            multiline
-          />
+          <div className="flex items-start gap-2">
+            <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+            <EditableText
+              value={bottomLine1}
+              onChange={setBottomLine1}
+              className="text-sm text-gray-800"
+              multiline
+            />
+          </div>
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <EditableText
+              value={bottomLine2}
+              onChange={setBottomLine2}
+              className="text-sm text-gray-800"
+              multiline
+            />
+          </div>
         </div>
       </div>
+
     </div>
   );
 };

@@ -5,8 +5,11 @@ import { DollarSign, TrendingUp, AlertTriangle, Wrench, XCircle } from "lucide-r
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableKeyValue, EditableList, EditableText } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
 interface PayCardProps {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
   data?: {
     marketCompensation?: Array<{ label: string; value: string }>;
     recommendedRange?: string;
@@ -21,7 +24,7 @@ interface PayCardProps {
   };
 }
 
-export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
+export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard, currentCardId }) => {
   console.log("💳 ============================================");
   console.log("💳 EDITABLE PAY CARD RENDER");
   console.log("💳 ============================================");
@@ -71,6 +74,29 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
   const [timelineToFailure, setTimelineToFailure] = useState(
     data?.timelineToFailure || "If comp approval takes >5 days → expect candidate rejection."
   );
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Align comp before sourcing",
+      impact: "+0.4",
+      tooltip: "Why it matters: Prevents end-of-process rejection.",
+      talentPoolImpact: "+25% reply rate",
+      riskReduction: "-25% offer failure"
+    },
+    {
+      fix: "Share range early",
+      impact: "+0.2",
+      tooltip: "Why it matters: Seniors reject vague offers immediately.",
+      talentPoolImpact: "+12% more qualified",
+      riskReduction: "-10% ghosting"
+    },
+    {
+      fix: "Offer flexibility",
+      impact: "+0.2",
+      tooltip: "Why it matters: Gives room to close top candidates.",
+      talentPoolImpact: "+10% close-rate boost",
+      riskReduction: "-8% negotiation stalls"
+    }
+  ]);
 
   // Update when data prop changes
   useEffect(() => {
@@ -114,9 +140,10 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
       fixes,
       hiddenBottleneck,
       timelineToFailure,
+      scoreImpactRows
     };
     sessionStorage.setItem("editablePayCard", JSON.stringify(data));
-  }, [marketComp, recommendedRange, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, timelineToFailure]);
+  }, [marketComp, recommendedRange, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, timelineToFailure, scoreImpactRows]);
 
   // Load from sessionStorage
   useEffect(() => {
@@ -132,6 +159,7 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
         if (data.fixes) setFixes(data.fixes);
         if (data.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
         if (data.timelineToFailure) setTimelineToFailure(data.timelineToFailure);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -141,7 +169,7 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
 
   return (
     <div className="space-y-6">
-      <Section title="Pay Card" subtitle="What candidates expect to earn in this market and how your budget compares." Icon={DollarSign} density="compact">
+      <Section subtitle="What candidates expect to earn in this market and how your budget compares." Icon={DollarSign} density="compact" collapsible={true} defaultExpanded={false}>
         <div className="space-y-4">
           {/* Market Compensation */}
           <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">
@@ -207,15 +235,8 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
             />
           </Section>
 
-          {/* Fix This Now */}
-          <Section title="🔧 Fix This Now" Icon={Wrench} tone="success">
-            <EditableList
-              items={fixes}
-              onChange={setFixes}
-              itemClassName="text-[13px] leading-snug text-emerald-800"
-              markerColor="text-emerald-600"
-            />
-          </Section>
+          {/* Fix This Now — Score Impact Table */}
+          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" />
 
           {/* Hidden Bottleneck */}
           <Callout tone="warning" title="🔍 Hidden Bottleneck">
@@ -238,6 +259,7 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data }) => {
           </Callout>
         </div>
       </Section>
+
     </div>
   );
 };

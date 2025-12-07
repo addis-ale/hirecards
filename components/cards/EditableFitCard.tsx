@@ -1,13 +1,20 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { UserCheck, Target, ThumbsUp, ThumbsDown, AlertTriangle, Wrench, XCircle } from "lucide-react";
+import { UserCheck, Target, ThumbsUp, ThumbsDown, AlertTriangle, Wrench, XCircle, CheckCircle } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { Pill } from "@/components/ui/Pill";
 import { EditableList, EditableText } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
-export const EditableFitCard = () => {
+export const EditableFitCard = ({
+  onNavigateToCard,
+  currentCardId
+}: {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+} = {}) => {
   const [persona, setPersona] = useState("Product-Minded AE");
   const [motivatedBy, setMotivatedBy] = useState([
     "Ownership",
@@ -47,13 +54,51 @@ export const EditableFitCard = () => {
     "Product roadmap clarity",
     "Transparency about challenges"
   ]);
+  const [decisionMakingYes, setDecisionMakingYes] = useState([
+    "They can shape modelling foundations",
+    "They see real technical challenges",
+    "They see high-quality peers",
+    "The interview loop feels structured",
+    "Comp is aligned early",
+    "Product impact is clear"
+  ]);
+  const [decisionMakingNo, setDecisionMakingNo] = useState([
+    "They detect BI-heavy responsibilities",
+    "Ownership is unclear",
+    "Interviewers contradict each other",
+    "The team cannot articulate a modelling philosophy",
+    "They feel the role is actually mid-level disguised as senior"
+  ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Tailor outreach to persona",
+      impact: "+0.3",
+      tooltip: "Relevance is the #1 driver of replies; generic messages get ignored.",
+      talentPoolImpact: "+20% response",
+      riskReduction: "-12% sourcing waste"
+    },
+    {
+      fix: "Highlight modelling ownership",
+      impact: "+0.2",
+      tooltip: "This is the strongest motivator for product-minded AEs.",
+      talentPoolImpact: "+15% interest",
+      riskReduction: "-10% dropout"
+    },
+    {
+      fix: "Show messy truth early",
+      impact: "+0.2",
+      tooltip: "Honesty builds instant credibility and differentiates you from fintech competitors.",
+      talentPoolImpact: "+10% credibility",
+      riskReduction: "-8% expectation mismatch"
+    }
+  ]);
 
   useEffect(() => {
     const data = {
-      persona, motivatedBy, avoids, brutalTruth, redFlags, donts, fixes, candidateEvaluation
+      persona, motivatedBy, avoids, brutalTruth, redFlags, donts, fixes, candidateEvaluation, decisionMakingYes, decisionMakingNo, scoreImpactRows
     };
     sessionStorage.setItem("editableFitCard", JSON.stringify(data));
-  }, [persona, motivatedBy, avoids, brutalTruth, redFlags, donts, fixes, candidateEvaluation]);
+  }, [persona, motivatedBy, avoids, brutalTruth, redFlags, donts, fixes, candidateEvaluation, decisionMakingYes, decisionMakingNo, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableFitCard");
@@ -68,6 +113,9 @@ export const EditableFitCard = () => {
         if (data.donts) setDonts(data.donts);
         if (data.fixes) setFixes(data.fixes);
         if (data.candidateEvaluation) setCandidateEvaluation(data.candidateEvaluation);
+        if (data.decisionMakingYes) setDecisionMakingYes(data.decisionMakingYes);
+        if (data.decisionMakingNo) setDecisionMakingNo(data.decisionMakingNo);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -77,7 +125,7 @@ export const EditableFitCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Fit Card" subtitle="What motivates this persona, what they care about, and what usually makes them say yes or no." Icon={UserCheck} density="compact">
+      <Section subtitle="What motivates this persona, what they care about, and what usually makes them say yes or no." Icon={UserCheck} density="compact" collapsible={true} defaultExpanded={false}>
         <div className="space-y-4">
           {/* Persona */}
           <div className="rounded-xl border-2 p-4 bg-gradient-to-br from-blue-50 to-white" style={{ borderColor: "#278f8c" }}>
@@ -170,6 +218,37 @@ export const EditableFitCard = () => {
             />
           </Section>
 
+          {/* Decision-Making Model */}
+          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Decision-Making Model — How They Say Yes / No</h4>
+            <div className="space-y-4">
+              <div>
+                <p className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4" />
+                  They say YES when:
+                </p>
+                <EditableList
+                  items={decisionMakingYes}
+                  onChange={setDecisionMakingYes}
+                  itemClassName="text-[13px] leading-snug text-emerald-800"
+                  markerColor="text-emerald-600"
+                />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-red-700 mb-2 flex items-center gap-2">
+                  <XCircle className="w-4 h-4" />
+                  They say NO when:
+                </p>
+                <EditableList
+                  items={decisionMakingNo}
+                  onChange={setDecisionMakingNo}
+                  itemClassName="text-[13px] leading-snug text-red-800"
+                  markerColor="text-red-600"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* Candidate Flip Test */}
           <Callout tone="warning" title="🔍 Candidate Flip Test">
             <p className="text-sm mb-2 font-medium" style={{ color: "#102a63" }}>
@@ -181,8 +260,12 @@ export const EditableFitCard = () => {
               ))}
             </div>
           </Callout>
+
+          {/* Fix This Now — Score Impact Table */}
+          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.7" />
         </div>
       </Section>
+
     </div>
   );
 };

@@ -3,8 +3,11 @@
 import React, { useState, useEffect } from "react";
 import { TrendingUp } from "lucide-react";
 import { EditableText, EditableList } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
 interface MarketCardProps {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
   data?: {
     talentAvailability?: {
       total: number;
@@ -28,7 +31,7 @@ interface MarketCardProps {
   };
 }
 
-export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
+export const EditableMarketCard: React.FC<MarketCardProps> = ({ data, onNavigateToCard, currentCardId }) => {
   console.log("📊 ============================================");
   console.log("📊 EDITABLE MARKET CARD RENDER");
   console.log("📊 ============================================");
@@ -67,6 +70,43 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
       ? data.insights[0]
       : "Strict location + low comp = long search."
   );
+  const [marketExpansionLevers, setMarketExpansionLevers] = useState([
+    { lever: "Allow EU relocation", why: "Removes biggest constraint", poolImpact: "+35%" },
+    { lever: "Hybrid vs Amsterdam-only", why: "Expands to broader EU", poolImpact: "+20%" },
+    { lever: "Outcome-focused JD", why: "Filters the right persona", poolImpact: "+10%" },
+    { lever: "Modelling-specific messaging", why: "Seniors respond to clarity", poolImpact: "+20% replies" },
+    { lever: "3-step interview loop", why: "Matches fintech speed", poolImpact: "+12–18% conversion" }
+  ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Allow EU relocation",
+      impact: "+0.4",
+      tooltip: "Biggest lever; instantly expands supply",
+      talentPoolImpact: "+35%",
+      riskReduction: "-20%"
+    },
+    {
+      fix: "Simplify interview loop",
+      impact: "+0.2",
+      tooltip: "Seniors drop out if loops drag",
+      talentPoolImpact: "+15%",
+      riskReduction: "-10%"
+    },
+    {
+      fix: "Tighten JD to outcomes",
+      impact: "+0.1",
+      tooltip: "Removes BI noise & attracts AEs",
+      talentPoolImpact: "+10%",
+      riskReduction: "-5%"
+    },
+    {
+      fix: "Improve messaging clarity",
+      impact: "+0.2",
+      tooltip: "Specificity increases replies",
+      talentPoolImpact: "+20%",
+      riskReduction: "-10%"
+    }
+  ]);
 
   // Update when data changes
   useEffect(() => {
@@ -93,10 +133,10 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
   useEffect(() => {
     const data = {
       amsterdamCount, euRelocationCount, remoteFlexCount,
-      marketConditions, brutalTruth
+      marketConditions, brutalTruth, marketExpansionLevers, scoreImpactRows
     };
     sessionStorage.setItem("editableMarketCard", JSON.stringify(data));
-  }, [amsterdamCount, euRelocationCount, remoteFlexCount, marketConditions, brutalTruth]);
+  }, [amsterdamCount, euRelocationCount, remoteFlexCount, marketConditions, brutalTruth, marketExpansionLevers, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableMarketCard");
@@ -108,6 +148,8 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
         if (data.remoteFlexCount) setRemoteFlexCount(data.remoteFlexCount);
         if (data.marketConditions) setMarketConditions(data.marketConditions);
         if (data.brutalTruth) setBrutalTruth(data.brutalTruth);
+        if (data.marketExpansionLevers) setMarketExpansionLevers(data.marketExpansionLevers);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -117,17 +159,6 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-[#278f8c] to-[#1a6764] flex items-center justify-center">
-          <TrendingUp className="w-6 h-6 text-white" />
-        </div>
-        <div>
-          <h2 className="text-2xl font-bold" style={{ color: "#102a63" }}>
-            Market Card
-          </h2>
-          <p className="text-sm text-gray-600">How big the talent pool is and how competitive the market is for this profile.</p>
-        </div>
-      </div>
 
       {/* Talent Pool Estimate */}
       <div>
@@ -208,10 +239,40 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
         </div>
       </div>
 
+      {/* Market Expansion Levers */}
+      <div className="rounded-xl border border-purple-200 p-4 bg-gradient-to-br from-purple-50 to-white">
+        <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
+          Market Expansion Levers (What Actually Moves the Needle)
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-purple-100 border-b-2 border-purple-200">
+              <tr>
+                <th className="px-4 py-3 text-left font-semibold text-purple-900">Lever</th>
+                <th className="px-4 py-3 text-left font-semibold text-purple-900">Why it matters</th>
+                <th className="px-4 py-3 text-center font-semibold text-purple-900">Pool Impact</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-purple-100">
+              {marketExpansionLevers.map((item, idx) => (
+                <tr key={idx} className="hover:bg-purple-50/50 transition-colors">
+                  <td className="px-4 py-3 font-medium text-gray-900">{item.lever}</td>
+                  <td className="px-4 py-3 text-gray-700">{item.why}</td>
+                  <td className="px-4 py-3 text-center text-purple-800 font-medium">{item.poolImpact}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Fix This Now — Score Impact Table */}
+      <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" />
+
       {/* Brutal Truth */}
       <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
         <h3 className="font-bold text-lg mb-2 text-red-700">
-          Brutal Truth
+          Bottom Line
         </h3>
         <EditableText
           value={brutalTruth}
@@ -220,6 +281,7 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({ data }) => {
           multiline
         />
       </div>
+
     </div>
   );
 };

@@ -4,8 +4,21 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { HireCardTabs } from "@/components/HireCardTabs";
-import { ArrowLeft, Loader2, CheckCircle, LayoutDashboard, Lock } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  CheckCircle,
+  LayoutDashboard,
+  Lock,
+  TrendingUp,
+} from "lucide-react";
+import { CardPreview } from "@/components/cards/CardPreview";
+import {
+  cardCategories,
+  allCards,
+  getCardsByCategory,
+} from "@/lib/cardCategories";
+import { motion } from "framer-motion";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -15,6 +28,16 @@ export default function ResultsPage() {
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [showDebugModal, setShowDebugModal] = useState(false);
   const [scrapedData, setScrapedData] = useState<any>(null);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [currentCardId, setCurrentCardId] = useState<string | null>(null);
+
+  const filteredCards = selectedCategory
+    ? getCardsByCategory(selectedCategory)
+    : allCards;
+
+  const selectedCategoryData = selectedCategory
+    ? cardCategories.find((cat) => cat.id === selectedCategory)
+    : null;
 
   useEffect(() => {
     const checkSubscription = () => {
@@ -41,14 +64,21 @@ export default function ResultsPage() {
     };
 
     checkSubscription();
-  }, [router]);
 
+    // Get current card from session
+    const activeTab = sessionStorage.getItem("activeTab");
+    if (activeTab) {
+      setCurrentCardId(activeTab);
+    }
+  }, [router]);
 
   const saveToLibrary = () => {
     try {
       // Get current form data and cards
       // Try heroAnalysisData first (from Hero section), then formData (from chatbot/form)
-      const formData = sessionStorage.getItem("formData") || sessionStorage.getItem("heroAnalysisData");
+      const formData =
+        sessionStorage.getItem("formData") ||
+        sessionStorage.getItem("heroAnalysisData");
       const battleCards = sessionStorage.getItem("battleCards");
 
       if (!formData) return;
@@ -63,9 +93,10 @@ export default function ResultsPage() {
         experienceLevel: parsed.experienceLevel || "N/A",
         location: parsed.location || "N/A",
         workModel: parsed.workModel || "N/A",
-        salaryRange: parsed.salaryRange || parsed.minSalary && parsed.maxSalary 
-          ? `${parsed.minSalary} - ${parsed.maxSalary}`
-          : "N/A",
+        salaryRange:
+          parsed.salaryRange || (parsed.minSalary && parsed.maxSalary)
+            ? `${parsed.minSalary} - ${parsed.maxSalary}`
+            : "N/A",
         createdAt: new Date().toISOString(),
         cards: cards,
         formData: parsed,
@@ -84,10 +115,12 @@ export default function ResultsPage() {
       }
 
       // Check if this card already exists (avoid duplicates)
-      const isDuplicate = savedCards.some((card: any) => 
-        card.roleTitle === savedCard.roleTitle &&
-        card.location === savedCard.location &&
-        new Date(card.createdAt).toDateString() === new Date(savedCard.createdAt).toDateString()
+      const isDuplicate = savedCards.some(
+        (card: any) =>
+          card.roleTitle === savedCard.roleTitle &&
+          card.location === savedCard.location &&
+          new Date(card.createdAt).toDateString() ===
+            new Date(savedCard.createdAt).toDateString()
       );
 
       if (!isDuplicate) {
@@ -110,12 +143,15 @@ export default function ResultsPage() {
   const handleDebugClick = () => {
     // Load RAW Apify scraped data from sessionStorage
     const rawJobsPayCard = sessionStorage.getItem("apifyRawJobsData_PayCard");
-    const rawJobsMarketCard = sessionStorage.getItem("apifyRawJobsData_MarketCard");
+    const rawJobsMarketCard = sessionStorage.getItem(
+      "apifyRawJobsData_MarketCard"
+    );
     const rawProfiles = sessionStorage.getItem("apifyRawProfilesData");
 
     const debugData: any = {
       note: "RAW SCRAPED DATA FROM APIFY (NOT ANALYZED)",
-      description: "This shows the actual job postings and profiles scraped by Apify actors - unprocessed and unanalyzed",
+      description:
+        "This shows the actual job postings and profiles scraped by Apify actors - unprocessed and unanalyzed",
       timestamp: new Date().toISOString(),
     };
 
@@ -154,7 +190,9 @@ export default function ResultsPage() {
         debugData.marketCardJobs = { error: "Failed to parse" };
       }
     } else {
-      debugData.marketCardJobs = { message: "No raw jobs data found for MarketCard" };
+      debugData.marketCardJobs = {
+        message: "No raw jobs data found for MarketCard",
+      };
     }
 
     // Add RAW profiles from MarketCard scraping
@@ -172,9 +210,10 @@ export default function ResultsPage() {
         debugData.profiles = { error: "Failed to parse" };
       }
     } else {
-      debugData.profiles = { 
+      debugData.profiles = {
         message: "No raw profiles data found",
-        reason: "Profile scraper currently disabled (requires profile URLs as input)"
+        reason:
+          "Profile scraper currently disabled (requires profile URLs as input)",
       };
     }
 
@@ -185,9 +224,10 @@ export default function ResultsPage() {
         "1. Enrichment still in progress (wait for loader to complete)",
         "2. Enrichment APIs failed (check console logs)",
         "3. Old session data (data cleared)",
-        "4. APIs not called yet"
+        "4. APIs not called yet",
       ];
-      debugData.howToCheck = "Look for 🔵 (PayCard) and 🟢 (MarketCard) logs in browser console";
+      debugData.howToCheck =
+        "Look for 🔵 (PayCard) and 🟢 (MarketCard) logs in browser console";
     }
 
     setScrapedData(debugData);
@@ -218,7 +258,10 @@ export default function ResultsPage() {
             <div className="max-w-6xl mx-auto mb-8">
               <div
                 className="flex items-center space-x-3 p-4 rounded-lg shadow-lg animate-fade-in"
-                style={{ backgroundColor: "#d7f4f2", border: "2px solid #278f8c" }}
+                style={{
+                  backgroundColor: "#d7f4f2",
+                  border: "2px solid #278f8c",
+                }}
               >
                 <CheckCircle
                   className="w-6 h-6 flex-shrink-0"
@@ -228,8 +271,12 @@ export default function ResultsPage() {
                   <p className="font-bold" style={{ color: "#102a63" }}>
                     Payment Successful! 🎉
                   </p>
-                  <p className="text-sm" style={{ color: "#102a63", opacity: 0.8 }}>
-                    You&apos;ve unlocked the {selectedPlan} plan. Your complete hiring battle cards are ready below!
+                  <p
+                    className="text-sm"
+                    style={{ color: "#102a63", opacity: 0.8 }}
+                  >
+                    You&apos;ve unlocked the {selectedPlan} plan. Your complete
+                    hiring battle cards are ready below!
                   </p>
                 </div>
               </div>
@@ -238,15 +285,14 @@ export default function ResultsPage() {
 
           {/* Header */}
           <div className="max-w-6xl mx-auto mb-8">
-       <button
-        onClick={() => router.back()}
-        className="flex items-center space-x-2 mb-6 transition-colors hover:opacity-80"
-        style={{ color: "#102a63" }}
-      >
-      <ArrowLeft className="w-5 h-5" />
-      <span className="font-medium">Back</span>
-    </button>
-
+            <button
+              onClick={() => router.back()}
+              className="flex items-center space-x-2 mb-6 transition-colors hover:opacity-80"
+              style={{ color: "#102a63" }}
+            >
+              <ArrowLeft className="w-5 h-5" />
+              <span className="font-medium">Back</span>
+            </button>
 
             <div className="text-center">
               <h1
@@ -262,106 +308,420 @@ export default function ResultsPage() {
                 </span>
               </h1>
               <p className="text-lg text-gray-600 mb-2">
-                {isSubscribed 
+                {isSubscribed
                   ? "Not bad. Here's your complete breakdown."
-                  : "Not bad. Let's break down what you're dealing with."
-                }
+                  : "Not bad. Let's break down what you're dealing with."}
               </p>
-              <p className="text-base text-gray-500 max-w-2xl mx-auto">
-                13 cards. Zero fluff. Just market data, sourcing tactics, interview frameworks, and a plan to fill this role.
+              <p className="text-base text-gray-500 max-w-2xl mx-auto mb-4">
+                13 cards. Zero fluff. Just market data, sourcing tactics,
+                interview frameworks, and a plan to fill this role.
               </p>
             </div>
           </div>
 
-          {/* Card Info Boxes - Highlights */}
-          <div className="max-w-6xl mx-auto mb-8">
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {/* Market Analysis */}
-              <div 
-                className="p-5 rounded-lg border-2 hover:shadow-lg transition-all hover:border-teal-300"
-                style={{ 
-                  backgroundColor: "#ffffff",
-                  borderColor: "#e0e0e0"
-                }}
+          {/* Category Cards - Clickable */}
+          <div className="max-w-7xl mx-auto mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+              {/* Foundation */}
+              <motion.button
+                onClick={() => setSelectedCategory("foundation")}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  ${
+                    selectedCategory === "foundation"
+                      ? "bg-gradient-to-br from-purple-600 to-indigo-600 border-purple-700 text-white shadow-xl"
+                      : "bg-white border-gray-200 hover:border-purple-300 hover:shadow-lg"
+                  }
+                `}
               >
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
-                  style={{ backgroundColor: "#d7f4f2" }}
+                <div
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                    selectedCategory === "foundation"
+                      ? "bg-white/20"
+                      : "bg-purple-50"
+                  }`}
                 >
-                  <svg className="w-6 h-6" style={{ color: "#278f8c" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  <svg
+                    className={`w-6 h-6 ${
+                      selectedCategory === "foundation"
+                        ? "text-white"
+                        : "text-purple-600"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
                   </svg>
                 </div>
-                <h4 className="font-bold mb-2 text-lg" style={{ color: "#102a63" }}>Market Intelligence</h4>
-                <p className="text-sm text-gray-600">Demand, supply, competition analysis & salary benchmarks</p>
-              </div>
+                <h4
+                  className={`font-bold mb-2 text-lg ${
+                    selectedCategory === "foundation"
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
+                  Foundation
+                </h4>
+                <p
+                  className={`text-sm ${
+                    selectedCategory === "foundation"
+                      ? "text-white/90"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Core understanding of the role, requirements & skills needed
+                </p>
+                {selectedCategory === "foundation" && (
+                  <div className="mt-3 text-xs font-semibold text-white/80">
+                    {getCardsByCategory("foundation").length} cards
+                  </div>
+                )}
+              </motion.button>
+              {/* Market Intelligence */}
+              <motion.button
+                onClick={() => setSelectedCategory("market")}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  ${
+                    selectedCategory === "market"
+                      ? "bg-gradient-to-br from-blue-600 to-cyan-600 border-blue-700 text-white shadow-xl"
+                      : "bg-white border-gray-200 hover:border-blue-300 hover:shadow-lg"
+                  }
+                `}
+              >
+                <div
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                    selectedCategory === "market" ? "bg-white/20" : "bg-blue-50"
+                  }`}
+                >
+                  <svg
+                    className={`w-6 h-6 ${
+                      selectedCategory === "market"
+                        ? "text-white"
+                        : "text-blue-600"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"
+                    />
+                  </svg>
+                </div>
+                <h4
+                  className={`font-bold mb-2 text-lg ${
+                    selectedCategory === "market"
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
+                  Market Intelligence
+                </h4>
+                <p
+                  className={`text-sm ${
+                    selectedCategory === "market"
+                      ? "text-white/90"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Demand, supply, competition analysis & salary benchmarks
+                </p>
+                {selectedCategory === "market" && (
+                  <div className="mt-3 text-xs font-semibold text-white/80">
+                    {getCardsByCategory("market").length} cards
+                  </div>
+                )}
+              </motion.button>
 
-              {/* Talent Sourcing */}
-              <div 
-                className="p-5 rounded-lg border-2 hover:shadow-lg transition-all hover:border-teal-300"
-                style={{ 
-                  backgroundColor: "#ffffff",
-                  borderColor: "#e0e0e0"
-                }}
+              {/* Talent Sourcing / Outreach */}
+              <motion.button
+                onClick={() => setSelectedCategory("outreach")}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  ${
+                    selectedCategory === "outreach"
+                      ? "bg-gradient-to-br from-emerald-600 to-teal-600 border-emerald-700 text-white shadow-xl"
+                      : "bg-white border-gray-200 hover:border-emerald-300 hover:shadow-lg"
+                  }
+                `}
               >
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
-                  style={{ backgroundColor: "#d7f4f2" }}
+                <div
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                    selectedCategory === "outreach"
+                      ? "bg-white/20"
+                      : "bg-emerald-50"
+                  }`}
                 >
-                  <svg className="w-6 h-6" style={{ color: "#278f8c" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                  <svg
+                    className={`w-6 h-6 ${
+                      selectedCategory === "outreach"
+                        ? "text-white"
+                        : "text-emerald-600"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                    />
                   </svg>
                 </div>
-                <h4 className="font-bold mb-2 text-lg" style={{ color: "#102a63" }}>Talent Sourcing</h4>
-                <p className="text-sm text-gray-600">Where to find candidates, outreach strategies & funnel building</p>
-              </div>
+                <h4
+                  className={`font-bold mb-2 text-lg ${
+                    selectedCategory === "outreach"
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
+                  Talent Sourcing
+                </h4>
+                <p
+                  className={`text-sm ${
+                    selectedCategory === "outreach"
+                      ? "text-white/90"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Where to find candidates, outreach strategies & funnel
+                  building
+                </p>
+                {selectedCategory === "outreach" && (
+                  <div className="mt-3 text-xs font-semibold text-white/80">
+                    {getCardsByCategory("outreach").length} cards
+                  </div>
+                )}
+              </motion.button>
 
-              {/* Interview System */}
-              <div 
-                className="p-5 rounded-lg border-2 hover:shadow-lg transition-all hover:border-teal-300"
-                style={{ 
-                  backgroundColor: "#ffffff",
-                  borderColor: "#e0e0e0"
-                }}
+              {/* Interview System / Selection */}
+              <motion.button
+                onClick={() => setSelectedCategory("selection")}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  ${
+                    selectedCategory === "selection"
+                      ? "bg-gradient-to-br from-amber-600 to-orange-600 border-amber-700 text-white shadow-xl"
+                      : "bg-white border-gray-200 hover:border-amber-300 hover:shadow-lg"
+                  }
+                `}
               >
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
-                  style={{ backgroundColor: "#d7f4f2" }}
+                <div
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                    selectedCategory === "selection"
+                      ? "bg-white/20"
+                      : "bg-amber-50"
+                  }`}
                 >
-                  <svg className="w-6 h-6" style={{ color: "#278f8c" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  <svg
+                    className={`w-6 h-6 ${
+                      selectedCategory === "selection"
+                        ? "text-white"
+                        : "text-amber-600"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                    />
                   </svg>
                 </div>
-                <h4 className="font-bold mb-2 text-lg" style={{ color: "#102a63" }}>Interview System</h4>
-                <p className="text-sm text-gray-600">Structured questions, scorecards & evaluation frameworks</p>
-              </div>
+                <h4
+                  className={`font-bold mb-2 text-lg ${
+                    selectedCategory === "selection"
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
+                  Interview System
+                </h4>
+                <p
+                  className={`text-sm ${
+                    selectedCategory === "selection"
+                      ? "text-white/90"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Structured questions, scorecards & evaluation frameworks
+                </p>
+                {selectedCategory === "selection" && (
+                  <div className="mt-3 text-xs font-semibold text-white/80">
+                    {getCardsByCategory("selection").length} cards
+                  </div>
+                )}
+              </motion.button>
 
-              {/* Action Plan */}
-              <div 
-                className="p-5 rounded-lg border-2 hover:shadow-lg transition-all hover:border-teal-300"
-                style={{ 
-                  backgroundColor: "#ffffff",
-                  borderColor: "#e0e0e0"
-                }}
+              {/* Action Plans / Onboarding */}
+              <motion.button
+                onClick={() => setSelectedCategory("onboarding")}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  ${
+                    selectedCategory === "onboarding"
+                      ? "bg-gradient-to-br from-indigo-600 to-purple-600 border-indigo-700 text-white shadow-xl"
+                      : "bg-white border-gray-200 hover:border-indigo-300 hover:shadow-lg"
+                  }
+                `}
               >
-                <div 
-                  className="w-12 h-12 rounded-full flex items-center justify-center mb-3"
-                  style={{ backgroundColor: "#d7f4f2" }}
+                <div
+                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                    selectedCategory === "onboarding"
+                      ? "bg-white/20"
+                      : "bg-indigo-50"
+                  }`}
                 >
-                  <svg className="w-6 h-6" style={{ color: "#278f8c" }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  <svg
+                    className={`w-6 h-6 ${
+                      selectedCategory === "onboarding"
+                        ? "text-white"
+                        : "text-indigo-600"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"
+                    />
                   </svg>
                 </div>
-                <h4 className="font-bold mb-2 text-lg" style={{ color: "#102a63" }}>Action Plans</h4>
-                <p className="text-sm text-gray-600">Week-by-week roadmap & execution templates</p>
-              </div>
+                <h4
+                  className={`font-bold mb-2 text-lg ${
+                    selectedCategory === "onboarding"
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
+                  Action Plans
+                </h4>
+                <p
+                  className={`text-sm ${
+                    selectedCategory === "onboarding"
+                      ? "text-white/90"
+                      : "text-gray-600"
+                  }`}
+                >
+                  Week-by-week roadmap & execution templates
+                </p>
+                {selectedCategory === "onboarding" && (
+                  <div className="mt-3 text-xs font-semibold text-white/80">
+                    {getCardsByCategory("onboarding").length} cards
+                  </div>
+                )}
+              </motion.button>
             </div>
           </div>
 
-          {/* HireCard Tabs */}
-          <div className="max-w-6xl mx-auto">
-            <HireCardTabs isSubscribed={isSubscribed} />
+          {/* Section Divider */}
+          <div className="max-w-7xl mx-auto mb-8">
+            <div className="flex items-center gap-4">
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+              <div className="flex items-center gap-2 px-4">
+                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+                <h2 className="text-lg font-semibold text-gray-700">
+                  {selectedCategory
+                    ? `${selectedCategoryData?.name || "Selected"} Cards`
+                    : "All Cards"}
+                </h2>
+                <div className="w-2 h-2 rounded-full bg-purple-500"></div>
+              </div>
+              <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+            </div>
+            {selectedCategory && (
+              <p className="text-center text-sm text-gray-500 mt-3">
+                {selectedCategoryData?.description}
+              </p>
+            )}
+          </div>
+
+          {/* Cards Grid */}
+          <div className="max-w-7xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+              {filteredCards.map((card, index) => (
+                <motion.div
+                  key={card.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <CardPreview
+                    card={card}
+                    isCurrent={currentCardId === card.id}
+                    onClick={() => router.push(`/cards/${card.id}`)}
+                  />
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Summary Stats */}
+            <div className="bg-white rounded-xl border border-gray-200 p-6">
+              <h3
+                className="text-lg font-bold mb-4"
+                style={{ color: "#102a63" }}
+              >
+                Score Impact Summary
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-purple-600">+3.8</div>
+                  <div className="text-sm text-gray-600 mt-1">Foundation</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-blue-600">+2.3</div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Market Intelligence
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-emerald-600">
+                    +2.1
+                  </div>
+                  <div className="text-sm text-gray-600 mt-1">
+                    Outreach & Engagement
+                  </div>
+                </div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold text-amber-600">+1.5</div>
+                  <div className="text-sm text-gray-600 mt-1">Selection</div>
+                </div>
+              </div>
+              <div className="mt-4 pt-4 border-t border-gray-200 text-center">
+                <div className="text-3xl font-bold text-emerald-600">+9.0</div>
+                <div className="text-sm text-gray-600 mt-1">
+                  Total Potential Uplift
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -374,17 +734,17 @@ export default function ResultsPage() {
         className="fixed bottom-6 left-6 z-50 px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg shadow-lg transition-all duration-200 hover:scale-105 flex items-center gap-2"
         title="View Raw Scraped Data"
       >
-        <svg 
-          className="w-4 h-4" 
-          fill="none" 
-          stroke="currentColor" 
+        <svg
+          className="w-4 h-4"
+          fill="none"
+          stroke="currentColor"
           viewBox="0 0 24 24"
         >
-          <path 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth={2} 
-            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" 
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"
           />
         </svg>
         Debug Data
@@ -392,20 +752,23 @@ export default function ResultsPage() {
 
       {/* Debug Modal - Centered */}
       {showDebugModal && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-50 z-[100] flex items-center justify-center p-4"
           onClick={() => setShowDebugModal(false)}
         >
-          <div 
+          <div
             className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between bg-gray-50">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">Raw Apify Scraped Data</h2>
+                <h2 className="text-xl font-bold text-gray-900">
+                  Raw Apify Scraped Data
+                </h2>
                 <p className="text-sm text-gray-600 mt-1">
-                  Unprocessed job postings and profiles from LinkedIn (before AI analysis)
+                  Unprocessed job postings and profiles from LinkedIn (before AI
+                  analysis)
                 </p>
               </div>
               <button
@@ -413,17 +776,17 @@ export default function ResultsPage() {
                 className="p-2 hover:bg-gray-200 rounded-lg transition-colors"
                 title="Close"
               >
-                <svg 
-                  className="w-6 h-6 text-gray-600" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-6 h-6 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M6 18L18 6M6 6l12 12" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M6 18L18 6M6 6l12 12"
                   />
                 </svg>
               </button>
@@ -443,22 +806,24 @@ export default function ResultsPage() {
               </div>
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText(JSON.stringify(scrapedData, null, 2));
+                  navigator.clipboard.writeText(
+                    JSON.stringify(scrapedData, null, 2)
+                  );
                   alert("Copied to clipboard!");
                 }}
                 className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
               >
-                <svg 
-                  className="w-4 h-4" 
-                  fill="none" 
-                  stroke="currentColor" 
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
                   viewBox="0 0 24 24"
                 >
-                  <path 
-                    strokeLinecap="round" 
-                    strokeLinejoin="round" 
-                    strokeWidth={2} 
-                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" 
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
                   />
                 </svg>
                 Copy JSON

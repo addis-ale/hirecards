@@ -15,8 +15,15 @@ import {
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableText, EditableList } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
-export const EditableMessageCard = () => {
+export const EditableMessageCard = ({
+  onNavigateToCard,
+  currentCardId
+}: {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+} = {}) => {
   const [corePitch, setCorePitch] = useState(
     "Your models will directly power merchant-facing analytics used by thousands of businesses, not internal dashboards. You shape the product, not just the pipeline."
   );
@@ -43,14 +50,49 @@ export const EditableMessageCard = () => {
   const [template3, setTemplate3] = useState(
     "Every data team claims impact. Few can prove it.\n\nAt {COMPANY} the models our team builds determine what thousands of businesses see on their screens every day. \nYour work becomes the 'why' behind key decisions, not the forgotten system behind the scenes.\n\nWe're hiring a {ROLE} who wants:\n• Ownership of model strategy  \n• A tight feedback loop with product + engineering  \n• The ability to shape an analytics platform used globally  \n\nIf you're tired of doing invisible work and want your output to *change how businesses make decisions*, this is your seat at the table."
   );
+  const [scrollStoppers, setScrollStoppers] = useState([
+    "Your models will show up in front of thousands of merchants, not hidden in internal BI.",
+    "We need someone to own the modelling layer and fix metric drift across Mollie, not build another layer of dashboards.",
+    "If you enjoy designing dbt projects more than building yet another report, this is probably your lane."
+  ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Lead with product impact, not stack",
+      impact: "+0.2",
+      tooltip: "Candidates care what their models power, not just which tools.",
+      talentPoolImpact: "+15% reply rate",
+      riskReduction: "-8% \"not relevant\" drops"
+    },
+    {
+      fix: "Personalise with concrete signals",
+      impact: "+0.2",
+      tooltip: "Reference their repo, talk, or project, not just their title.",
+      talentPoolImpact: "+12% positive replies",
+      riskReduction: "-10% ghosting"
+    },
+    {
+      fix: "Name the real problems honestly",
+      impact: "+0.1",
+      tooltip: "\"Metric drift, legacy pipelines\" beats \"interesting challenges.\"",
+      talentPoolImpact: "+8% candidate interest",
+      riskReduction: "-6% late stage mismatch"
+    },
+    {
+      fix: "Use soft, optional CTAs",
+      impact: "+0.1",
+      tooltip: "Low pressure makes seniors more likely to engage.",
+      talentPoolImpact: "+6% response rate",
+      riskReduction: "-5% \"hard no\" replies"
+    }
+  ]);
 
   useEffect(() => {
     const data = {
       corePitch, brutalTruth, donts, fixThisNow, hiddenBottleneck,
-      template1, template2, template3
+      template1, template2, template3, scrollStoppers, scoreImpactRows
     };
     sessionStorage.setItem("editableMessageCard", JSON.stringify(data));
-  }, [corePitch, brutalTruth, donts, fixThisNow, hiddenBottleneck, template1, template2, template3]);
+  }, [corePitch, brutalTruth, donts, fixThisNow, hiddenBottleneck, template1, template2, template3, scrollStoppers, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableMessageCard");
@@ -65,6 +107,8 @@ export const EditableMessageCard = () => {
         if (data.template1) setTemplate1(data.template1);
         if (data.template2) setTemplate2(data.template2);
         if (data.template3) setTemplate3(data.template3);
+        if (data.scrollStoppers) setScrollStoppers(data.scrollStoppers);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -75,10 +119,11 @@ export const EditableMessageCard = () => {
   return (
     <div className="space-y-6">
       <Section
-        title="Message Card"
         subtitle="How to pitch the role in a way that actually gets replies."
         Icon={MessageSquare}
         density="compact"
+        collapsible={true}
+        defaultExpanded={false}
       >
         <div className="space-y-6">
           {/* Core Pitch */}
@@ -151,15 +196,26 @@ export const EditableMessageCard = () => {
             />
           </Callout>
 
+          {/* Short "Scroll Stopper" Variants */}
+          <div className="rounded-xl border border-purple-200 p-4 bg-gradient-to-br from-purple-50 to-white">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Short "Scroll Stopper" Variants</h4>
+            <EditableList
+              items={scrollStoppers}
+              onChange={setScrollStoppers}
+              itemClassName="text-[13px] leading-snug italic text-purple-800"
+              markerColor="text-purple-600"
+            />
+          </div>
+
           {/* Message Templates */}
-          <Section title="📝 Message Templates" Icon={AlignLeft}>
+          <Section title="📝 Three Step Outreach Sequence" Icon={AlignLeft}>
             <div className="space-y-4">
               {/* Template 1 */}
               <div className="border rounded-xl p-4 bg-white shadow-sm">
                 <div className="flex items-start gap-3 mb-2">
                   <Eye className="w-4 h-4 text-slate-600 mt-0.5" />
                   <h4 className="text-[14px] font-semibold text-slate-800">
-                    ⚡ Short &apos;Scroll-Stopper&apos; (General Audience)
+                    Message 1 – Relevance and hook
                   </h4>
                 </div>
                 <EditableText
@@ -175,7 +231,7 @@ export const EditableMessageCard = () => {
                 <div className="flex items-start gap-3 mb-2">
                   <TerminalSquare className="w-4 h-4 text-slate-600 mt-0.5" />
                   <h4 className="text-[14px] font-semibold text-slate-800">
-                    🧠 Medium-Length Technical Pitch (Engineer-Focused)
+                    Message 2 – Scope and product impact
                   </h4>
                 </div>
                 <EditableText
@@ -191,7 +247,7 @@ export const EditableMessageCard = () => {
                 <div className="flex items-start gap-3 mb-2">
                   <FileText className="w-4 h-4 text-slate-600 mt-0.5" />
                   <h4 className="text-[14px] font-semibold text-slate-800">
-                    📜 Long-Form Story / Senior Talent Pitch
+                    Message 3 – Soft follow up
                   </h4>
                 </div>
                 <EditableText
@@ -203,8 +259,12 @@ export const EditableMessageCard = () => {
               </div>
             </div>
           </Section>
+
+          {/* Fix This Now — Score Impact Table */}
+          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />
         </div>
       </Section>
+
     </div>
   );
 };

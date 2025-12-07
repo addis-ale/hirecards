@@ -1,12 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users, Target, AlertTriangle, Wrench, XCircle } from "lucide-react";
+import { Users, Target, AlertTriangle, Wrench, XCircle, ArrowRight } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableText } from "@/components/EditableCard";
+import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
 
-export const EditableTalentMapCard = () => {
+export const EditableTalentMapCard = ({
+  onNavigateToCard,
+  currentCardId
+}: {
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+} = {}) => {
   const [primaryFeeders, setPrimaryFeeders] = useState([
     "Adyen",
     "bunq",
@@ -48,13 +55,46 @@ export const EditableTalentMapCard = () => {
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
     "You're not just fighting for attention, you're fighting for credibility."
   );
+  const [talentFlowMap, setTalentFlowMap] = useState([
+    { flow: "Fintech Flow", path: "Adyen → bunq → Mollie → bunq → Revolut", note: "(Fintechs trade the same AE persona; they move fast.)" },
+    { flow: "Scale-Up Flow", path: "Booking → bol → mid-sized SaaS → fintech", note: "(AEs seek more ownership + product impact.)" },
+    { flow: "Consultancy Flow", path: "Consultancies → fintech & SaaS (entry to mid-level AEs)", note: "(Solid fundamentals, validate depth.)" }
+  ]);
+  const [personaInsights, setPersonaInsights] = useState([
+    { type: "Fintech AEs", motivated: "ownership, pace, clear product impact", needs: "modelling challenges, clean architecture", hates: "slow loops, vague JD, BI tasks" },
+    { type: "Scale-Up AEs", motivated: "system design, problem-solving, shaping standards", needs: "engineering collaboration, autonomy", hates: "legacy systems with no investment" },
+    { type: "Consultancy AEs", motivated: "solving interesting problems", needs: "stability + ownership they never get in consulting", hates: "unclear product vision" }
+  ]);
+  const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
+    {
+      fix: "Target frustration-driven candidates",
+      impact: "+0.2",
+      tooltip: "These candidates actively seek better modelling ownership and convert faster.",
+      talentPoolImpact: "+12% reply rate",
+      riskReduction: "-10% negotiation drag"
+    },
+    {
+      fix: "Prioritise domain owners",
+      impact: "+0.2",
+      tooltip: "True AEs own modelling domains; removes dashboard-only profiles.",
+      talentPoolImpact: "+10% stronger pipeline",
+      riskReduction: "-15% late-stage failure"
+    },
+    {
+      fix: "Use frustration-based messaging",
+      impact: "+0.2",
+      tooltip: "Speaking to real pain points outperforms generic \"modern stack\" claims.",
+      talentPoolImpact: "+18% reply uplift",
+      riskReduction: "-5% ghosting"
+    }
+  ]);
 
   useEffect(() => {
     const data = {
-      primaryFeeders, secondaryFeeders, avoidList, brutalTruth, redFlags, donts, fixes, hiddenBottleneck
+      primaryFeeders, secondaryFeeders, avoidList, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, talentFlowMap, personaInsights, scoreImpactRows
     };
     sessionStorage.setItem("editableTalentMapCard", JSON.stringify(data));
-  }, [primaryFeeders, secondaryFeeders, avoidList, brutalTruth, redFlags, donts, fixes, hiddenBottleneck]);
+  }, [primaryFeeders, secondaryFeeders, avoidList, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, talentFlowMap, personaInsights, scoreImpactRows]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableTalentMapCard");
@@ -69,6 +109,9 @@ export const EditableTalentMapCard = () => {
         if (data.donts) setDonts(data.donts);
         if (data.fixes) setFixes(data.fixes);
         if (data.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
+        if (data.talentFlowMap) setTalentFlowMap(data.talentFlowMap);
+        if (data.personaInsights) setPersonaInsights(data.personaInsights);
+        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -78,7 +121,7 @@ export const EditableTalentMapCard = () => {
 
   return (
     <div className="space-y-6">
-      <Section title="Talent Map Card" subtitle="Where the strongest candidates come from, companies, locations, and common backgrounds." Icon={Users} density="compact">
+      <Section subtitle="Where the strongest candidates come from, companies, locations, and common backgrounds." Icon={Users} density="compact" collapsible={true} defaultExpanded={false}>
         <div className="space-y-4">
           {/* Primary Feeder Companies */}
           <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">
@@ -171,15 +214,43 @@ export const EditableTalentMapCard = () => {
             />
           </Section>
 
-          {/* Fix This Now */}
-          <Section title="🔧 Fix This Now" Icon={Wrench} tone="success">
-            <EditableList
-              items={fixes}
-              onChange={setFixes}
-              itemClassName="text-[13px] leading-snug text-emerald-800"
-              markerColor="text-emerald-600"
-            />
-          </Section>
+          {/* Talent Flow Map */}
+          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Talent Flow Map — Who Hires From Whom</h4>
+            <p className="text-xs text-gray-600 mb-3">Understanding flow patterns helps predict competitiveness and candidate expectations.</p>
+            <div className="space-y-3">
+              {talentFlowMap.map((item, idx) => (
+                <div key={idx} className="border border-blue-200 rounded-lg p-3 bg-white">
+                  <p className="text-xs font-bold text-blue-900 mb-1">{item.flow}</p>
+                  <div className="flex items-center gap-2 text-sm text-gray-700">
+                    <span>{item.path}</span>
+                    <ArrowRight className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1 italic">{item.note}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Persona Insights by Source Type */}
+          <div className="rounded-xl border border-purple-200 p-4 bg-gradient-to-br from-purple-50 to-white">
+            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Persona Insights by Source Type</h4>
+            <div className="space-y-3">
+              {personaInsights.map((item, idx) => (
+                <div key={idx} className="border border-purple-200 rounded-lg p-3 bg-white">
+                  <p className="text-xs font-bold text-purple-900 mb-2">{item.type}</p>
+                  <div className="space-y-1 text-xs">
+                    <p><span className="font-semibold text-emerald-700">Motivated by:</span> {item.motivated}</p>
+                    <p><span className="font-semibold text-blue-700">Needs:</span> {item.needs}</p>
+                    <p><span className="font-semibold text-red-700">Hates:</span> {item.hates}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Fix This Now — Score Impact Table */}
+          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />
 
           {/* Hidden Bottleneck */}
           <Callout tone="warning" title="🔍 Hidden Bottleneck">
@@ -191,6 +262,7 @@ export const EditableTalentMapCard = () => {
           </Callout>
         </div>
       </Section>
+
     </div>
   );
 };
