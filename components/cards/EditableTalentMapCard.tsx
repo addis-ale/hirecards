@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users, Target, AlertTriangle, Wrench, XCircle, ArrowRight } from "lucide-react";
+import { Users, Target, AlertTriangle, Wrench, XCircle, ArrowRight, Building2, MapPin, Info } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableText } from "@/components/EditableCard";
 import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import { Card, CardHeader } from "@/components/ui/card";
+import { SectionModal } from "@/components/ui/SectionModal";
 
 export const EditableTalentMapCard = ({
   onNavigateToCard,
@@ -119,150 +121,245 @@ export const EditableTalentMapCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <div className="space-y-6">
-      <Section subtitle="Where the strongest candidates come from, companies, locations, and common backgrounds." Icon={Users} density="compact" collapsible={true} defaultExpanded={false}>
-        <div className="space-y-4">
-          {/* Primary Feeder Companies */}
-          <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">
-            <div className="flex items-start gap-3">
-              <Target className="w-5 h-5 text-emerald-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
-                  Primary Feeder Companies
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {primaryFeeders.map((company, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"
-                    >
-                      {company}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
+  const [openModal, setOpenModal] = useState<string | null>(null);
 
-          {/* Secondary Feeder Companies */}
-          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
-            <div className="flex items-start gap-3">
-              <Target className="w-5 h-5 text-blue-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
-                  Secondary Feeder Companies
-                </h4>
-                <div className="flex flex-wrap gap-2">
-                  {secondaryFeeders.map((company, idx) => (
-                    <span
-                      key={idx}
-                      className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200"
-                    >
-                      {company}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Avoid */}
-          <div className="rounded-xl border border-gray-300 p-4 bg-gradient-to-br from-gray-50 to-white">
-            <div className="flex items-start gap-3">
-              <XCircle className="w-5 h-5 text-gray-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
-                  Avoid
-                </h4>
-                <EditableList
-                  items={avoidList}
-                  onChange={setAvoidList}
-                  itemClassName="text-[13px] leading-snug text-gray-700"
-                  markerColor="text-gray-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Brutal Truth */}
-          <Callout tone="danger" title="💥 Brutal Truth">
-            <EditableText
-              value={brutalTruth}
-              onChange={setBrutalTruth}
-              multiline
-            />
-          </Callout>
-
-          {/* Red Flags */}
-          <Section title="⚠️ Red Flags" Icon={AlertTriangle} tone="danger">
-            <EditableList
-              items={redFlags}
-              onChange={setRedFlags}
-              itemClassName="text-[13px] leading-snug text-red-700"
-              markerColor="text-red-600"
-            />
-          </Section>
-
-          {/* Don't Do This */}
-          <Section title="❌ Don't Do This" Icon={XCircle} tone="danger">
-            <EditableList
-              items={donts}
-              onChange={setDonts}
-              itemClassName="text-[13px] leading-snug text-red-700"
-              markerColor="text-red-600"
-            />
-          </Section>
-
-          {/* Talent Flow Map */}
-          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
-            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Talent Flow Map — Who Hires From Whom</h4>
-            <p className="text-xs text-gray-600 mb-3">Understanding flow patterns helps predict competitiveness and candidate expectations.</p>
-            <div className="space-y-3">
-              {talentFlowMap.map((item, idx) => (
-                <div key={idx} className="border border-blue-200 rounded-lg p-3 bg-white">
-                  <p className="text-xs font-bold text-blue-900 mb-1">{item.flow}</p>
-                  <div className="flex items-center gap-2 text-sm text-gray-700">
-                    <span>{item.path}</span>
-                    <ArrowRight className="w-4 h-4 text-blue-600" />
-                  </div>
-                  <p className="text-xs text-gray-600 mt-1 italic">{item.note}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Persona Insights by Source Type */}
-          <div className="rounded-xl border border-purple-200 p-4 bg-gradient-to-br from-purple-50 to-white">
-            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Persona Insights by Source Type</h4>
-            <div className="space-y-3">
-              {personaInsights.map((item, idx) => (
-                <div key={idx} className="border border-purple-200 rounded-lg p-3 bg-white">
-                  <p className="text-xs font-bold text-purple-900 mb-2">{item.type}</p>
-                  <div className="space-y-1 text-xs">
-                    <p><span className="font-semibold text-emerald-700">Motivated by:</span> {item.motivated}</p>
-                    <p><span className="font-semibold text-blue-700">Needs:</span> {item.needs}</p>
-                    <p><span className="font-semibold text-red-700">Hates:</span> {item.hates}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Fix This Now — Score Impact Table */}
-          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />
-
-          {/* Hidden Bottleneck */}
-          <Callout tone="warning" title="🔍 Hidden Bottleneck">
-            <EditableText
-              value={hiddenBottleneck}
-              onChange={setHiddenBottleneck}
-              multiline
-            />
-          </Callout>
+  const sections = [
+    {
+      id: "primary-feeders",
+      title: "Primary Feeder Companies",
+      subtitle: "Top companies to source from",
+      Icon: Target,
+      tone: "success" as const,
+      content: (
+        <div className="flex flex-wrap gap-2">
+          {primaryFeeders.map((company, idx) => (
+            <span
+              key={idx}
+              className="px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"
+            >
+              {company}
+            </span>
+          ))}
         </div>
-      </Section>
+      ),
+    },
+    {
+      id: "secondary-feeders",
+      title: "Secondary Feeder Companies",
+      subtitle: "Additional companies to consider",
+      Icon: Target,
+      tone: "info" as const,
+      content: (
+        <div className="flex flex-wrap gap-2">
+          {secondaryFeeders.map((company, idx) => (
+            <span
+              key={idx}
+              className="px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200"
+            >
+              {company}
+            </span>
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "avoid",
+      title: "Avoid",
+      subtitle: "Companies and profiles to avoid",
+      Icon: XCircle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={avoidList}
+          onChange={setAvoidList}
+          itemClassName="text-[13px] leading-snug text-gray-700"
+          markerColor="text-gray-600"
+        />
+      ),
+    },
+    {
+      id: "brutal-truth",
+      title: "Brutal Truth",
+      subtitle: "The hard truth about talent sourcing",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableText
+          value={brutalTruth}
+          onChange={setBrutalTruth}
+          multiline
+        />
+      ),
+    },
+    {
+      id: "red-flags",
+      title: "Red Flags",
+      subtitle: "Warning signs in candidate profiles",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={redFlags}
+          onChange={setRedFlags}
+          itemClassName="text-[13px] leading-snug text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "donts",
+      title: "Don't Do This",
+      subtitle: "Common mistakes to avoid",
+      Icon: XCircle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={donts}
+          onChange={setDonts}
+          itemClassName="text-[13px] leading-snug text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "talent-flow",
+      title: "Talent Flow Map",
+      subtitle: "Who hires from whom",
+      Icon: ArrowRight,
+      tone: "info" as const,
+      content: (
+        <div className="space-y-3">
+          {talentFlowMap.map((item, idx) => (
+            <div key={idx} className="border border-blue-200 rounded-lg p-3 bg-white">
+              <p className="text-xs font-bold text-blue-900 mb-1">{item.flow}</p>
+              <div className="flex items-center gap-2 text-sm text-gray-700">
+                <span>{item.path}</span>
+                <ArrowRight className="w-4 h-4 text-blue-600" />
+              </div>
+              <p className="text-xs text-gray-600 mt-1 italic">{item.note}</p>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "persona-insights",
+      title: "Persona Insights",
+      subtitle: "Understanding different candidate types",
+      Icon: Users,
+      tone: "purple" as const,
+      content: (
+        <div className="space-y-3">
+          {personaInsights.map((item, idx) => (
+            <div key={idx} className="border border-purple-200 rounded-lg p-3 bg-white">
+              <p className="text-xs font-bold text-purple-900 mb-2">{item.type}</p>
+              <div className="space-y-1 text-xs">
+                <p><span className="font-semibold text-emerald-700">Motivated by:</span> {item.motivated}</p>
+                <p><span className="font-semibold text-blue-700">Needs:</span> {item.needs}</p>
+                <p><span className="font-semibold text-red-700">Hates:</span> {item.hates}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      ),
+    },
+    {
+      id: "score-impact",
+      title: "Score Impact Fixes",
+      subtitle: "Actions to improve your hiring score",
+      Icon: Target,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />,
+    },
+    {
+      id: "hidden-bottleneck",
+      title: "Hidden Bottleneck",
+      subtitle: "The hidden factor affecting your hiring",
+      Icon: AlertTriangle,
+      tone: "warning" as const,
+      content: (
+        <EditableText
+          value={hiddenBottleneck}
+          onChange={setHiddenBottleneck}
+          multiline
+        />
+      ),
+    },
+  ];
 
-    </div>
+  return (
+    <>
+      {/* Instruction text */}
+      <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+        <div className="flex items-center gap-1">
+          <div className="flex-shrink-0 pb-1">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-blue-900">
+              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-0">
+        {sections.map((section) => {
+          const Icon = section.Icon;
+          const toneColors: Record<string, { accent: string; bg: string }> = {
+            info: { accent: "#2563eb", bg: "rgba(37,99,235,0.1)" },
+            warning: { accent: "#d97706", bg: "rgba(217,119,6,0.1)" },
+            purple: { accent: "#7c3aed", bg: "rgba(124,58,237,0.1)" },
+            success: { accent: "#16a34a", bg: "rgba(22,163,74,0.1)" },
+            danger: { accent: "#dc2626", bg: "rgba(220,38,38,0.1)" },
+          };
+          const colors = toneColors[section.tone] || toneColors.info;
+
+          return (
+            <Card
+              key={section.id}
+              className="w-full cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setOpenModal(section.id)}
+            >
+              <CardHeader className="p-4">
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                  >
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
+                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Modals */}
+      {sections.map((section) => {
+        const Icon = section.Icon;
+        return (
+          <SectionModal
+            key={section.id}
+            isOpen={openModal === section.id}
+            onClose={() => setOpenModal(null)}
+            title={section.title}
+            subtitle={section.subtitle}
+            Icon={Icon}
+            tone={section.tone}
+          >
+            {section.content}
+          </SectionModal>
+        );
+      })}
+    </>
   );
 };

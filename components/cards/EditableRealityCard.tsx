@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Target, AlertTriangle, CheckCircle, Clock, TrendingUp } from "lucide-react";
+import { Target, AlertTriangle, CheckCircle, Clock, TrendingUp, Info, Lightbulb, XCircle } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableText, EditableList } from "@/components/EditableCard";
 import { ScoreProgressRing } from "@/components/ScoreProgressRing";
 import { calculateRealityScore, getScoreLabel, getScoreSubtext } from "@/components/RealityScoreCalculator";
 import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import { Card, CardHeader } from "@/components/ui/card";
+import { SectionModal } from "@/components/ui/SectionModal";
 
 export const EditableRealityCard = ({ 
   onScoreChange,
@@ -190,15 +192,160 @@ export const EditableRealityCard = ({
   //   setFeasibilitySubtext(expectedSubtext);
   // }, [calculatedScore]);
 
-  return (
-    <div className="space-y-6">
+  const [openModal, setOpenModal] = useState<string | null>(null);
 
-      {/* Feasibility Score with Progress Ring */}
-      <div className="bg-gradient-to-br from-[#278f8c] to-[#1a6764] text-white rounded-xl p-8">
+  const sections = [
+    {
+      id: "whats-going-on",
+      title: "What's Really Going On",
+      subtitle: "The honest assessment of your hiring situation",
+      Icon: Info,
+      tone: "info" as const,
+      content: (
+        <EditableText
+          value={whatsReallyGoingOn}
+          onChange={setWhatsReallyGoingOn}
+          className="text-sm leading-relaxed"
+          style={{ color: "#102a63" }}
+          multiline
+        />
+      ),
+    },
+    {
+      id: "helps-case",
+      title: "What Helps Your Case",
+      subtitle: "Factors that work in your favor",
+      Icon: CheckCircle,
+      tone: "success" as const,
+      content: (
+        <EditableList
+          items={helpsCase}
+          onChange={setHelpsCase}
+          itemClassName="text-sm text-green-900"
+          markerColor="text-green-600"
+        />
+      ),
+    },
+    {
+      id: "hurts-case",
+      title: "What Hurts Your Case",
+      subtitle: "Factors that work against you",
+      Icon: XCircle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={hurtsCase}
+          onChange={setHurtsCase}
+          itemClassName="text-sm text-red-900"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "brutal-truth",
+      title: "Brutal Truth",
+      subtitle: "The hidden bottleneck you need to address",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableText
+          value={hiddenBottleneck}
+          onChange={setHiddenBottleneck}
+          multiline
+        />
+      ),
+    },
+    {
+      id: "red-flags",
+      title: "Red Flags",
+      subtitle: "Warning signs to watch out for",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={redFlags}
+          onChange={setRedFlags}
+          itemClassName="text-sm text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "donts",
+      title: "Don't Do This",
+      subtitle: "Common mistakes to avoid",
+      Icon: AlertTriangle,
+      tone: "warning" as const,
+      content: (
+        <EditableList
+          items={donts}
+          onChange={setDonts}
+          itemClassName="text-sm text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "score-impact",
+      title: "Score Impact Fixes",
+      subtitle: "Actions to improve your hiring score",
+      Icon: Target,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" />,
+    },
+    {
+      id: "timeline-failure",
+      title: "Timeline to Failure",
+      subtitle: "When things go wrong if not addressed",
+      Icon: Clock,
+      tone: "warning" as const,
+      content: (
+        <EditableText
+          value={timelineToFailure}
+          onChange={setTimelineToFailure}
+          className="text-sm text-yellow-900"
+          multiline
+        />
+      ),
+    },
+    {
+      id: "bottom-line",
+      title: "Bottom Line",
+      subtitle: "The key takeaways and recommendations",
+      Icon: Target,
+      tone: "info" as const,
+      content: (
+        <div className="space-y-3">
+          <div className="flex items-start gap-2">
+            <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+            <EditableText
+              value={bottomLine1}
+              onChange={setBottomLine1}
+              className="text-sm text-gray-800"
+              multiline
+            />
+          </div>
+          <div className="flex items-start gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <EditableText
+              value={bottomLine2}
+              onChange={setBottomLine2}
+              className="text-sm text-gray-800"
+              multiline
+            />
+          </div>
+        </div>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      {/* Feasibility Score with Progress Ring - Keep visible */}
+      <div className="bg-gradient-to-br from-[#278f8c] to-[#1a6764] text-white rounded-xl p-8 mb-6">
         <p className="text-sm font-medium mb-4 opacity-90 text-center">Feasibility Score</p>
         
         <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-4">
-          {/* Progress Ring */}
           <div className="flex-shrink-0">
             <ScoreProgressRing
               currentScore={calculatedScore}
@@ -210,7 +357,6 @@ export const EditableRealityCard = ({
             />
           </div>
           
-          {/* Score Details */}
           <div className="flex-1 text-center md:text-left">
             <div className="text-4xl font-bold mb-2">{calculatedScore.toFixed(1)}/10</div>
             <div className="text-lg font-medium mb-2">
@@ -232,7 +378,6 @@ export const EditableRealityCard = ({
           </div>
         </div>
 
-        {/* Manual Score Override (Optional) */}
         <div className="mt-4 pt-4 border-t border-white/20">
           <div className="text-xs opacity-75 mb-2 text-center">Manual Override (Optional)</div>
           <div className="flex items-center justify-center gap-2">
@@ -248,125 +393,77 @@ export const EditableRealityCard = ({
         </div>
       </div>
 
-      {/* What's Really Going On */}
-      <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
-        <h3 className="font-bold text-lg mb-3" style={{ color: "#102a63" }}>
-          What's Really Going On
-        </h3>
-        <EditableText
-          value={whatsReallyGoingOn}
-          onChange={setWhatsReallyGoingOn}
-          className="text-sm leading-relaxed"
-          style={{ color: "#102a63" }}
-          multiline
-        />
-      </div>
-
-      {/* What Helps Your Case */}
-      <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
-        <h3 className="font-bold text-lg mb-3 text-green-700">
-          What Helps Your Case
-        </h3>
-        <EditableList
-          items={helpsCase}
-          onChange={setHelpsCase}
-          itemClassName="text-sm text-green-900"
-          markerColor="text-green-600"
-        />
-      </div>
-
-      {/* What Hurts Your Case */}
-      <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-        <h3 className="font-bold text-lg mb-3 text-red-700">
-          What Hurts Your Case
-        </h3>
-        <EditableList
-          items={hurtsCase}
-          onChange={setHurtsCase}
-          itemClassName="text-sm text-red-900"
-          markerColor="text-red-600"
-        />
-      </div>
-
-      {/* Brutal Truth */}
-      <Callout tone="danger" title="Brutal Truth">
-        <EditableText
-          value={hiddenBottleneck}
-          onChange={setHiddenBottleneck}
-          multiline
-        />
-      </Callout>
-
-      {/* Red Flags */}
-      <Section title="Red Flags" Icon={AlertTriangle} tone="danger" collapsible={true} defaultExpanded={false}>
-        <EditableList
-          items={redFlags}
-          onChange={setRedFlags}
-          itemClassName="text-sm text-red-700"
-          markerColor="text-red-600"
-        />
-      </Section>
-
-      {/* Don't Do This */}
-      <Section title="Don't Do This" Icon={AlertTriangle} tone="danger" collapsible={true} defaultExpanded={false}>
-        <EditableList
-          items={donts}
-          onChange={setDonts}
-          itemClassName="text-sm text-red-700"
-          markerColor="text-red-600"
-        />
-      </Section>
-
-      {/* Fix This Now — Score Impact Table */}
-      <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" />
-
-      {/* Timeline to Failure */}
-      <div className="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-r-lg">
-        <div className="flex items-start gap-2">
-          <Clock className="w-5 h-5 text-yellow-600 mt-0.5 flex-shrink-0" />
-          <div className="flex-1">
-            <h3 className="font-bold text-base mb-2 text-yellow-900">
-              Timeline to Failure
-            </h3>
-            <EditableText
-              value={timelineToFailure}
-              onChange={setTimelineToFailure}
-              className="text-sm text-yellow-900"
-              multiline
-            />
+      {/* Instruction text */}
+      <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+        <div className="flex items-center gap-1">
+          <div className="flex-shrink-0 pb-1">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-blue-900">
+              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+            </p>
           </div>
         </div>
       </div>
 
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-0">
+        {sections.map((section) => {
+          const Icon = section.Icon;
+          const toneColors: Record<string, { accent: string; bg: string }> = {
+            info: { accent: "#2563eb", bg: "rgba(37,99,235,0.1)" },
+            warning: { accent: "#d97706", bg: "rgba(217,119,6,0.1)" },
+            purple: { accent: "#7c3aed", bg: "rgba(124,58,237,0.1)" },
+            success: { accent: "#16a34a", bg: "rgba(22,163,74,0.1)" },
+            danger: { accent: "#dc2626", bg: "rgba(220,38,38,0.1)" },
+          };
+          const colors = toneColors[section.tone] || toneColors.info;
 
-      {/* Bottom Line */}
-      <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-200 rounded-xl p-6">
-        <h3 className="font-bold text-lg mb-3 flex items-center gap-2" style={{ color: "#102a63" }}>
-          <Target className="w-5 h-5 text-[#278f8c]" />
-          Bottom Line
-        </h3>
-        <div className="space-y-3">
-          <div className="flex items-start gap-2">
-            <CheckCircle className="w-5 h-5 text-emerald-600 mt-0.5 flex-shrink-0" />
-            <EditableText
-              value={bottomLine1}
-              onChange={setBottomLine1}
-              className="text-sm text-gray-800"
-              multiline
-            />
-          </div>
-          <div className="flex items-start gap-2">
-            <AlertTriangle className="w-5 h-5 text-red-600 mt-0.5 flex-shrink-0" />
-            <EditableText
-              value={bottomLine2}
-              onChange={setBottomLine2}
-              className="text-sm text-gray-800"
-              multiline
-            />
-          </div>
-        </div>
+          return (
+            <Card
+              key={section.id}
+              className="w-full cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setOpenModal(section.id)}
+            >
+              <CardHeader className="p-4">
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                  >
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
+                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          );
+        })}
       </div>
 
-    </div>
+      {/* Modals */}
+      {sections.map((section) => {
+        const Icon = section.Icon;
+        return (
+          <SectionModal
+            key={section.id}
+            isOpen={openModal === section.id}
+            onClose={() => setOpenModal(null)}
+            title={section.title}
+            subtitle={section.subtitle}
+            Icon={Icon}
+            tone={section.tone}
+          >
+            {section.content}
+          </SectionModal>
+        );
+      })}
+    </>
   );
 };

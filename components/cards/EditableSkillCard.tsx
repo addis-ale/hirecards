@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Code, AlertTriangle, Hammer, Brain, Users, TrendingUp, XCircle } from "lucide-react";
+import { Code, AlertTriangle, Hammer, Brain, Users, TrendingUp, XCircle, Target, BookOpen } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableText } from "@/components/EditableCard";
 import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import { Card, CardHeader } from "@/components/ui/card";
+import { SectionModal } from "@/components/ui/SectionModal";
 
 export const EditableSkillCard = ({
   onNavigateToCard,
@@ -127,112 +129,211 @@ export const EditableSkillCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <div className="space-y-6">
-      <Section subtitle="The must-have abilities, tools, and experience needed to perform the role." Icon={Code} density="compact" collapsible={true} defaultExpanded={false}>
+  const [openModal, setOpenModal] = useState<string | null>(null);
+
+  const sections = [
+    {
+      id: "technical-skills",
+      title: "Core Technical Skills",
+      subtitle: "Essential technical abilities and tools",
+      Icon: Code,
+      tone: "info" as const,
+      content: (
+        <EditableList
+          items={technicalSkills}
+          onChange={setTechnicalSkills}
+          itemClassName="text-[13px] leading-snug"
+          markerColor="text-blue-600"
+        />
+      ),
+    },
+    {
+      id: "product-skills",
+      title: "Product Skills",
+      subtitle: "Product-focused abilities and mindset",
+      Icon: Brain,
+      tone: "purple" as const,
+      content: (
+        <EditableList
+          items={productSkills}
+          onChange={setProductSkills}
+          itemClassName="text-[13px] leading-snug"
+          markerColor="text-purple-600"
+        />
+      ),
+    },
+    {
+      id: "behavioural-skills",
+      title: "Behavioural Skills",
+      subtitle: "Soft skills and work approach",
+      Icon: Users,
+      tone: "success" as const,
+      content: (
+        <EditableList
+          items={behaviouralSkills}
+          onChange={setBehaviouralSkills}
+          itemClassName="text-[13px] leading-snug"
+          markerColor="text-green-600"
+        />
+      ),
+    },
+    {
+      id: "brutal-truth",
+      title: "Brutal Truth",
+      subtitle: "The hard truth about skills for this role",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableText
+          value={brutalTruth}
+          onChange={setBrutalTruth}
+          multiline
+          placeholder="What's the hard truth about skills for this role?"
+        />
+      ),
+    },
+    {
+      id: "red-flags",
+      title: "Red Flags",
+      subtitle: "Warning signs in skill requirements",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={redFlags}
+          onChange={setRedFlags}
+          itemClassName="text-[13px] leading-snug text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "donts",
+      title: "Don't Do This",
+      subtitle: "Common mistakes to avoid",
+      Icon: Hammer,
+      tone: "warning" as const,
+      content: (
+        <EditableList
+          items={donts}
+          onChange={setDonts}
+          itemClassName="text-[13px] leading-snug text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "upskillability",
+      title: "Upskillability Guide",
+      subtitle: "What can be trained vs must-have skills",
+      Icon: BookOpen,
+      tone: "info" as const,
+      content: (
         <div className="space-y-4">
-          {/* Core Technical Skills */}
           <div>
-            <h3 className="font-bold text-lg mb-3 flex items-center gap-2" style={{ color: "#102a63" }}>
-              <Code className="w-4 h-4 text-blue-600" />
-              <span>Core Technical Skills</span>
-            </h3>
+            <p className="text-xs font-bold text-emerald-700 mb-2">Can be trained quickly (shouldn't block seniors):</p>
             <EditableList
-              items={technicalSkills}
-              onChange={setTechnicalSkills}
-              itemClassName="text-[13px] leading-snug"
-              markerColor="text-blue-600"
+              items={upskillableSkills}
+              onChange={setUpskillableSkills}
+              itemClassName="text-[13px] leading-snug text-emerald-800"
+              markerColor="text-emerald-600"
             />
           </div>
-
-          {/* Product Skills */}
           <div>
-            <h3 className="font-bold text-lg mb-3 flex items-center gap-2" style={{ color: "#102a63" }}>
-              <Brain className="w-4 h-4 text-purple-600" />
-              <span>Product Skills</span>
-            </h3>
+            <p className="text-xs font-bold text-red-700 mb-2">Cannot be trained fast enough (must-have at entry):</p>
             <EditableList
-              items={productSkills}
-              onChange={setProductSkills}
-              itemClassName="text-[13px] leading-snug"
-              markerColor="text-purple-600"
-            />
-          </div>
-
-          {/* Behavioural Skills */}
-          <div>
-            <h3 className="font-bold text-lg mb-3 flex items-center gap-2" style={{ color: "#102a63" }}>
-              <Users className="w-4 h-4 text-green-600" />
-              <span>Behavioural Skills</span>
-            </h3>
-            <EditableList
-              items={behaviouralSkills}
-              onChange={setBehaviouralSkills}
-              itemClassName="text-[13px] leading-snug"
-              markerColor="text-green-600"
-            />
-          </div>
-
-          {/* Brutal Truth */}
-          <Callout tone="danger" title="Brutal Truth">
-            <EditableText
-              value={brutalTruth}
-              onChange={setBrutalTruth}
-              multiline
-              placeholder="What's the hard truth about skills for this role?"
-            />
-          </Callout>
-
-          {/* Red Flags */}
-          <Section title="Red Flags" Icon={AlertTriangle} tone="danger">
-            <EditableList
-              items={redFlags}
-              onChange={setRedFlags}
-              itemClassName="text-[13px] leading-snug text-red-700"
+              items={mustHaveSkills}
+              onChange={setMustHaveSkills}
+              itemClassName="text-[13px] leading-snug text-red-800"
               markerColor="text-red-600"
             />
-          </Section>
-
-          {/* Don't Do This */}
-          <Section title="Don't Do This" Icon={Hammer} tone="danger">
-            <EditableList
-              items={donts}
-              onChange={setDonts}
-              itemClassName="text-[13px] leading-snug text-red-700"
-              markerColor="text-red-600"
-            />
-          </Section>
-
-          {/* Upskillability Guide */}
-          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
-            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Upskillability Guide</h4>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-bold text-emerald-700 mb-2">Can be trained quickly (shouldn't block seniors):</p>
-                <EditableList
-                  items={upskillableSkills}
-                  onChange={setUpskillableSkills}
-                  itemClassName="text-[13px] leading-snug text-emerald-800"
-                  markerColor="text-emerald-600"
-                />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-red-700 mb-2">Cannot be trained fast enough (must-have at entry):</p>
-                <EditableList
-                  items={mustHaveSkills}
-                  onChange={setMustHaveSkills}
-                  itemClassName="text-[13px] leading-snug text-red-800"
-                  markerColor="text-red-600"
-                />
-              </div>
-            </div>
           </div>
-
-          {/* Fix This Now — Score Impact Table */}
-          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" />
         </div>
-      </Section>
+      ),
+    },
+    {
+      id: "score-impact",
+      title: "Score Impact Fixes",
+      subtitle: "Actions to improve your hiring score",
+      Icon: Target,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" />,
+    },
+  ];
 
-    </div>
+  return (
+    <>
+      {/* Instruction text */}
+      <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+        <div className="flex items-center gap-1">
+          <div className="flex-shrink-0 pb-1">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-blue-900">
+              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-0">
+        {sections.map((section) => {
+          const Icon = section.Icon;
+          const toneColors: Record<string, { accent: string; bg: string }> = {
+            info: { accent: "#2563eb", bg: "rgba(37,99,235,0.1)" },
+            warning: { accent: "#d97706", bg: "rgba(217,119,6,0.1)" },
+            purple: { accent: "#7c3aed", bg: "rgba(124,58,237,0.1)" },
+            success: { accent: "#16a34a", bg: "rgba(22,163,74,0.1)" },
+            danger: { accent: "#dc2626", bg: "rgba(220,38,38,0.1)" },
+          };
+          const colors = toneColors[section.tone] || toneColors.info;
+
+          return (
+            <Card
+              key={section.id}
+              className="w-full cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setOpenModal(section.id)}
+            >
+              <CardHeader className="p-4">
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                  >
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
+                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Modals */}
+      {sections.map((section) => {
+        const Icon = section.Icon;
+        return (
+          <SectionModal
+            key={section.id}
+            isOpen={openModal === section.id}
+            onClose={() => setOpenModal(null)}
+            title={section.title}
+            subtitle={section.subtitle}
+            Icon={Icon}
+            tone={section.tone}
+          >
+            {section.content}
+          </SectionModal>
+        );
+      })}
+    </>
   );
 };

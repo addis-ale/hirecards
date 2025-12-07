@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { LucideIcon, ChevronDown, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Card, CardHeader, CardContent } from "./card";
 
 type Tone = "default" | "success" | "danger" | "warning" | "info" | "purple";
 
@@ -55,45 +56,47 @@ export function Section({
   };
 
   return (
-    <div className="rounded-2xl border border-gray-200 bg-white/80 shadow-sm">
+    <Card className={`${collapsible && !isExpanded ? '' : ''}`}>
       {showHeader && (
-        <div
-          className={`flex items-center justify-between gap-3 ${headerPad} border-b border-gray-100 ${
+        <CardHeader
+          className={`${headerPad} ${isExpanded || !collapsible ? 'border-b border-gray-100 pb-3' : 'pb-3'} ${
             collapsible ? "cursor-pointer hover:bg-gray-50/50 transition-colors" : ""
           }`}
           style={{ background: `linear-gradient(180deg, ${cfg.headerBg} 0%, rgba(255,255,255,0) 100%)` }}
           onClick={toggleExpanded}
         >
-          <div className="flex items-center gap-3 flex-1">
-            {Icon && (
-              <div
-                className={`${iconSize} rounded-lg flex items-center justify-center flex-shrink-0`}
-                style={{ background: `linear-gradient(135deg, ${resolvedAccent} 0%, #1a6764 100%)` }}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 flex-1">
+              {Icon && (
+                <div
+                  className={`${iconSize} rounded-lg flex items-center justify-center flex-shrink-0`}
+                  style={{ background: `linear-gradient(135deg, ${resolvedAccent} 0%, #1a6764 100%)` }}
+                >
+                  <Icon className="w-5 h-5 text-white" />
+                </div>
+              )}
+              {(title || subtitle) && (
+                <div className="flex-1 min-w-0">
+                  {title && (
+                    <h3 className={`${titleSize} font-bold ${cfg.titleClass}`}>{title}</h3>
+                  )}
+                  {subtitle && (
+                    <p className="text-[12px] md:text-sm text-gray-600 mt-0.5 leading-snug">{subtitle}</p>
+                  )}
+                </div>
+              )}
+            </div>
+            {collapsible && (
+              <motion.div
+                animate={{ rotate: isExpanded ? 180 : 0 }}
+                transition={{ duration: 0.2 }}
+                className="flex-shrink-0"
               >
-                <Icon className="w-5 h-5 text-white" />
-              </div>
-            )}
-            {(title || subtitle) && (
-              <div className="flex-1 min-w-0">
-                {title && (
-                  <h3 className={`${titleSize} font-bold ${cfg.titleClass}`}>{title}</h3>
-                )}
-                {subtitle && (
-                  <p className="text-[12px] md:text-sm text-gray-600 mt-0.5 leading-snug">{subtitle}</p>
-                )}
-              </div>
+                <ChevronDown className="w-5 h-5 text-gray-400" />
+              </motion.div>
             )}
           </div>
-          {collapsible && (
-            <motion.div
-              animate={{ rotate: isExpanded ? 180 : 0 }}
-              transition={{ duration: 0.2 }}
-              className="flex-shrink-0"
-            >
-              <ChevronDown className="w-5 h-5 text-gray-400" />
-            </motion.div>
-          )}
-        </div>
+        </CardHeader>
       )}
       <AnimatePresence>
         {(!collapsible || isExpanded) && (
@@ -104,10 +107,10 @@ export function Section({
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className={collapsible ? "overflow-hidden" : ""}
           >
-            <div className={bodyPad}>{children}</div>
+            <CardContent className={bodyPad}>{children}</CardContent>
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+    </Card>
   );
 }

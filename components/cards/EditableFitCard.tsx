@@ -7,6 +7,8 @@ import { Callout } from "@/components/ui/Callout";
 import { Pill } from "@/components/ui/Pill";
 import { EditableList, EditableText } from "@/components/EditableCard";
 import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import { Card, CardHeader } from "@/components/ui/card";
+import { SectionModal } from "@/components/ui/SectionModal";
 
 export const EditableFitCard = ({
   onNavigateToCard,
@@ -123,149 +125,254 @@ export const EditableFitCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
-    <div className="space-y-6">
-      <Section subtitle="What motivates this persona, what they care about, and what usually makes them say yes or no." Icon={UserCheck} density="compact" collapsible={true} defaultExpanded={false}>
+  const [openModal, setOpenModal] = useState<string | null>(null);
+
+  const sections = [
+    {
+      id: "persona",
+      title: "Persona",
+      subtitle: "Target candidate profile",
+      Icon: Target,
+      tone: "info" as const,
+      content: (
+        <div>
+          <h4 className="text-base font-bold mb-2" style={{ color: "#102a63" }}>
+            Persona:
+          </h4>
+          <EditableText
+            value={persona}
+            onChange={setPersona}
+            className="text-base"
+          />
+        </div>
+      ),
+    },
+    {
+      id: "motivated-by",
+      title: "Motivated By",
+      subtitle: "What drives this persona",
+      Icon: ThumbsUp,
+      tone: "success" as const,
+      content: (
+        <EditableList
+          items={motivatedBy}
+          onChange={setMotivatedBy}
+          itemClassName="text-[13px] leading-snug text-emerald-800"
+          markerColor="text-emerald-600"
+        />
+      ),
+    },
+    {
+      id: "avoids",
+      title: "Avoids",
+      subtitle: "What this persona avoids",
+      Icon: ThumbsDown,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={avoids}
+          onChange={setAvoids}
+          itemClassName="text-[13px] leading-snug text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "brutal-truth",
+      title: "Brutal Truth",
+      subtitle: "The hard truth about this persona",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableText
+          value={brutalTruth}
+          onChange={setBrutalTruth}
+          multiline
+        />
+      ),
+    },
+    {
+      id: "red-flags",
+      title: "Red Flags",
+      subtitle: "Warning signs in candidate profiles",
+      Icon: AlertTriangle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={redFlags}
+          onChange={setRedFlags}
+          itemClassName="text-[13px] leading-snug text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "donts",
+      title: "Don't Do This",
+      subtitle: "Common mistakes to avoid",
+      Icon: XCircle,
+      tone: "danger" as const,
+      content: (
+        <EditableList
+          items={donts}
+          onChange={setDonts}
+          itemClassName="text-[13px] leading-snug text-red-700"
+          markerColor="text-red-600"
+        />
+      ),
+    },
+    {
+      id: "fixes",
+      title: "Fix This Now",
+      subtitle: "Actions to improve fit",
+      Icon: Wrench,
+      tone: "success" as const,
+      content: (
+        <EditableList
+          items={fixes}
+          onChange={setFixes}
+          itemClassName="text-[13px] leading-snug text-emerald-800"
+          markerColor="text-emerald-600"
+        />
+      ),
+    },
+    {
+      id: "decision-making",
+      title: "Decision-Making Model",
+      subtitle: "How they say yes or no",
+      Icon: CheckCircle,
+      tone: "info" as const,
+      content: (
         <div className="space-y-4">
-          {/* Persona */}
-          <div className="rounded-xl border-2 p-4 bg-gradient-to-br from-blue-50 to-white" style={{ borderColor: "#278f8c" }}>
-            <div className="flex items-start gap-3">
-              <Target className="w-5 h-5 mt-0.5" style={{ color: "#278f8c" }} />
-              <div className="flex-1">
-                <h4 className="text-base font-bold mb-1" style={{ color: "#102a63" }}>
-                  Persona: <EditableText
-                    value={persona}
-                    onChange={setPersona}
-                    className="inline"
-                  />
-                </h4>
-              </div>
-            </div>
-          </div>
-
-          {/* Motivated By */}
-          <div className="rounded-xl border border-emerald-200 p-4 bg-gradient-to-br from-emerald-50 to-white">
-            <div className="flex items-start gap-3">
-              <ThumbsUp className="w-5 h-5 text-emerald-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
-                  Motivated by:
-                </h4>
-                <EditableList
-                  items={motivatedBy}
-                  onChange={setMotivatedBy}
-                  itemClassName="text-[13px] leading-snug text-emerald-800"
-                  markerColor="text-emerald-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Avoids */}
-          <div className="rounded-xl border border-red-200 p-4 bg-gradient-to-br from-red-50 to-white">
-            <div className="flex items-start gap-3">
-              <ThumbsDown className="w-5 h-5 text-red-700 mt-0.5" />
-              <div className="flex-1">
-                <h4 className="text-sm font-semibold mb-2" style={{ color: "#102a63" }}>
-                  Avoids:
-                </h4>
-                <EditableList
-                  items={avoids}
-                  onChange={setAvoids}
-                  itemClassName="text-[13px] leading-snug text-red-700"
-                  markerColor="text-red-600"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Brutal Truth */}
-          <Callout tone="danger" title="💥 Brutal Truth">
-            <EditableText
-              value={brutalTruth}
-              onChange={setBrutalTruth}
-              multiline
-            />
-          </Callout>
-
-          {/* Red Flags */}
-          <Section title="⚠️ Red Flags" Icon={AlertTriangle} tone="danger">
+          <div>
+            <p className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              They say YES when:
+            </p>
             <EditableList
-              items={redFlags}
-              onChange={setRedFlags}
-              itemClassName="text-[13px] leading-snug text-red-700"
-              markerColor="text-red-600"
-            />
-          </Section>
-
-          {/* Don't Do This */}
-          <Section title="❌ Don't Do This" Icon={XCircle} tone="danger">
-            <EditableList
-              items={donts}
-              onChange={setDonts}
-              itemClassName="text-[13px] leading-snug text-red-700"
-              markerColor="text-red-600"
-            />
-          </Section>
-
-          {/* Fix This Now */}
-          <Section title="🔧 Fix This Now" Icon={Wrench} tone="success">
-            <EditableList
-              items={fixes}
-              onChange={setFixes}
+              items={decisionMakingYes}
+              onChange={setDecisionMakingYes}
               itemClassName="text-[13px] leading-snug text-emerald-800"
               markerColor="text-emerald-600"
             />
-          </Section>
-
-          {/* Decision-Making Model */}
-          <div className="rounded-xl border border-blue-200 p-4 bg-gradient-to-br from-blue-50 to-white">
-            <h4 className="text-sm font-semibold mb-3" style={{ color: "#102a63" }}>Decision-Making Model — How They Say Yes / No</h4>
-            <div className="space-y-4">
-              <div>
-                <p className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4" />
-                  They say YES when:
-                </p>
-                <EditableList
-                  items={decisionMakingYes}
-                  onChange={setDecisionMakingYes}
-                  itemClassName="text-[13px] leading-snug text-emerald-800"
-                  markerColor="text-emerald-600"
-                />
-              </div>
-              <div>
-                <p className="text-xs font-bold text-red-700 mb-2 flex items-center gap-2">
-                  <XCircle className="w-4 h-4" />
-                  They say NO when:
-                </p>
-                <EditableList
-                  items={decisionMakingNo}
-                  onChange={setDecisionMakingNo}
-                  itemClassName="text-[13px] leading-snug text-red-800"
-                  markerColor="text-red-600"
-                />
-              </div>
-            </div>
           </div>
-
-          {/* Candidate Flip Test */}
-          <Callout tone="warning" title="🔍 Candidate Flip Test">
-            <p className="text-sm mb-2 font-medium" style={{ color: "#102a63" }}>
-              Candidates are evaluating YOU on:
+          <div>
+            <p className="text-xs font-bold text-red-700 mb-2 flex items-center gap-2">
+              <XCircle className="w-4 h-4" />
+              They say NO when:
             </p>
-            <div className="flex flex-wrap gap-2">
-              {candidateEvaluation.map((item, idx) => (
-                <Pill key={idx} tone="orange">{item}</Pill>
-              ))}
-            </div>
-          </Callout>
-
-          {/* Fix This Now — Score Impact Table */}
-          <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.7" />
+            <EditableList
+              items={decisionMakingNo}
+              onChange={setDecisionMakingNo}
+              itemClassName="text-[13px] leading-snug text-red-800"
+              markerColor="text-red-600"
+            />
+          </div>
         </div>
-      </Section>
+      ),
+    },
+    {
+      id: "candidate-flip",
+      title: "Candidate Flip Test",
+      subtitle: "What candidates evaluate you on",
+      Icon: UserCheck,
+      tone: "warning" as const,
+      content: (
+        <div>
+          <p className="text-sm mb-2 font-medium" style={{ color: "#102a63" }}>
+            Candidates are evaluating YOU on:
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {candidateEvaluation.map((item, idx) => (
+              <Pill key={idx} tone="orange">{item}</Pill>
+            ))}
+          </div>
+        </div>
+      ),
+    },
+    {
+      id: "score-impact",
+      title: "Score Impact Fixes",
+      subtitle: "Actions to improve your hiring score",
+      Icon: Target,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.7" />,
+    },
+  ];
 
-    </div>
+  return (
+    <>
+      {/* Instruction text */}
+      <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
+        <div className="flex items-center gap-1">
+          <div className="flex-shrink-0 pb-1">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p className="text-sm font-medium text-blue-900">
+              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-0">
+        {sections.map((section) => {
+          const Icon = section.Icon;
+          const toneColors: Record<string, { accent: string; bg: string }> = {
+            info: { accent: "#2563eb", bg: "rgba(37,99,235,0.1)" },
+            warning: { accent: "#d97706", bg: "rgba(217,119,6,0.1)" },
+            purple: { accent: "#7c3aed", bg: "rgba(124,58,237,0.1)" },
+            success: { accent: "#16a34a", bg: "rgba(22,163,74,0.1)" },
+            danger: { accent: "#dc2626", bg: "rgba(220,38,38,0.1)" },
+          };
+          const colors = toneColors[section.tone] || toneColors.info;
+
+          return (
+            <Card
+              key={section.id}
+              className="w-full cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setOpenModal(section.id)}
+            >
+              <CardHeader className="p-4">
+                <div className="flex flex-col items-center text-center gap-3">
+                  <div
+                    className="w-12 h-12 rounded-lg flex items-center justify-center"
+                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                  >
+                    <Icon className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
+                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                  </div>
+                </div>
+              </CardHeader>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Modals */}
+      {sections.map((section) => {
+        const Icon = section.Icon;
+        return (
+          <SectionModal
+            key={section.id}
+            isOpen={openModal === section.id}
+            onClose={() => setOpenModal(null)}
+            title={section.title}
+            subtitle={section.subtitle}
+            Icon={Icon}
+            tone={section.tone}
+          >
+            {section.content}
+          </SectionModal>
+        );
+      })}
+    </>
   );
 };
