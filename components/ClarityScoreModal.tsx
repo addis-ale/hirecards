@@ -10,6 +10,7 @@ interface ClarityScoreModalProps {
   category: string;
   message: string;
   missingFields: string[];
+  missingCoreFields: string[];
   onCompleteFields: () => void;
   onGenerateAnyway: () => void;
 }
@@ -21,6 +22,7 @@ export default function ClarityScoreModal({
   category,
   message,
   missingFields,
+  missingCoreFields,
   onCompleteFields,
   onGenerateAnyway,
 }: ClarityScoreModalProps) {
@@ -41,6 +43,7 @@ export default function ClarityScoreModal({
   };
 
   const isIncomplete = missingFields.length > 0;
+  const hasMissingCoreFields = missingCoreFields.length > 0;
 
   return (
     <AnimatePresence>
@@ -96,8 +99,29 @@ export default function ClarityScoreModal({
               </div>
             </div>
 
+            {/* Core Missing Fields Warning */}
+            {hasMissingCoreFields && (
+              <div className="mb-4 bg-red-50 border-2 border-red-200 rounded-lg p-4">
+                <h4 className="font-bold text-base mb-2 text-red-700 flex items-center gap-2">
+                  <AlertCircle className="w-5 h-5" />
+                  Core Job Requirements Missing
+                </h4>
+                <p className="text-sm text-red-600 mb-2">
+                  These fields are required for scraping and card generation to work:
+                </p>
+                <ul className="list-disc list-inside text-sm text-red-700 space-y-1">
+                  {missingCoreFields.map((field, idx) => (
+                    <li key={idx} className="font-semibold">{field}</li>
+                  ))}
+                </ul>
+                <p className="text-xs text-red-500 mt-3 font-medium">
+                  ⚠️ "Generate Anyway" is disabled until these core fields are provided.
+                </p>
+              </div>
+            )}
+
             {/* Missing Fields */}
-            {isIncomplete && (
+            {isIncomplete && !hasMissingCoreFields && (
               <div className="mb-4">
                 <h4 className="font-bold text-base mb-2" style={{ color: "#102a63" }}>
                   Complete These Fields for Better Results:
@@ -123,16 +147,27 @@ export default function ClarityScoreModal({
                   Complete Missing Fields
                 </button>
               )}
-              <button
-                onClick={onGenerateAnyway}
-                className={`${
-                  isIncomplete
-                    ? "btn-secondary flex-1"
-                    : "btn-primary w-full"
-                } py-2.5 px-4 text-center text-sm`}
-              >
-                {isIncomplete ? "Generate Anyway (Quick)" : "Generate HireCard"}
-              </button>
+              <div className="relative flex-1 group">
+                <button
+                  onClick={hasMissingCoreFields ? undefined : onGenerateAnyway}
+                  disabled={hasMissingCoreFields}
+                  className={`${
+                    hasMissingCoreFields
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      : isIncomplete
+                      ? "btn-secondary"
+                      : "btn-primary"
+                  } w-full py-2.5 px-4 text-center text-sm transition-all`}
+                  title={hasMissingCoreFields ? `Core fields missing: ${missingCoreFields.join(", ")}` : ""}
+                >
+                  {isIncomplete ? "Generate Anyway (Quick)" : "Generate HireCard"}
+                </button>
+                {hasMissingCoreFields && (
+                  <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-2 bg-red-600 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                    Core job description requirements missing: {missingCoreFields.join(", ")}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </motion.div>
