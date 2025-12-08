@@ -67,7 +67,7 @@ export default function DebugDataViewer({
       <div className="bg-purple-600 text-white px-4 py-3 flex items-center justify-between rounded-t-lg">
         <div className="flex items-center gap-2">
           <Code className="w-5 h-5" />
-          <h3 className="font-bold">{title}</h3>
+          <h3 className="font-bold text-red-500">{title}</h3>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -161,16 +161,14 @@ export default function DebugDataViewer({
               })}
             </div>
 
-            {/* Raw JSON */}
+            {/* Raw JSON - Always Visible with Green Text */}
             <div className="mt-4">
-              <details className="cursor-pointer">
-                <summary className="text-xs font-semibold text-purple-600 hover:text-purple-700 mb-2">
-                  Show Raw JSON
-                </summary>
-                <pre className="text-xs bg-gray-900 text-green-400 p-3 rounded overflow-x-auto">
-                  {JSON.stringify(data, null, 2)}
-                </pre>
-              </details>
+              <div className="text-xs font-semibold text-red-500 mb-2">
+                RAW JSON DATA:
+              </div>
+              <pre className="text-xs bg-gray-900 text-green-400 p-3 rounded overflow-x-auto max-h-96">
+                {JSON.stringify(data, null, 2)}
+              </pre>
             </div>
           </div>
         ) : (

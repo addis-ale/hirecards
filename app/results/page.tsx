@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { HireCardTabs } from "@/components/HireCardTabs";
+import DebugDataViewer from "@/components/DebugDataViewer";
 import { ArrowLeft, Loader2, CheckCircle, LayoutDashboard, Lock } from "lucide-react";
 
 export default function ResultsPage() {
@@ -467,6 +468,11 @@ export default function ResultsPage() {
           </div>
         </div>
       )}
+
+      {/* Debug Data Viewers for Scraped Data */}
+      <DebugDataViewer storageKey="job-scraped-data" title="job-scraped-data" />
+      <DebugDataViewer storageKey="linkedin-people-profile-scraped-data" title="people-profile-scraped-data" />
+      <DebugDataViewer storageKey="apifyRawProfilesData" title="people-profile-scraped-data (from market enrichment)" />
     </main>
   );
 }

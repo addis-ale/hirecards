@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { scrapeLinkedInJobs } from "@/lib/apifyClient";
-import { scrapeLinkedInProfiles } from "@/lib/linkedinProfileScraper";
+import { 
+  scrapeLinkedInJobsBulk, 
+  BulkLinkedInJobScraperInput,
+  searchLinkedInProfiles,
+  LinkedInProfileSearchInput
+} from "@/lib/apifyClient";
 import {
   formatForMarketAnalysis,
   analyzeAndFormatMarketCard,
@@ -74,27 +78,93 @@ export async function POST(request: NextRequest) {
     console.log("   Location:", profilesInput.location);
     console.log("   Max Profiles:", profilesInput.maxProfiles);
 
-    // STEP 2: Run BOTH Apify scrapers in parallel
+    // STEP 2: Run BOTH Apify scrapers in parallel (USING NEW BULK SCRAPER)
     console.log("🟢 ============================================");
     console.log("🟢 STEP 2: PARALLEL APIFY SCRAPING");
     console.log("🟢 ============================================");
     console.log("📊 Starting BOTH scrapers in parallel...");
-    console.log("   Jobs Scraper: 50 jobs");
+    console.log("   Jobs Bulk Scraper: 50 jobs");
     console.log("   Profile Scraper: 100 profiles");
 
-    const [jobs, profiles] = await Promise.all([
-      scrapeLinkedInJobs(
-        jobsInput.jobTitle,
-        jobsInput.location,
-        jobsInput.experienceLevel,
-        50 // Get 50 jobs
-      ),
-      scrapeLinkedInProfiles(
-        profilesInput.searchQuery,
-        profilesInput.location,
-        profilesInput.maxProfiles
-      ),
+    // Build input for bulk scraper
+    // Handle location intelligently
+    const isValidLocation = (loc: string) => {
+      if (!loc) return false;
+      const normalized = loc.toLowerCase().trim();
+      // Skip generic terms that aren't real locations
+      const invalidLocations = ['remote', 'hybrid', 'on-site', 'onsite', 'anywhere', 'global', 'worldwide'];
+      return !invalidLocations.includes(normalized);
+    };
+
+    const bulkScraperInput: BulkLinkedInJobScraperInput = {
+      jobTitles: [jobsInput.jobTitle],
+      maxItems: 50, // Get 50 jobs
+      sortBy: 'relevance',
+      postedLimit: 'month', // Recent jobs only (must use: "1h", "24h", "week", "month")
+    };
+    
+    // Handle location and workplace type intelligently
+    const locationLower = jobsInput.location?.toLowerCase().trim() || '';
+    
+    if (locationLower === 'remote' || locationLower === 'anywhere' || locationLower === 'global') {
+      // User wants remote jobs globally - don't set location, just set workplaceType
+      bulkScraperInput.workplaceType = ['remote'];
+      console.log("🌍 Searching: Remote jobs globally (no location filter, workplaceType: remote)");
+    } else if (isValidLocation(jobsInput.location)) {
+      // Valid geographic location - use it
+      bulkScraperInput.locations = [jobsInput.location];
+      console.log("🌍 Searching: Jobs in", jobsInput.location);
+    } else {
+      // No valid location - search globally without filters
+      console.log("🌍 Searching: Jobs globally (no location or workplace filter)");
+    }
+
+    // Map experience level if provided (must be array)
+    if (jobsInput.experienceLevel) {
+      const expLevelMap: Record<string, string> = {
+        'Entry Level': 'entryLevel',
+        'Junior': 'entryLevel',
+        'Mid Level': 'associate',
+        'Mid-Level': 'associate',
+        'Senior': 'midSenior',
+        'Lead': 'director',
+        'Director': 'director',
+        'Executive': 'executive',
+        'Principal': 'executive',
+      };
+      const mappedLevel = expLevelMap[jobsInput.experienceLevel];
+      if (mappedLevel) {
+        bulkScraperInput.experienceLevel = [mappedLevel];
+      }
+    }
+
+    // Build profile search input
+    const profileSearchInput: LinkedInProfileSearchInput = {
+      searchQuery: profilesInput.searchQuery,
+      locations: profilesInput.location && isValidLocation(profilesInput.location) 
+        ? [profilesInput.location] 
+        : undefined,
+      maxItems: profilesInput.maxProfiles || 100,
+      profileScraperMode: 'Full', // Get full profile data with skills
+    };
+
+    console.log("🔍 Profile search input:", profileSearchInput);
+
+    const [bulkJobs, profiles] = await Promise.all([
+      scrapeLinkedInJobsBulk(bulkScraperInput),
+      searchLinkedInProfiles(profileSearchInput),
     ]);
+    
+    // Convert bulk jobs to old format for compatibility with existing analysis
+    const jobs = bulkJobs.map(job => ({
+      title: job.title,
+      company: job.company.name,
+      location: job.location.linkedinText,
+      salary: job.salary ? job.salary.text : '',
+      url: job.linkedinUrl,
+      postedDate: job.postedDate,
+      description: job.descriptionText,
+    }));
 
     console.log(`✅ Apify returned:`);
     console.log(`   Jobs: ${jobs.length}`);
@@ -156,7 +226,15 @@ export async function POST(request: NextRequest) {
     console.log("🟢 ============================================");
     console.log("🟢 FINAL RESPONSE");
     console.log("🟢 ============================================");
-    console.log(JSON.stringify(response, null, 2));
+    console.log("✅ Response prepared with:", {
+      success: response.success,
+      hasMarketData: response.hasMarketData,
+      jobsAnalyzed: response.metadata.jobsAnalyzed,
+      profilesAnalyzed: response.metadata.profilesAnalyzed,
+      dataQuality: response.metadata.dataQuality,
+      confidence: response.metadata.confidence
+    });
+    // Note: Not logging full response to avoid console spam with job descriptions
 
     return NextResponse.json(response);
   } catch (error) {
