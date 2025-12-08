@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { motion } from "framer-motion";
 import { HireCardTabs } from "@/components/HireCardTabs";
 import {
   ArrowLeft,
@@ -12,6 +13,13 @@ import {
   LayoutDashboard,
   Lock,
 } from "lucide-react";
+import {
+  allCards,
+  cardCategories,
+  getCardsByCategory,
+} from "@/lib/cardCategories";
+import { CardPreview } from "@/components/cards/CardPreview";
+import DebugDataViewer from "@/components/DebugDataViewer";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -140,6 +148,9 @@ export default function ResultsPage() {
       "apifyRawJobsData_MarketCard"
     );
     const rawProfiles = sessionStorage.getItem("apifyRawProfilesData");
+    const linkedinPeopleProfiles = sessionStorage.getItem(
+      "linkedin-people-profile-scraped-data"
+    );
 
     const debugData: any = {
       note: "RAW SCRAPED DATA FROM APIFY (NOT ANALYZED)",
@@ -188,14 +199,14 @@ export default function ResultsPage() {
       };
     }
 
-    // Add RAW profiles from MarketCard scraping
+    // Add RAW profiles from MarketCard scraping (apifyRawProfilesData)
     if (rawProfiles) {
       try {
         const profiles = JSON.parse(rawProfiles);
         debugData.profiles = {
           count: profiles.length,
           note: "LinkedIn candidate profiles scraped for MarketCard (supply analysis)",
-          source: "Apify LinkedIn Profile Scraper",
+          source: "Apify LinkedIn Profile Scraper (Market Enrichment)",
           profiles: profiles, // Full raw array
         };
         hasAnyData = true;
@@ -204,9 +215,31 @@ export default function ResultsPage() {
       }
     } else {
       debugData.profiles = {
-        message: "No raw profiles data found",
+        message: "No raw profiles data found from market enrichment",
         reason:
           "Profile scraper currently disabled (requires profile URLs as input)",
+      };
+    }
+
+    // Add RAW profiles from LinkedIn Profile Search (linkedin-people-profile-scraped-data)
+    if (linkedinPeopleProfiles) {
+      try {
+        const profiles = JSON.parse(linkedinPeopleProfiles);
+        debugData.peopleProfiles = {
+          count: Array.isArray(profiles) ? profiles.length : "N/A",
+          note: "LinkedIn candidate profiles scraped from profile search",
+          source: "Apify LinkedIn Profile Search Scraper",
+          profiles: profiles, // Full raw array
+        };
+        hasAnyData = true;
+      } catch (e) {
+        debugData.peopleProfiles = { error: "Failed to parse" };
+      }
+    } else {
+      debugData.peopleProfiles = {
+        message: "No profile search data found",
+        reason:
+          "Profile search may not have been executed or data was not stored",
       };
     }
 
