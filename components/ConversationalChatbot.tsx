@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { 
-  Loader2, 
-  Send, 
+import {
+  Loader2,
+  Send,
   Bot,
   AlertCircle,
   MessageSquareIcon,
@@ -18,7 +18,7 @@ import {
   Shield,
   GraduationCap,
   Star,
-  Sparkles
+  Sparkles,
 } from "lucide-react";
 import {
   Conversation,
@@ -77,15 +77,17 @@ export default function ConversationalChatbot() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatingMessageIndex, setGeneratingMessageIndex] = useState(0);
   const [generatingProgress, setGeneratingProgress] = useState(0);
-  
+
   const inputRef = useRef<HTMLInputElement>(null);
-  const conversationMessages = useRef<Array<{ role: string; content: string }>>([]);
+  const conversationMessages = useRef<Array<{ role: string; content: string }>>(
+    []
+  );
   const greetingAdded = useRef(false);
 
   // Helper function to count filled fields (treat salary range as one field)
   const countFilledFields = (data: ExtractedData): number => {
     let count = 0;
-    
+
     // Individual fields
     if (data.roleTitle) count++;
     if (data.department) count++;
@@ -96,10 +98,10 @@ export default function ConversationalChatbot() {
     if (data.nonNegotiables) count++;
     if (data.flexible) count++;
     if (data.timeline) count++;
-    
+
     // Salary range as ONE field (both min and max needed)
     if (data.minSalary && data.maxSalary) count++;
-    
+
     return count;
   };
 
@@ -144,7 +146,9 @@ export default function ConversationalChatbot() {
   useEffect(() => {
     if (isGenerating) {
       const interval = setInterval(() => {
-        setGeneratingMessageIndex((prev) => (prev + 1) % generatingMessages.length);
+        setGeneratingMessageIndex(
+          (prev) => (prev + 1) % generatingMessages.length
+        );
       }, 3000);
       return () => clearInterval(interval);
     } else {
@@ -184,10 +188,11 @@ export default function ConversationalChatbot() {
         experienceLevel: extractedData.experienceLevel || "",
         location: extractedData.location || "",
         workModel: extractedData.workModel || "",
-        salaryRange: extractedData.minSalary && extractedData.maxSalary 
-          ? `${extractedData.minSalary} - ${extractedData.maxSalary}`
-          : "",
-        requiredSkills: Array.isArray(extractedData.criticalSkills) 
+        salaryRange:
+          extractedData.minSalary && extractedData.maxSalary
+            ? `${extractedData.minSalary} - ${extractedData.maxSalary}`
+            : "",
+        requiredSkills: Array.isArray(extractedData.criticalSkills)
           ? extractedData.criticalSkills.join(", ")
           : "",
         keyResponsibilities: extractedData.nonNegotiables || "",
@@ -217,9 +222,9 @@ export default function ConversationalChatbot() {
       console.log("📊 Step 2: Scraping LinkedIn jobs (bulk)...");
       console.log("   Using advanced bulk scraper - this may take 1-2 minutes");
 
-      const bulkScrapeResponse = await fetch('/api/scrape-jobs-bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const bulkScrapeResponse = await fetch("/api/scrape-jobs-bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           roleTitle: extractedData.roleTitle,
           location: extractedData.location,
@@ -234,15 +239,26 @@ export default function ConversationalChatbot() {
       const bulkScrapeData = await bulkScrapeResponse.json();
 
       if (bulkScrapeData.success && bulkScrapeData.data) {
-        console.log(`✅ Bulk scraping successful: ${bulkScrapeData.data.length} jobs found`);
-        
+        console.log(
+          `✅ Bulk scraping successful: ${bulkScrapeData.data.length} jobs found`
+        );
+
         // Store the scraped jobs data for debugging
-        sessionStorage.setItem("job-scraped-data", JSON.stringify(bulkScrapeData.data));
-        sessionStorage.setItem("job-scraped-metadata", JSON.stringify(bulkScrapeData.metadata));
-        
+        sessionStorage.setItem(
+          "job-scraped-data",
+          JSON.stringify(bulkScrapeData.data)
+        );
+        sessionStorage.setItem(
+          "job-scraped-metadata",
+          JSON.stringify(bulkScrapeData.metadata)
+        );
+
         console.log("💾 Stored scraped jobs data in sessionStorage");
       } else if (bulkScrapeData.needsChatbot) {
-        console.log("⚠️ Insufficient data for bulk scraping. Missing fields:", bulkScrapeData.missingFields);
+        console.log(
+          "⚠️ Insufficient data for bulk scraping. Missing fields:",
+          bulkScrapeData.missingFields
+        );
         // TODO: Open chatbot with suggestions
       } else {
         console.warn("⚠️ Bulk scraping failed:", bulkScrapeData.error);
@@ -255,36 +271,51 @@ export default function ConversationalChatbot() {
       // Build search criteria from extracted data
       const profileSearchCriteria = {
         currentJobTitles: [extractedData.roleTitle],
-        locations: extractedData.location && extractedData.location !== 'Remote' 
-          ? [extractedData.location] 
-          : undefined,
+        locations:
+          extractedData.location && extractedData.location !== "Remote"
+            ? [extractedData.location]
+            : undefined,
         maxItems: 100, // Search for up to 100 profiles
-        profileScraperMode: 'Full', // Get full profile data including skills
+        profileScraperMode: "Full", // Get full profile data including skills
       };
 
       console.log("🔍 Profile search criteria:", profileSearchCriteria);
 
-      const profileSearchResponse = await fetch('/api/scrape-profiles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const profileSearchResponse = await fetch("/api/scrape-profiles", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(profileSearchCriteria),
       });
 
       const profileSearchData = await profileSearchResponse.json();
 
       if (profileSearchData.success && profileSearchData.data) {
-        console.log(`✅ Profile search successful: ${profileSearchData.data.length} profiles found`);
-        console.log(`   Profiles with skills: ${profileSearchData.metadata.profilesWithSkills}`);
-        console.log(`   Profiles with experience: ${profileSearchData.metadata.profilesWithExperience}`);
-        
+        console.log(
+          `✅ Profile search successful: ${profileSearchData.data.length} profiles found`
+        );
+        console.log(
+          `   Profiles with skills: ${profileSearchData.metadata.profilesWithSkills}`
+        );
+        console.log(
+          `   Profiles with experience: ${profileSearchData.metadata.profilesWithExperience}`
+        );
+
         if (profileSearchData.metadata.pagination) {
-          console.log(`   Total available on LinkedIn: ${profileSearchData.metadata.pagination.totalElements}`);
+          console.log(
+            `   Total available on LinkedIn: ${profileSearchData.metadata.pagination.totalElements}`
+          );
         }
-        
+
         // Store the scraped profile data for debugging
-        sessionStorage.setItem("linkedin-people-profile-scraped-data", JSON.stringify(profileSearchData.data));
-        sessionStorage.setItem("profile-scraped-metadata", JSON.stringify(profileSearchData.metadata));
-        
+        sessionStorage.setItem(
+          "linkedin-people-profile-scraped-data",
+          JSON.stringify(profileSearchData.data)
+        );
+        sessionStorage.setItem(
+          "profile-scraped-metadata",
+          JSON.stringify(profileSearchData.metadata)
+        );
+
         console.log("💾 Stored profile search data in sessionStorage");
       } else {
         console.warn("⚠️ Profile search failed:", profileSearchData.error);
@@ -296,19 +327,19 @@ export default function ConversationalChatbot() {
       console.log("   This will take 1-2 minutes (Apify scraping)");
 
       const [payResponse, marketResponse, roleResponse] = await Promise.all([
-        fetch('/api/enrich-salary', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/enrich-salary", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ scrapedJobData: formData }),
         }),
-        fetch('/api/enrich-market', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/enrich-market", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ scrapedJobData: formData }),
         }),
-        fetch('/api/enrich-role', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        fetch("/api/enrich-role", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ scrapedJobData: formData }),
         }),
       ]);
@@ -327,43 +358,174 @@ export default function ConversationalChatbot() {
       // Store enriched data in sessionStorage
       if (payData.success && payData.payCardData) {
         console.log("✅ PayCard enriched");
-        sessionStorage.setItem("enrichedPayCard", JSON.stringify(payData.payCardData));
+        sessionStorage.setItem(
+          "enrichedPayCard",
+          JSON.stringify(payData.payCardData)
+        );
         // Store full response for debugging
-        sessionStorage.setItem("apifyPayCardFullResponse", JSON.stringify(payData));
-        
+        sessionStorage.setItem(
+          "apifyPayCardFullResponse",
+          JSON.stringify(payData)
+        );
+
         // Store RAW jobs array if available in metadata
         if (payData.rawJobs) {
-          console.log("💾 Storing raw jobs data for PayCard:", payData.rawJobs.length, "jobs");
-          sessionStorage.setItem("apifyRawJobsData_PayCard", JSON.stringify(payData.rawJobs));
+          console.log(
+            "💾 Storing raw jobs data for PayCard:",
+            payData.rawJobs.length,
+            "jobs"
+          );
+          sessionStorage.setItem(
+            "apifyRawJobsData_PayCard",
+            JSON.stringify(payData.rawJobs)
+          );
         }
       }
       if (marketData.success && marketData.marketCardData) {
         console.log("✅ MarketCard enriched");
-        sessionStorage.setItem("enrichedMarketCard", JSON.stringify(marketData.marketCardData));
+        sessionStorage.setItem(
+          "enrichedMarketCard",
+          JSON.stringify(marketData.marketCardData)
+        );
         // Store full response for debugging
-        sessionStorage.setItem("apifyMarketCardFullResponse", JSON.stringify(marketData));
-        
+        sessionStorage.setItem(
+          "apifyMarketCardFullResponse",
+          JSON.stringify(marketData)
+        );
+
         // Store RAW jobs and profiles arrays if available
         if (marketData.rawJobs) {
-          console.log("💾 Storing raw jobs data for MarketCard:", marketData.rawJobs.length, "jobs");
-          sessionStorage.setItem("apifyRawJobsData_MarketCard", JSON.stringify(marketData.rawJobs));
+          console.log(
+            "💾 Storing raw jobs data for MarketCard:",
+            marketData.rawJobs.length,
+            "jobs"
+          );
+          sessionStorage.setItem(
+            "apifyRawJobsData_MarketCard",
+            JSON.stringify(marketData.rawJobs)
+          );
         }
         if (marketData.rawProfiles) {
-          console.log("💾 Storing raw profiles data for MarketCard:", marketData.rawProfiles.length, "profiles");
-          sessionStorage.setItem("apifyRawProfilesData", JSON.stringify(marketData.rawProfiles));
+          console.log(
+            "💾 Storing raw profiles data for MarketCard:",
+            marketData.rawProfiles.length,
+            "profiles"
+          );
+          sessionStorage.setItem(
+            "apifyRawProfilesData",
+            JSON.stringify(marketData.rawProfiles)
+          );
         }
       }
       if (roleData.success && roleData.roleCardData) {
         console.log("✅ RoleCard enriched");
-        sessionStorage.setItem("enrichedRoleCard", JSON.stringify(roleData.roleCardData));
+        sessionStorage.setItem(
+          "enrichedRoleCard",
+          JSON.stringify(roleData.roleCardData)
+        );
         // Store full response for debugging
-        sessionStorage.setItem("apifyRoleCardFullResponse", JSON.stringify(roleData));
+        sessionStorage.setItem(
+          "apifyRoleCardFullResponse",
+          JSON.stringify(roleData)
+        );
+      }
+
+      // STEP 4: Analyze scraped data and transform to card structures
+      console.log("🤖 Step 4: Analyzing scraped data with AI...");
+
+      // Get all scraped data from sessionStorage
+      const rawJobsPayCard = sessionStorage.getItem("apifyRawJobsData_PayCard");
+      const rawJobsMarketCard = sessionStorage.getItem(
+        "apifyRawJobsData_MarketCard"
+      );
+      const rawProfiles = sessionStorage.getItem("apifyRawProfilesData");
+      const linkedinProfiles = sessionStorage.getItem(
+        "linkedin-people-profile-scraped-data"
+      );
+
+      // Combine profile sources
+      let allProfiles: any[] = [];
+      if (rawProfiles) {
+        try {
+          allProfiles = allProfiles.concat(JSON.parse(rawProfiles));
+        } catch (e) {
+          console.error("Failed to parse rawProfiles:", e);
+        }
+      }
+      if (linkedinProfiles) {
+        try {
+          const linkedin = JSON.parse(linkedinProfiles);
+          allProfiles = allProfiles.concat(
+            Array.isArray(linkedin) ? linkedin : []
+          );
+        } catch (e) {
+          console.error("Failed to parse linkedinProfiles:", e);
+        }
+      }
+
+      // Remove duplicates based on profile URL or ID
+      const uniqueProfiles = Array.from(
+        new Map(
+          allProfiles.map((p) => [p.id || p.linkedinUrl || p.profileUrl, p])
+        ).values()
+      );
+
+      if (rawJobsPayCard || rawJobsMarketCard || uniqueProfiles.length > 0) {
+        console.log(
+          `📊 Analyzing: ${
+            rawJobsPayCard ? JSON.parse(rawJobsPayCard).length : 0
+          } PayCard jobs, ${
+            rawJobsMarketCard ? JSON.parse(rawJobsMarketCard).length : 0
+          } MarketCard jobs, ${uniqueProfiles.length} profiles`
+        );
+
+        try {
+          const analyzeResponse = await fetch("/api/analyze-scraped-data", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              jobsPayCard: rawJobsPayCard ? JSON.parse(rawJobsPayCard) : [],
+              jobsMarketCard: rawJobsMarketCard
+                ? JSON.parse(rawJobsMarketCard)
+                : [],
+              profiles: uniqueProfiles,
+              originalJobData: formData,
+            }),
+          });
+
+          const analyzeData = await analyzeResponse.json();
+
+          if (analyzeData.success && analyzeData.data) {
+            console.log("✅ Scraped data analyzed and transformed");
+            console.log(
+              `   Cards generated: ${Object.keys(analyzeData.data).length}`
+            );
+
+            // Store analyzed card data
+            sessionStorage.setItem(
+              "analyzedCardData",
+              JSON.stringify(analyzeData.data)
+            );
+            sessionStorage.setItem(
+              "analyzedCardMetadata",
+              JSON.stringify(analyzeData.metadata)
+            );
+
+            console.log("💾 Stored analyzed card data in sessionStorage");
+          } else {
+            console.warn("⚠️ Analysis failed:", analyzeData.error);
+          }
+        } catch (analyzeError) {
+          console.error("❌ Analysis error:", analyzeError);
+          // Continue anyway - cards will use static data
+        }
+      } else {
+        console.log("⚠️ No scraped data to analyze");
       }
 
       console.log("🚀 ============================================");
       console.log("🚀 ENRICHMENT COMPLETE - NAVIGATING TO RESULTS");
       console.log("🚀 ============================================");
-
     } catch (error) {
       console.error("Error generating/enriching cards:", error);
     }
@@ -426,7 +588,11 @@ export default function ConversationalChatbot() {
             experienceLevel: parsed.experienceLevel || null,
             location: parsed.location || null,
             workModel: parsed.workModel || null,
-            criticalSkills: (Array.isArray(parsed.criticalSkills) && parsed.criticalSkills.length > 0) ? parsed.criticalSkills : null,
+            criticalSkills:
+              Array.isArray(parsed.criticalSkills) &&
+              parsed.criticalSkills.length > 0
+                ? parsed.criticalSkills
+                : null,
             minSalary: parsed.minSalary || null,
             maxSalary: parsed.maxSalary || null,
             nonNegotiables: parsed.nonNegotiables || null,
@@ -434,21 +600,24 @@ export default function ConversationalChatbot() {
             timeline: parsed.timeline || null,
           };
           setExtractedData(newExtractedData);
-          
+
           // Calculate completeness
           const filledCount = countFilledFields(newExtractedData);
           setCompleteness(Math.round((filledCount / TOTAL_FIELDS) * 100));
-          
+
           // Hide URL input if data already exists
           if (filledCount > 0) {
             setShowURLInput(false);
-            console.log("✅ Loaded existing data, hiding URL input. Fields:", filledCount);
+            console.log(
+              "✅ Loaded existing data, hiding URL input. Fields:",
+              filledCount
+            );
           }
         } catch (err) {
           console.error("Failed to load session data:", err);
         }
       }
-      
+
       setDataLoaded(true);
     };
 
@@ -459,64 +628,83 @@ export default function ConversationalChatbot() {
   useEffect(() => {
     // Wait for data to be loaded first
     if (!dataLoaded) return;
-    
+
     // Only add greeting once (unless manually reset by URL extraction)
     if (!greetingAdded.current) {
       greetingAdded.current = true;
       setTimeout(() => {
         // Check what data is already available
         const filledCount = countFilledFields(extractedData);
-        
-        let greeting = "Hey there! 👋 I'm your AI hiring assistant. I'm here to help you create a perfect HireCard strategy.\n\n";
+
+        let greeting =
+          "Hey there! 👋 I'm your AI hiring assistant. I'm here to help you create a perfect HireCard strategy.\n\n";
         let suggestions: string[] | undefined = undefined;
-        
+
         if (filledCount === 0) {
           // No data yet - ask for the role (could be from irrelevant URL or fresh start)
-          greeting += "Let's build your HireCard from scratch. I'll guide you through the process with a few quick questions.\n\nWhat role are you looking to hire for?";
+          greeting +=
+            "Let's build your HireCard from scratch. I'll guide you through the process with a few quick questions.\n\nWhat role are you looking to hire for?";
         } else if (filledCount < TOTAL_FIELDS) {
           // Some data exists - acknowledge it and list what's missing
           greeting += `Good start! ${filledCount}/${TOTAL_FIELDS} fields done. Let's knock out the rest.\n\n`;
-          
+
           // Ask about the first missing field directly
           if (!extractedData.roleTitle) {
             greeting += "What role are you hiring for?";
           } else if (!extractedData.department) {
             greeting += "What department?";
-          } else if (!extractedData.criticalSkills || extractedData.criticalSkills.length === 0) {
+          } else if (
+            !extractedData.criticalSkills ||
+            extractedData.criticalSkills.length === 0
+          ) {
             greeting += "What critical skills must they have?";
           } else if (!extractedData.experienceLevel) {
             greeting += "Experience level?";
-            suggestions = ["Entry Level", "Mid-Level", "Senior", "Lead/Principal"];
+            suggestions = [
+              "Entry Level",
+              "Mid-Level",
+              "Senior",
+              "Lead/Principal",
+            ];
           } else if (!extractedData.nonNegotiables) {
             greeting += "What are your non-negotiables?";
           } else if (!extractedData.minSalary || !extractedData.maxSalary) {
             greeting += "Salary range? (Min and max)";
           } else if (!extractedData.location) {
             greeting += "Where's this position located?";
-            suggestions = ["Remote", "New York, NY", "San Francisco, CA", "London, UK"];
+            suggestions = [
+              "Remote",
+              "New York, NY",
+              "San Francisco, CA",
+              "London, UK",
+            ];
           } else if (!extractedData.workModel) {
             greeting += "Remote, hybrid, or on-site?";
             suggestions = ["Remote", "Hybrid", "On-site"];
           } else if (!extractedData.timeline) {
             greeting += "Timeline to fill this role?";
-            suggestions = ["Urgent (1-2 weeks)", "Standard (1 month)", "Flexible (2-3 months)"];
+            suggestions = [
+              "Urgent (1-2 weeks)",
+              "Standard (1 month)",
+              "Flexible (2-3 months)",
+            ];
           } else if (!extractedData.flexible) {
             greeting += "Any nice-to-have skills?";
           }
         } else {
           // All data is filled!
-          greeting += "Wow! I can see all your information is already filled in. Perfect! 🎉\n\nLet me generate your HireCard strategy now!";
+          greeting +=
+            "Wow! I can see all your information is already filled in. Perfect! 🎉\n\nLet me generate your HireCard strategy now!";
           setTimeout(() => {
             handleComplete();
           }, 2000);
         }
-        
+
         addAssistantMessage(greeting, suggestions);
       }, 500);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dataLoaded, extractedData]);
-
 
   // Focus input without scrolling
   useEffect(() => {
@@ -534,20 +722,22 @@ export default function ConversationalChatbot() {
       if (isDuplicate) {
         return prev; // Don't add duplicate
       }
-      
+
       const message: Message = {
-        id: `assistant-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: `assistant-${Date.now()}-${Math.random()
+          .toString(36)
+          .substr(2, 9)}`,
         role: "assistant",
         content,
         timestamp: new Date(),
         suggestions,
       };
-      
+
       conversationMessages.current.push({
         role: "assistant",
         content,
       });
-      
+
       return [...prev, message];
     });
   };
@@ -584,20 +774,26 @@ export default function ConversationalChatbot() {
 
       if (result.success) {
         // IMPORTANT: Merge with existing data, never overwrite with null/empty
-        setExtractedData(prevData => {
+        setExtractedData((prevData) => {
           const mergedData = { ...prevData };
-          
+
           // Only update fields that have new non-empty values
           Object.keys(result.data).forEach((key) => {
             const newValue = result.data[key];
             const existingValue = prevData[key as keyof ExtractedData];
-            
+
             // Only update if new value is not null/empty
-            if (newValue !== null && newValue !== "" && newValue !== undefined) {
+            if (
+              newValue !== null &&
+              newValue !== "" &&
+              newValue !== undefined
+            ) {
               if (Array.isArray(newValue) && newValue.length > 0) {
                 // For arrays (like criticalSkills), merge and deduplicate
                 if (Array.isArray(existingValue)) {
-                  mergedData[key as keyof ExtractedData] = [...new Set([...existingValue, ...newValue])] as any;
+                  mergedData[key as keyof ExtractedData] = [
+                    ...new Set([...existingValue, ...newValue]),
+                  ] as any;
                 } else {
                   mergedData[key as keyof ExtractedData] = newValue as any;
                 }
@@ -609,14 +805,16 @@ export default function ConversationalChatbot() {
               }
             }
           });
-          
+
           return mergedData;
         });
-        
+
         // Recalculate completeness based on merged data
-        setCompleteness(prevCompleteness => {
+        setCompleteness((prevCompleteness) => {
           const newFilledCount = countFilledFields(extractedData);
-          const newCompleteness = Math.round((newFilledCount / TOTAL_FIELDS) * 100);
+          const newCompleteness = Math.round(
+            (newFilledCount / TOTAL_FIELDS) * 100
+          );
           // Only update if completeness increased, never decrease
           return Math.max(prevCompleteness, newCompleteness);
         });
@@ -635,14 +833,15 @@ export default function ConversationalChatbot() {
     setError(null);
 
     // Check if the input is a URL
-    const urlPattern = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
+    const urlPattern =
+      /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)$/;
     const isURL = urlPattern.test(userMessage);
 
     if (isURL) {
       // Handle URL - Show generating screen and process
       addUserMessage(userMessage);
       setIsGenerating(true); // Show the full loading screen
-      
+
       try {
         const response = await fetch("/api/scrape-job", {
           method: "POST",
@@ -658,21 +857,31 @@ export default function ConversationalChatbot() {
           // Update extracted data with scraped information
           const updatedData: Partial<ExtractedData> = {};
 
-          if (result.data.roleTitle) updatedData.roleTitle = result.data.roleTitle;
-          if (result.data.department) updatedData.department = result.data.department;
-          if (result.data.experienceLevel) updatedData.experienceLevel = result.data.experienceLevel;
+          if (result.data.roleTitle)
+            updatedData.roleTitle = result.data.roleTitle;
+          if (result.data.department)
+            updatedData.department = result.data.department;
+          if (result.data.experienceLevel)
+            updatedData.experienceLevel = result.data.experienceLevel;
           if (result.data.location) updatedData.location = result.data.location;
-          if (result.data.workModel) updatedData.workModel = result.data.workModel;
+          if (result.data.workModel)
+            updatedData.workModel = result.data.workModel;
           if (result.data.criticalSkills) {
             if (Array.isArray(result.data.criticalSkills)) {
               updatedData.criticalSkills = result.data.criticalSkills;
-            } else if (typeof result.data.criticalSkills === 'string') {
-              updatedData.criticalSkills = result.data.criticalSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+            } else if (typeof result.data.criticalSkills === "string") {
+              updatedData.criticalSkills = result.data.criticalSkills
+                .split(",")
+                .map((s: string) => s.trim())
+                .filter((s: string) => s);
             }
           }
-          if (result.data.minSalary) updatedData.minSalary = result.data.minSalary;
-          if (result.data.maxSalary) updatedData.maxSalary = result.data.maxSalary;
-          if (result.data.nonNegotiables) updatedData.nonNegotiables = result.data.nonNegotiables;
+          if (result.data.minSalary)
+            updatedData.minSalary = result.data.minSalary;
+          if (result.data.maxSalary)
+            updatedData.maxSalary = result.data.maxSalary;
+          if (result.data.nonNegotiables)
+            updatedData.nonNegotiables = result.data.nonNegotiables;
           if (result.data.flexible) updatedData.flexible = result.data.flexible;
           if (result.data.timeline) updatedData.timeline = result.data.timeline;
 
@@ -703,65 +912,96 @@ export default function ConversationalChatbot() {
           // Provide feedback based on extraction results
           setTimeout(() => {
             let greeting = "";
-            
+
             if (filledCount === 0) {
-              greeting = "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
+              greeting =
+                "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
             } else if (filledCount < TOTAL_FIELDS) {
               greeting = `Pulled ${filledCount}/${TOTAL_FIELDS} fields. Could be worse.\n\n`;
-              
+
               const missingFields: string[] = [];
               if (!newExtractedData.roleTitle) missingFields.push("Role Title");
-              if (!newExtractedData.department) missingFields.push("Department");
-              if (!newExtractedData.experienceLevel) missingFields.push("Experience Level");
+              if (!newExtractedData.department)
+                missingFields.push("Department");
+              if (!newExtractedData.experienceLevel)
+                missingFields.push("Experience Level");
               if (!newExtractedData.location) missingFields.push("Location");
               if (!newExtractedData.workModel) missingFields.push("Work Model");
-              if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
-              if (!newExtractedData.minSalary || !newExtractedData.maxSalary) missingFields.push("Salary Range");
-              if (!newExtractedData.nonNegotiables) missingFields.push("Non-Negotiables");
+              if (
+                !newExtractedData.criticalSkills ||
+                newExtractedData.criticalSkills.length === 0
+              )
+                missingFields.push("Critical Skills");
+              if (!newExtractedData.minSalary || !newExtractedData.maxSalary)
+                missingFields.push("Salary Range");
+              if (!newExtractedData.nonNegotiables)
+                missingFields.push("Non-Negotiables");
               if (!newExtractedData.timeline) missingFields.push("Timeline");
-              if (!newExtractedData.flexible) missingFields.push("Nice-to-Have Skills");
-              
+              if (!newExtractedData.flexible)
+                missingFields.push("Nice-to-Have Skills");
+
               greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
               greeting += "Time to fill the gaps. No excuses.";
-              
+
               if (!newExtractedData.roleTitle) {
-                greeting += "\n\nJob title? And if you're about to type 'Rockstar Ninja,' save us both the pain and don't.";
+                greeting +=
+                  "\n\nJob title? And if you're about to type 'Rockstar Ninja,' save us both the pain and don't.";
               } else if (!newExtractedData.department) {
-                greeting += "\n\nDepartment? Engineering? Marketing? Or is this one of those 'cross-functional vibes-only' roles?";
-              } else if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) {
-                greeting += "\n\nMust-have skills? Not the fantasy wishlist. The actual deal-breakers.";
+                greeting +=
+                  "\n\nDepartment? Engineering? Marketing? Or is this one of those 'cross-functional vibes-only' roles?";
+              } else if (
+                !newExtractedData.criticalSkills ||
+                newExtractedData.criticalSkills.length === 0
+              ) {
+                greeting +=
+                  "\n\nMust-have skills? Not the fantasy wishlist. The actual deal-breakers.";
               } else if (!newExtractedData.experienceLevel) {
-                greeting += "\n\nExperience level? Entry, mid, senior? Or the illegal combo: '10 years experience, entry-level pay'?";
+                greeting +=
+                  "\n\nExperience level? Entry, mid, senior? Or the illegal combo: '10 years experience, entry-level pay'?";
               } else if (!newExtractedData.nonNegotiables) {
-                greeting += "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
-              } else if (!newExtractedData.minSalary || !newExtractedData.maxSalary) {
-                greeting += "\n\nTime to talk numbers. What's your salary range? Min and max, please.";
+                greeting +=
+                  "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
+              } else if (
+                !newExtractedData.minSalary ||
+                !newExtractedData.maxSalary
+              ) {
+                greeting +=
+                  "\n\nTime to talk numbers. What's your salary range? Min and max, please.";
               } else if (!newExtractedData.location) {
-                greeting += "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
+                greeting +=
+                  "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
               } else if (!newExtractedData.workModel) {
-                greeting += "\n\nRemote, hybrid, or office? Choose wisely. Office-only mandates are basically self-sabotage at this point.";
+                greeting +=
+                  "\n\nRemote, hybrid, or office? Choose wisely. Office-only mandates are basically self-sabotage at this point.";
               } else if (!newExtractedData.timeline) {
-                greeting += "\n\nHow fast do you need this filled? ASAP? Normal pace? Or 'we'll know it when we see it' mode?";
+                greeting +=
+                  "\n\nHow fast do you need this filled? ASAP? Normal pace? Or 'we'll know it when we see it' mode?";
               } else if (!newExtractedData.flexible) {
-                greeting += "\n\nNice-to-haves? The bonus skills that won't torpedo the hire if missing.";
+                greeting +=
+                  "\n\nNice-to-haves? The bonus skills that won't torpedo the hire if missing.";
               }
             } else {
-              greeting = "Okay, that URL was actually legit. Shocked. Pleasantly. 🎯\n\nAlright, let's roast this thing. Generating your HireCard...";
+              greeting =
+                "Okay, that URL was actually legit. Shocked. Pleasantly. 🎯\n\nAlright, let's roast this thing. Generating your HireCard...";
               setTimeout(() => {
                 handleComplete();
               }, 2000);
             }
-            
+
             addAssistantMessage(greeting);
           }, 500);
         } else {
           setIsGenerating(false);
-          addAssistantMessage("Hmm, couldn't extract data from that URL. Either it's not a job posting, or the site is blocking us. Try copy-pasting the job description text instead?");
+          addAssistantMessage(
+            "Hmm, couldn't extract data from that URL. Either it's not a job posting, or the site is blocking us. Try copy-pasting the job description text instead?"
+          );
         }
       } catch (err) {
         console.error("URL scraping error:", err);
         setIsGenerating(false);
-        addAssistantMessage("Failed to process that URL. Try sharing the job details directly instead?");
+        addAssistantMessage(
+          "Failed to process that URL. Try sharing the job details directly instead?"
+        );
       }
     } else {
       // Handle regular text message
@@ -782,22 +1022,29 @@ export default function ConversationalChatbot() {
         });
 
         const extractionResult = await extractionResponse.json();
-        
+
         // Merge extracted data immediately before sending to chat API
         let updatedExtractedData = { ...extractedData };
-        
+
         if (extractionResult.success && extractionResult.hasNewData) {
           // Update extracted data with new information
           Object.keys(extractionResult.extracted).forEach((key) => {
             if (extractionResult.extracted[key]) {
               // For criticalSkills array, merge with existing
-              if (key === "criticalSkills" && Array.isArray(extractionResult.extracted[key])) {
-                const existingSkills = updatedExtractedData.criticalSkills || [];
+              if (
+                key === "criticalSkills" &&
+                Array.isArray(extractionResult.extracted[key])
+              ) {
+                const existingSkills =
+                  updatedExtractedData.criticalSkills || [];
                 const newSkills = extractionResult.extracted[key];
                 // Merge and deduplicate
-                updatedExtractedData.criticalSkills = [...new Set([...existingSkills, ...newSkills])];
+                updatedExtractedData.criticalSkills = [
+                  ...new Set([...existingSkills, ...newSkills]),
+                ];
               } else {
-                (updatedExtractedData as any)[key] = extractionResult.extracted[key];
+                (updatedExtractedData as any)[key] =
+                  extractionResult.extracted[key];
               }
             }
           });
@@ -826,7 +1073,7 @@ export default function ConversationalChatbot() {
         const chatResult = await chatResponse.json();
         if (chatResult.success) {
           addAssistantMessage(chatResult.message);
-          
+
           // Stop loading immediately after adding message
           setIsLoading(false);
 
@@ -858,12 +1105,14 @@ export default function ConversationalChatbot() {
             "generating your hirecard",
             "you actually finished",
             "alright, you actually finished",
-            "let me roast"
+            "let me roast",
           ];
-          
+
           const messageLower = chatResult.message.toLowerCase();
-          const isComplete = completionPhrases.some(phrase => messageLower.includes(phrase));
-          
+          const isComplete = completionPhrases.some((phrase) =>
+            messageLower.includes(phrase)
+          );
+
           if (isComplete) {
             setTimeout(() => {
               handleComplete();
@@ -887,15 +1136,19 @@ export default function ConversationalChatbot() {
 
     if (data.roleTitle) updatedData.roleTitle = data.roleTitle;
     if (data.department) updatedData.department = data.department;
-    if (data.experienceLevel) updatedData.experienceLevel = data.experienceLevel;
+    if (data.experienceLevel)
+      updatedData.experienceLevel = data.experienceLevel;
     if (data.location) updatedData.location = data.location;
     if (data.workModel) updatedData.workModel = data.workModel;
     if (data.criticalSkills) {
       // Handle both array and string formats
       if (Array.isArray(data.criticalSkills)) {
         updatedData.criticalSkills = data.criticalSkills;
-      } else if (typeof data.criticalSkills === 'string') {
-        updatedData.criticalSkills = data.criticalSkills.split(',').map((s: string) => s.trim()).filter((s: string) => s);
+      } else if (typeof data.criticalSkills === "string") {
+        updatedData.criticalSkills = data.criticalSkills
+          .split(",")
+          .map((s: string) => s.trim())
+          .filter((s: string) => s);
       }
     } else if (data.criticalSkill) {
       // Fallback for old format
@@ -909,7 +1162,7 @@ export default function ConversationalChatbot() {
 
     // Create new extracted data by merging with existing
     const newExtractedData = { ...extractedData, ...updatedData };
-    
+
     // Update state immediately
     setExtractedData(newExtractedData);
 
@@ -940,60 +1193,83 @@ export default function ConversationalChatbot() {
     // Always trigger greeting after URL extraction
     setTimeout(() => {
       const filledCount = countFilledFields(newExtractedData);
-      
+
       let greeting = "";
-      
+
       // Check if this was an irrelevant URL (0 fields extracted)
       if (filledCount === 0) {
-        greeting = "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
+        greeting =
+          "Aaaand... it's useless. 💀\n\nThat wasn't a job posting. That was a LinkedIn fever dream. Or maybe just Google's homepage.\n\nLet's try this again. Drop the actual role you're hiring for. Use words, not buzzwords.";
       } else if (filledCount < TOTAL_FIELDS) {
         greeting = `Pulled ${filledCount}/${TOTAL_FIELDS} fields. Could be worse.\n\n`;
-        
+
         // Build list of missing fields
         const missingFields: string[] = [];
         if (!newExtractedData.roleTitle) missingFields.push("Role Title");
         if (!newExtractedData.department) missingFields.push("Department");
-        if (!newExtractedData.experienceLevel) missingFields.push("Experience Level");
+        if (!newExtractedData.experienceLevel)
+          missingFields.push("Experience Level");
         if (!newExtractedData.location) missingFields.push("Location");
         if (!newExtractedData.workModel) missingFields.push("Work Model");
-        if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) missingFields.push("Critical Skills");
-        if (!newExtractedData.minSalary || !newExtractedData.maxSalary) missingFields.push("Salary Range");
-        if (!newExtractedData.nonNegotiables) missingFields.push("Non-Negotiables");
+        if (
+          !newExtractedData.criticalSkills ||
+          newExtractedData.criticalSkills.length === 0
+        )
+          missingFields.push("Critical Skills");
+        if (!newExtractedData.minSalary || !newExtractedData.maxSalary)
+          missingFields.push("Salary Range");
+        if (!newExtractedData.nonNegotiables)
+          missingFields.push("Non-Negotiables");
         if (!newExtractedData.timeline) missingFields.push("Timeline");
-        if (!newExtractedData.flexible) missingFields.push("Nice-to-Have Skills");
-        
+        if (!newExtractedData.flexible)
+          missingFields.push("Nice-to-Have Skills");
+
         greeting += `Still missing: ${missingFields.join(", ")}.\n\n`;
         greeting += "Time to fill the gaps. No excuses.";
-        
+
         // Intelligently ask about the first missing field with maximum sass
         if (!newExtractedData.roleTitle) {
-          greeting += "\n\nJob title? And if you're about to type 'Rockstar Ninja,' save us both the pain and don't.";
+          greeting +=
+            "\n\nJob title? And if you're about to type 'Rockstar Ninja,' save us both the pain and don't.";
         } else if (!newExtractedData.department) {
-          greeting += "\n\nDepartment? Engineering? Marketing? Or is this one of those 'cross-functional vibes-only' roles?";
-        } else if (!newExtractedData.criticalSkills || newExtractedData.criticalSkills.length === 0) {
-          greeting += "\n\nMust-have skills? Not the fantasy wishlist. The actual deal-breakers.";
+          greeting +=
+            "\n\nDepartment? Engineering? Marketing? Or is this one of those 'cross-functional vibes-only' roles?";
+        } else if (
+          !newExtractedData.criticalSkills ||
+          newExtractedData.criticalSkills.length === 0
+        ) {
+          greeting +=
+            "\n\nMust-have skills? Not the fantasy wishlist. The actual deal-breakers.";
         } else if (!newExtractedData.experienceLevel) {
-          greeting += "\n\nExperience level? Entry, mid, senior? Or the illegal combo: '10 years experience, entry-level pay'?";
+          greeting +=
+            "\n\nExperience level? Entry, mid, senior? Or the illegal combo: '10 years experience, entry-level pay'?";
         } else if (!newExtractedData.nonNegotiables) {
-          greeting += "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
+          greeting +=
+            "\n\nNon-negotiables? The stuff that's an instant reject. No fluffy HR speak.";
         } else if (!newExtractedData.minSalary || !newExtractedData.maxSalary) {
-          greeting += "\n\nTime to talk numbers. What's your salary range? Min and max, please.";
+          greeting +=
+            "\n\nTime to talk numbers. What's your salary range? Min and max, please.";
         } else if (!newExtractedData.location) {
-          greeting += "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
+          greeting +=
+            "\n\nLocation? Actual city, or are we doing the 2025 thing and going full remote?";
         } else if (!newExtractedData.workModel) {
-          greeting += "\n\nRemote, hybrid, or office? Choose wisely. Office-only mandates are basically self-sabotage at this point.";
+          greeting +=
+            "\n\nRemote, hybrid, or office? Choose wisely. Office-only mandates are basically self-sabotage at this point.";
         } else if (!newExtractedData.timeline) {
-          greeting += "\n\nHow fast do you need this filled? ASAP? Normal pace? Or 'we'll know it when we see it' mode?";
+          greeting +=
+            "\n\nHow fast do you need this filled? ASAP? Normal pace? Or 'we'll know it when we see it' mode?";
         } else if (!newExtractedData.flexible) {
-          greeting += "\n\nNice-to-haves? The bonus skills that won't torpedo the hire if missing.";
+          greeting +=
+            "\n\nNice-to-haves? The bonus skills that won't torpedo the hire if missing.";
         }
       } else {
-        greeting = "Okay, that URL was actually legit. Shocked. Pleasantly. 🎯\n\nAlright, let's roast this thing. Generating your HireCard...";
+        greeting =
+          "Okay, that URL was actually legit. Shocked. Pleasantly. 🎯\n\nAlright, let's roast this thing. Generating your HireCard...";
         setTimeout(() => {
           handleComplete();
         }, 2000);
       }
-      
+
       addAssistantMessage(greeting);
     }, 500);
   };
@@ -1004,7 +1280,7 @@ export default function ConversationalChatbot() {
     <div className="flex flex-col h-full relative">
       {/* Generating Loading Screen */}
       {isGenerating && (
-        <div 
+        <div
           className="absolute inset-0 z-50 flex items-center justify-center overflow-y-auto"
           style={{ backgroundColor: "#f5f5f5" }}
         >
@@ -1100,12 +1376,9 @@ export default function ConversationalChatbot() {
                   Initial generation takes 30–45 seconds
                 </p>
               </div>
-              <p
-                className="text-sm"
-                style={{ color: "#102a63", opacity: 0.7 }}
-              >
-                This is completely normal. We&apos;re doing deep market
-                research for you
+              <p className="text-sm" style={{ color: "#102a63", opacity: 0.7 }}>
+                This is completely normal. We&apos;re doing deep market research
+                for you
               </p>
             </div>
 
@@ -1126,27 +1399,21 @@ export default function ConversationalChatbot() {
                 >
                   Starting
                 </span>
-                <span style={{ color: "#102a63", opacity: 0.4 }}>
-                  →
-                </span>
+                <span style={{ color: "#102a63", opacity: 0.4 }}>→</span>
                 <span
                   className="font-medium animate-pulse"
                   style={{ color: "#278f8c", animationDelay: "0.5s" }}
                 >
                   Searching
                 </span>
-                <span style={{ color: "#102a63", opacity: 0.4 }}>
-                  →
-                </span>
+                <span style={{ color: "#102a63", opacity: 0.4 }}>→</span>
                 <span
                   className="font-medium animate-pulse"
                   style={{ color: "#278f8c", animationDelay: "1s" }}
                 >
                   Analyzing
                 </span>
-                <span style={{ color: "#102a63", opacity: 0.4 }}>
-                  →
-                </span>
+                <span style={{ color: "#102a63", opacity: 0.4 }}>→</span>
                 <span
                   className="font-medium animate-pulse"
                   style={{ color: "#278f8c", animationDelay: "1.5s" }}
@@ -1199,10 +1466,9 @@ export default function ConversationalChatbot() {
                 className="text-sm leading-relaxed"
                 style={{ color: "#102a63", opacity: 0.8 }}
               >
-                While we work, remember: The best hires aren&apos;t
-                always the ones with the most experience, they&apos;re
-                the ones who understand your mission and bring the
-                energy to execute it.
+                While we work, remember: The best hires aren&apos;t always the
+                ones with the most experience, they&apos;re the ones who
+                understand your mission and bring the energy to execute it.
               </p>
             </div>
           </div>
@@ -1229,7 +1495,7 @@ export default function ConversationalChatbot() {
               <div className="text-xs text-white/80 mb-1">Progress</div>
               <div className="flex items-center gap-2">
                 <div className="w-32 h-2 bg-white/20 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-white transition-all duration-500 ease-out rounded-full"
                     style={{ width: `${completeness}%` }}
                   />
@@ -1283,9 +1549,18 @@ export default function ConversationalChatbot() {
                   <Message from="assistant" key="typing">
                     <MessageContent>
                       <div className="flex space-x-1">
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "0ms" }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "150ms" }}></div>
-                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: "300ms" }}></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "0ms" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "150ms" }}
+                        ></div>
+                        <div
+                          className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                          style={{ animationDelay: "300ms" }}
+                        ></div>
                       </div>
                     </MessageContent>
                   </Message>
@@ -1314,7 +1589,10 @@ export default function ConversationalChatbot() {
 
         {/* Input Area - Fixed at bottom */}
         <div className="border-t border-gray-200 p-4 bg-gray-50 flex-shrink-0">
-          <form onSubmit={handleSendMessage} className="flex gap-2 items-center">
+          <form
+            onSubmit={handleSendMessage}
+            className="flex gap-2 items-center"
+          >
             <input
               ref={inputRef}
               type="text"

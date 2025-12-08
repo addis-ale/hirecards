@@ -5,64 +5,131 @@ import { Send, AlertTriangle, X, Wrench, Search, Clock } from "lucide-react";
 import { Callout } from "@/components/ui/Callout";
 import { EditableText, EditableList } from "@/components/EditableCard";
 
-export const EditableOutreachCard = ({
-  onNavigateToCard,
-  currentCardId
-}: {
+interface OutreachCardProps {
+  data?: {
+    introduction?: string;
+    message1?: string;
+    message2?: string;
+    message3?: string;
+    brutalTruth?: string;
+    redFlags?: string[];
+    donts?: string[];
+    fixes?: string[];
+    hiddenBottleneck?: string;
+    timelineToFailure1?: string;
+    timelineToFailure2?: string;
+  };
   onNavigateToCard?: (cardId: string) => void;
   currentCardId?: string;
-} = {}) => {
+}
+
+export const EditableOutreachCard = ({
+  data,
+  onNavigateToCard,
+  currentCardId,
+}: OutreachCardProps = {}) => {
   const [introduction, setIntroduction] = useState(
-    "Short, sharp messages built around what this persona actually cares about: product impact, ownership, modelling quality, and shipping."
+    data?.introduction ||
+      "Short, sharp messages built around what this persona actually cares about: product impact, ownership, modelling quality, and shipping."
   );
   const [message1, setMessage1] = useState(
-    "1–2 lines referencing their modelling work + a clean hook about customer-facing analytics."
+    data?.message1 ||
+      "1–2 lines referencing their modelling work + a clean hook about customer-facing analytics."
   );
   const [message2, setMessage2] = useState(
-    "A line showing the unique value: shipping models that become live product features inside Mollie's merchant dashboard."
+    data?.message2 ||
+      "A line showing the unique value: shipping models that become live product features inside Mollie's merchant dashboard."
   );
   const [message3, setMessage3] = useState(
-    "\"Worth a quick sanity check?\" → no pressure, no oversell."
+    data?.message3 ||
+      '"Worth a quick sanity check?" → no pressure, no oversell.'
   );
   const [brutalTruth, setBrutalTruth] = useState(
-    "Analytics engineers get hammered with \"modern stack + dbt + impact\" pitches. If your outreach sounds like that, you disappear instantly. The only thing that cuts through is product ownership, not dashboards, not stack, not buzzwords."
+    data?.brutalTruth ||
+      'Analytics engineers get hammered with "modern stack + dbt + impact" pitches. If your outreach sounds like that, you disappear instantly. The only thing that cuts through is product ownership, not dashboards, not stack, not buzzwords.'
   );
-  const [redFlags, setRedFlags] = useState([
-    "Outreach leading with \"We're hiring a Senior AE.\"",
-    "Messages longer than 4 lines.",
-    "No reference to their modelling domain.",
-    "Generic adjectives (\"fast-paced,\" \"data-driven,\" \"AI-powered\")."
-  ]);
-  const [donts, setDonts] = useState([
-    "Describe the job ad in DM format.",
-    "Open with culture fluff.",
-    "Pitch AI without showing how it's used.",
-    "Ask for a call before giving context."
-  ]);
-  const [fixes, setFixes] = useState([
-    "Tie your opener to a specific repo, modelling decision, or dashboard they built.",
-    "Lead with the real differentiator: your models go straight into customer-facing UX, not buried in BI.",
-    "Mention the Insights product: a new, AI-assisted analytics suite with real revenue impact.",
-    "Keep your CTA soft and optional."
-  ]);
+  const [redFlags, setRedFlags] = useState(
+    data?.redFlags || [
+      'Outreach leading with "We\'re hiring a Senior AE."',
+      "Messages longer than 4 lines.",
+      "No reference to their modelling domain.",
+      'Generic adjectives ("fast-paced," "data-driven," "AI-powered").',
+    ]
+  );
+  const [donts, setDonts] = useState(
+    data?.donts || [
+      "Describe the job ad in DM format.",
+      "Open with culture fluff.",
+      "Pitch AI without showing how it's used.",
+      "Ask for a call before giving context.",
+    ]
+  );
+  const [fixes, setFixes] = useState(
+    data?.fixes || [
+      "Tie your opener to a specific repo, modelling decision, or dashboard they built.",
+      "Lead with the real differentiator: your models go straight into customer-facing UX, not buried in BI.",
+      "Mention the Insights product: a new, AI-assisted analytics suite with real revenue impact.",
+      "Keep your CTA soft and optional.",
+    ]
+  );
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
-    "If you can't clearly explain how this role shapes Mollie's merchant analytics experience in the first message, the candidate assumes it's another BI cleanup job, and ignores you."
+    data?.hiddenBottleneck ||
+      "If you can't clearly explain how this role shapes Mollie's merchant analytics experience in the first message, the candidate assumes it's another BI cleanup job, and ignores you."
   );
   const [timelineToFailure1, setTimelineToFailure1] = useState(
-    "If messages aren't personalised in week 1 → expect reply rates under 15%."
+    data?.timelineToFailure1 ||
+      "If messages aren't personalised in week 1 → expect reply rates under 15%."
   );
   const [timelineToFailure2, setTimelineToFailure2] = useState(
-    "If you lead with \"dbt + ownership + impact\" like every fintech → expect under 10%."
+    data?.timelineToFailure2 ||
+      'If you lead with "dbt + ownership + impact" like every fintech → expect under 10%.'
   );
+
+  // Update when data prop changes
+  useEffect(() => {
+    if (data?.introduction) setIntroduction(data.introduction);
+    if (data?.message1) setMessage1(data.message1);
+    if (data?.message2) setMessage2(data.message2);
+    if (data?.message3) setMessage3(data.message3);
+    if (data?.brutalTruth) setBrutalTruth(data.brutalTruth);
+    if (data?.redFlags) setRedFlags(data.redFlags);
+    if (data?.donts) setDonts(data.donts);
+    if (data?.fixes) setFixes(data.fixes);
+    if (data?.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
+    if (data?.timelineToFailure1)
+      setTimelineToFailure1(data.timelineToFailure1);
+    if (data?.timelineToFailure2)
+      setTimelineToFailure2(data.timelineToFailure2);
+  }, [data]);
 
   useEffect(() => {
     const data = {
-      introduction, message1, message2, message3, brutalTruth, redFlags, donts,
-      fixes, hiddenBottleneck, timelineToFailure1, timelineToFailure2
+      introduction,
+      message1,
+      message2,
+      message3,
+      brutalTruth,
+      redFlags,
+      donts,
+      fixes,
+      hiddenBottleneck,
+      timelineToFailure1,
+      timelineToFailure2,
     };
     sessionStorage.setItem("editableOutreachCard", JSON.stringify(data));
-  }, [introduction, message1, message2, message3, brutalTruth, redFlags, donts,
-      fixes, hiddenBottleneck, timelineToFailure1, timelineToFailure2]);
+  }, [
+    introduction,
+    message1,
+    message2,
+    message3,
+    brutalTruth,
+    redFlags,
+    donts,
+    fixes,
+    hiddenBottleneck,
+    timelineToFailure1,
+    timelineToFailure2,
+  ]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableOutreachCard");
@@ -78,8 +145,10 @@ export const EditableOutreachCard = ({
         if (data.donts) setDonts(data.donts);
         if (data.fixes) setFixes(data.fixes);
         if (data.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
-        if (data.timelineToFailure1) setTimelineToFailure1(data.timelineToFailure1);
-        if (data.timelineToFailure2) setTimelineToFailure2(data.timelineToFailure2);
+        if (data.timelineToFailure1)
+          setTimelineToFailure1(data.timelineToFailure1);
+        if (data.timelineToFailure2)
+          setTimelineToFailure2(data.timelineToFailure2);
       } catch (e) {
         console.error("Failed to load saved data:", e);
       }
@@ -89,7 +158,6 @@ export const EditableOutreachCard = ({
 
   return (
     <div className="space-y-6">
-
       {/* Introduction */}
       <div className="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-r-lg">
         <EditableText
@@ -150,18 +218,12 @@ export const EditableOutreachCard = ({
 
       {/* Brutal Truth */}
       <Callout tone="danger" title="Brutal Truth">
-        <EditableText
-          value={brutalTruth}
-          onChange={setBrutalTruth}
-          multiline
-        />
+        <EditableText value={brutalTruth} onChange={setBrutalTruth} multiline />
       </Callout>
 
       {/* Red Flags */}
       <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-r-lg">
-        <h3 className="font-bold text-lg mb-3 text-red-700">
-          Red Flags
-        </h3>
+        <h3 className="font-bold text-lg mb-3 text-red-700">Red Flags</h3>
         <EditableList
           items={redFlags}
           onChange={setRedFlags}
@@ -185,9 +247,7 @@ export const EditableOutreachCard = ({
 
       {/* Fix This Now */}
       <div className="bg-green-50 border-l-4 border-green-500 p-4 rounded-r-lg">
-        <h3 className="font-bold text-lg mb-3 text-green-700">
-          Fix This Now
-        </h3>
+        <h3 className="font-bold text-lg mb-3 text-green-700">Fix This Now</h3>
         <EditableList
           items={fixes}
           onChange={setFixes}
@@ -239,7 +299,6 @@ export const EditableOutreachCard = ({
           </div>
         </div>
       </div>
-
     </div>
   );
 };

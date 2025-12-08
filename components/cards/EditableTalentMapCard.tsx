@@ -1,102 +1,219 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Users, Target, AlertTriangle, Wrench, XCircle, ArrowRight, Building2, MapPin, Info } from "lucide-react";
+import {
+  Users,
+  Target,
+  AlertTriangle,
+  Wrench,
+  XCircle,
+  ArrowRight,
+  Building2,
+  MapPin,
+  Info,
+} from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableText } from "@/components/EditableCard";
-import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import {
+  ScoreImpactTable,
+  ScoreImpactRow,
+} from "@/components/ui/ScoreImpactTable";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SectionModal } from "@/components/ui/SectionModal";
 
-export const EditableTalentMapCard = ({
-  onNavigateToCard,
-  currentCardId
-}: {
+interface TalentMapCardProps {
+  data?: {
+    primaryFeeders?: string[];
+    secondaryFeeders?: string[];
+    avoidList?: string[];
+    brutalTruth?: string;
+    redFlags?: string[];
+    donts?: string[];
+    fixes?: string[];
+    hiddenBottleneck?: string;
+    talentFlowMap?: Array<{ flow: string; path: string; note: string }>;
+    personaInsights?: Array<{
+      type: string;
+      motivated: string;
+      needs: string;
+      hates: string;
+    }>;
+  };
   onNavigateToCard?: (cardId: string) => void;
   currentCardId?: string;
-} = {}) => {
-  const [primaryFeeders, setPrimaryFeeders] = useState([
-    "Adyen",
-    "bunq",
-    "Booking",
-    "bol",
-    "Picnic",
-    "PayPal",
-    "Klarna",
-    "Revolut",
-    "Mollie-like scaleups"
-  ]);
-  const [secondaryFeeders, setSecondaryFeeders] = useState([
-    "ING",
-    "Rabobank",
-    "ABN AMRO",
-    "Modern data consultancies"
-  ]);
-  const [avoidList, setAvoidList] = useState([
-    "Legacy BI teams",
-    "Excel-heavy organizations",
-    "Candidates with no ownership experience",
-    "Pure analysts dressed as engineers"
-  ]);
+}
+
+export const EditableTalentMapCard = ({
+  data,
+  onNavigateToCard,
+  currentCardId,
+}: TalentMapCardProps = {}) => {
+  const [primaryFeeders, setPrimaryFeeders] = useState(
+    data?.primaryFeeders || [
+      "Adyen",
+      "bunq",
+      "Booking",
+      "bol",
+      "Picnic",
+      "PayPal",
+      "Klarna",
+      "Revolut",
+      "Mollie-like scaleups",
+    ]
+  );
+  const [secondaryFeeders, setSecondaryFeeders] = useState(
+    data?.secondaryFeeders || [
+      "ING",
+      "Rabobank",
+      "ABN AMRO",
+      "Modern data consultancies",
+    ]
+  );
+  const [avoidList, setAvoidList] = useState(
+    data?.avoidList || [
+      "Legacy BI teams",
+      "Excel-heavy organizations",
+      "Candidates with no ownership experience",
+      "Pure analysts dressed as engineers",
+    ]
+  );
   const [brutalTruth, setBrutalTruth] = useState(
-    "Everyone is chasing the same top 10 companies. You won't win them on comp. You must win them on scope and shipping velocity."
+    data?.brutalTruth ||
+      "Everyone is chasing the same top 10 companies. You won't win them on comp. You must win them on scope and shipping velocity."
   );
-  const [redFlags, setRedFlags] = useState([
-    "Candidates who \"maintained dashboards\" rather than built modelling ecosystems",
-    "Builders of internal-only tools who never shipped product-facing analytics"
-  ]);
-  const [donts, setDonts] = useState([
-    "Target early-stage startups, modelling maturity tends to be low",
-    "Target banking analytics teams without validating modelling experience"
-  ]);
-  const [fixes, setFixes] = useState([
-    "Prioritize candidates frustrated by data chaos or slow product cycles",
-    "Target people who own domains, not maintain pipelines"
-  ]);
+  const [redFlags, setRedFlags] = useState(
+    data?.redFlags || [
+      'Candidates who "maintained dashboards" rather than built modelling ecosystems',
+      "Builders of internal-only tools who never shipped product-facing analytics",
+    ]
+  );
+  const [donts, setDonts] = useState(
+    data?.donts || [
+      "Target early-stage startups, modelling maturity tends to be low",
+      "Target banking analytics teams without validating modelling experience",
+    ]
+  );
+  const [fixes, setFixes] = useState(
+    data?.fixes || [
+      "Prioritize candidates frustrated by data chaos or slow product cycles",
+      "Target people who own domains, not maintain pipelines",
+    ]
+  );
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
-    "You're not just fighting for attention, you're fighting for credibility."
+    data?.hiddenBottleneck ||
+      "You're not just fighting for attention, you're fighting for credibility."
   );
-  const [talentFlowMap, setTalentFlowMap] = useState([
-    { flow: "Fintech Flow", path: "Adyen → bunq → Mollie → bunq → Revolut", note: "(Fintechs trade the same AE persona; they move fast.)" },
-    { flow: "Scale-Up Flow", path: "Booking → bol → mid-sized SaaS → fintech", note: "(AEs seek more ownership + product impact.)" },
-    { flow: "Consultancy Flow", path: "Consultancies → fintech & SaaS (entry to mid-level AEs)", note: "(Solid fundamentals, validate depth.)" }
-  ]);
-  const [personaInsights, setPersonaInsights] = useState([
-    { type: "Fintech AEs", motivated: "ownership, pace, clear product impact", needs: "modelling challenges, clean architecture", hates: "slow loops, vague JD, BI tasks" },
-    { type: "Scale-Up AEs", motivated: "system design, problem-solving, shaping standards", needs: "engineering collaboration, autonomy", hates: "legacy systems with no investment" },
-    { type: "Consultancy AEs", motivated: "solving interesting problems", needs: "stability + ownership they never get in consulting", hates: "unclear product vision" }
-  ]);
+  const [talentFlowMap, setTalentFlowMap] = useState(
+    data?.talentFlowMap || [
+      {
+        flow: "Fintech Flow",
+        path: "Adyen → bunq → Mollie → bunq → Revolut",
+        note: "(Fintechs trade the same AE persona; they move fast.)",
+      },
+      {
+        flow: "Scale-Up Flow",
+        path: "Booking → bol → mid-sized SaaS → fintech",
+        note: "(AEs seek more ownership + product impact.)",
+      },
+      {
+        flow: "Consultancy Flow",
+        path: "Consultancies → fintech & SaaS (entry to mid-level AEs)",
+        note: "(Solid fundamentals, validate depth.)",
+      },
+    ]
+  );
+  const [personaInsights, setPersonaInsights] = useState(
+    data?.personaInsights || [
+      {
+        type: "Fintech AEs",
+        motivated: "ownership, pace, clear product impact",
+        needs: "modelling challenges, clean architecture",
+        hates: "slow loops, vague JD, BI tasks",
+      },
+      {
+        type: "Scale-Up AEs",
+        motivated: "system design, problem-solving, shaping standards",
+        needs: "engineering collaboration, autonomy",
+        hates: "legacy systems with no investment",
+      },
+      {
+        type: "Consultancy AEs",
+        motivated: "solving interesting problems",
+        needs: "stability + ownership they never get in consulting",
+        hates: "unclear product vision",
+      },
+    ]
+  );
+
+  // Update when data prop changes
+  useEffect(() => {
+    if (data?.primaryFeeders) setPrimaryFeeders(data.primaryFeeders);
+    if (data?.secondaryFeeders) setSecondaryFeeders(data.secondaryFeeders);
+    if (data?.avoidList) setAvoidList(data.avoidList);
+    if (data?.brutalTruth) setBrutalTruth(data.brutalTruth);
+    if (data?.redFlags) setRedFlags(data.redFlags);
+    if (data?.donts) setDonts(data.donts);
+    if (data?.fixes) setFixes(data.fixes);
+    if (data?.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
+    if (data?.talentFlowMap) setTalentFlowMap(data.talentFlowMap);
+    if (data?.personaInsights) setPersonaInsights(data.personaInsights);
+  }, [data]);
   const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
     {
       fix: "Target frustration-driven candidates",
       impact: "+0.2",
-      tooltip: "These candidates actively seek better modelling ownership and convert faster.",
+      tooltip:
+        "These candidates actively seek better modelling ownership and convert faster.",
       talentPoolImpact: "+12% reply rate",
-      riskReduction: "-10% negotiation drag"
+      riskReduction: "-10% negotiation drag",
     },
     {
       fix: "Prioritise domain owners",
       impact: "+0.2",
-      tooltip: "True AEs own modelling domains; removes dashboard-only profiles.",
+      tooltip:
+        "True AEs own modelling domains; removes dashboard-only profiles.",
       talentPoolImpact: "+10% stronger pipeline",
-      riskReduction: "-15% late-stage failure"
+      riskReduction: "-15% late-stage failure",
     },
     {
       fix: "Use frustration-based messaging",
       impact: "+0.2",
-      tooltip: "Speaking to real pain points outperforms generic \"modern stack\" claims.",
+      tooltip:
+        'Speaking to real pain points outperforms generic "modern stack" claims.',
       talentPoolImpact: "+18% reply uplift",
-      riskReduction: "-5% ghosting"
-    }
+      riskReduction: "-5% ghosting",
+    },
   ]);
 
   useEffect(() => {
     const data = {
-      primaryFeeders, secondaryFeeders, avoidList, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, talentFlowMap, personaInsights, scoreImpactRows
+      primaryFeeders,
+      secondaryFeeders,
+      avoidList,
+      brutalTruth,
+      redFlags,
+      donts,
+      fixes,
+      hiddenBottleneck,
+      talentFlowMap,
+      personaInsights,
+      scoreImpactRows,
     };
     sessionStorage.setItem("editableTalentMapCard", JSON.stringify(data));
-  }, [primaryFeeders, secondaryFeeders, avoidList, brutalTruth, redFlags, donts, fixes, hiddenBottleneck, talentFlowMap, personaInsights, scoreImpactRows]);
+  }, [
+    primaryFeeders,
+    secondaryFeeders,
+    avoidList,
+    brutalTruth,
+    redFlags,
+    donts,
+    fixes,
+    hiddenBottleneck,
+    talentFlowMap,
+    personaInsights,
+    scoreImpactRows,
+  ]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableTalentMapCard");
@@ -184,11 +301,7 @@ export const EditableTalentMapCard = ({
       Icon: AlertTriangle,
       tone: "danger" as const,
       content: (
-        <EditableText
-          value={brutalTruth}
-          onChange={setBrutalTruth}
-          multiline
-        />
+        <EditableText value={brutalTruth} onChange={setBrutalTruth} multiline />
       ),
     },
     {
@@ -230,8 +343,13 @@ export const EditableTalentMapCard = ({
       content: (
         <div className="space-y-3">
           {talentFlowMap.map((item, idx) => (
-            <div key={idx} className="border border-blue-200 rounded-lg p-3 bg-white">
-              <p className="text-xs font-bold text-blue-900 mb-1">{item.flow}</p>
+            <div
+              key={idx}
+              className="border border-blue-200 rounded-lg p-3 bg-white"
+            >
+              <p className="text-xs font-bold text-blue-900 mb-1">
+                {item.flow}
+              </p>
               <div className="flex items-center gap-2 text-sm text-gray-700">
                 <span>{item.path}</span>
                 <ArrowRight className="w-4 h-4 text-blue-600" />
@@ -251,12 +369,28 @@ export const EditableTalentMapCard = ({
       content: (
         <div className="space-y-3">
           {personaInsights.map((item, idx) => (
-            <div key={idx} className="border border-purple-200 rounded-lg p-3 bg-white">
-              <p className="text-xs font-bold text-purple-900 mb-2">{item.type}</p>
+            <div
+              key={idx}
+              className="border border-purple-200 rounded-lg p-3 bg-white"
+            >
+              <p className="text-xs font-bold text-purple-900 mb-2">
+                {item.type}
+              </p>
               <div className="space-y-1 text-xs">
-                <p><span className="font-semibold text-emerald-700">Motivated by:</span> {item.motivated}</p>
-                <p><span className="font-semibold text-blue-700">Needs:</span> {item.needs}</p>
-                <p><span className="font-semibold text-red-700">Hates:</span> {item.hates}</p>
+                <p>
+                  <span className="font-semibold text-emerald-700">
+                    Motivated by:
+                  </span>{" "}
+                  {item.motivated}
+                </p>
+                <p>
+                  <span className="font-semibold text-blue-700">Needs:</span>{" "}
+                  {item.needs}
+                </p>
+                <p>
+                  <span className="font-semibold text-red-700">Hates:</span>{" "}
+                  {item.hates}
+                </p>
               </div>
             </div>
           ))}
@@ -293,13 +427,24 @@ export const EditableTalentMapCard = ({
       <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
         <div className="flex items-center gap-1">
           <div className="flex-shrink-0 pb-1">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-5 h-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <div>
             <p className="text-sm font-medium text-blue-900">
-              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+              Explore each section below. Click any card to view detailed
+              insights and actionable recommendations.
             </p>
           </div>
         </div>
@@ -328,13 +473,19 @@ export const EditableTalentMapCard = ({
                 <div className="flex flex-col items-center text-center gap-3">
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)`,
+                    }}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
-                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                    <h3 className="text-base font-bold text-gray-900">
+                      {section.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {section.subtitle}
+                    </p>
                   </div>
                 </div>
               </CardHeader>

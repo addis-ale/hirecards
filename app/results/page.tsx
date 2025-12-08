@@ -148,9 +148,6 @@ export default function ResultsPage() {
       "apifyRawJobsData_MarketCard"
     );
     const rawProfiles = sessionStorage.getItem("apifyRawProfilesData");
-    const linkedinPeopleProfiles = sessionStorage.getItem(
-      "linkedin-people-profile-scraped-data"
-    );
 
     const debugData: any = {
       note: "RAW SCRAPED DATA FROM APIFY (NOT ANALYZED)",
@@ -199,14 +196,14 @@ export default function ResultsPage() {
       };
     }
 
-    // Add RAW profiles from MarketCard scraping (apifyRawProfilesData)
+    // Add RAW profiles from MarketCard scraping
     if (rawProfiles) {
       try {
         const profiles = JSON.parse(rawProfiles);
         debugData.profiles = {
           count: profiles.length,
           note: "LinkedIn candidate profiles scraped for MarketCard (supply analysis)",
-          source: "Apify LinkedIn Profile Scraper (Market Enrichment)",
+          source: "Apify LinkedIn Profile Scraper",
           profiles: profiles, // Full raw array
         };
         hasAnyData = true;
@@ -215,31 +212,9 @@ export default function ResultsPage() {
       }
     } else {
       debugData.profiles = {
-        message: "No raw profiles data found from market enrichment",
+        message: "No raw profiles data found",
         reason:
           "Profile scraper currently disabled (requires profile URLs as input)",
-      };
-    }
-
-    // Add RAW profiles from LinkedIn Profile Search (linkedin-people-profile-scraped-data)
-    if (linkedinPeopleProfiles) {
-      try {
-        const profiles = JSON.parse(linkedinPeopleProfiles);
-        debugData.peopleProfiles = {
-          count: Array.isArray(profiles) ? profiles.length : "N/A",
-          note: "LinkedIn candidate profiles scraped from profile search",
-          source: "Apify LinkedIn Profile Search Scraper",
-          profiles: profiles, // Full raw array
-        };
-        hasAnyData = true;
-      } catch (e) {
-        debugData.peopleProfiles = { error: "Failed to parse" };
-      }
-    } else {
-      debugData.peopleProfiles = {
-        message: "No profile search data found",
-        reason:
-          "Profile search may not have been executed or data was not stored",
       };
     }
 

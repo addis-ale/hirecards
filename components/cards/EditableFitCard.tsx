@@ -1,106 +1,189 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { UserCheck, Target, ThumbsUp, ThumbsDown, AlertTriangle, Wrench, XCircle, CheckCircle } from "lucide-react";
+import {
+  UserCheck,
+  Target,
+  ThumbsUp,
+  ThumbsDown,
+  AlertTriangle,
+  Wrench,
+  XCircle,
+  CheckCircle,
+} from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { Pill } from "@/components/ui/Pill";
 import { EditableList, EditableText } from "@/components/EditableCard";
-import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import {
+  ScoreImpactTable,
+  ScoreImpactRow,
+} from "@/components/ui/ScoreImpactTable";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SectionModal } from "@/components/ui/SectionModal";
 
-export const EditableFitCard = ({
-  onNavigateToCard,
-  currentCardId
-}: {
+interface FitCardProps {
+  data?: {
+    persona?: string;
+    motivatedBy?: string[];
+    avoids?: string[];
+    brutalTruth?: string;
+    redFlags?: string[];
+    donts?: string[];
+    fixes?: string[];
+    candidateEvaluation?: string[];
+    decisionMakingYes?: string[];
+    decisionMakingNo?: string[];
+  };
   onNavigateToCard?: (cardId: string) => void;
   currentCardId?: string;
-} = {}) => {
-  const [persona, setPersona] = useState("Product-Minded AE");
-  const [motivatedBy, setMotivatedBy] = useState([
-    "Ownership",
-    "Impact",
-    "Modern modelling standards",
-    "Clean data and clear interfaces",
-    "Tight PM partnership"
-  ]);
-  const [avoids, setAvoids] = useState([
-    "Unclear ownership",
-    "Legacy BI environments",
-    "Slow decision-making",
-    "Chaotic business stakeholders"
-  ]);
-  const [brutalTruth, setBrutalTruth] = useState(
-    "Your strongest candidates aren't job hunting. You need to make the role sound energizing, not \"stable.\""
+}
+
+export const EditableFitCard = ({
+  data,
+  onNavigateToCard,
+  currentCardId,
+}: FitCardProps = {}) => {
+  const [persona, setPersona] = useState(data?.persona || "Product-Minded AE");
+  const [motivatedBy, setMotivatedBy] = useState(
+    data?.motivatedBy || [
+      "Ownership",
+      "Impact",
+      "Modern modelling standards",
+      "Clean data and clear interfaces",
+      "Tight PM partnership",
+    ]
   );
-  const [redFlags, setRedFlags] = useState([
-    "Wants pure DS/ML work",
-    "Wants minimal stakeholder interaction",
-    "Wants only dashboards"
-  ]);
-  const [donts, setDonts] = useState([
-    "Pitch the role as \"modern stack, impact, ownership\", every company says this",
-    "Oversell AI elements",
-    "Pretend data quality is perfect"
-  ]);
-  const [fixes, setFixes] = useState([
-    "Show \"the messy truth\" early, AEs love honesty",
-    "Position the role as product-building, not \"reporting\""
-  ]);
-  const [candidateEvaluation, setCandidateEvaluation] = useState([
-    "Team competence",
-    "Modelling standards",
-    "Data quality",
-    "PM alignment",
-    "Product roadmap clarity",
-    "Transparency about challenges"
-  ]);
-  const [decisionMakingYes, setDecisionMakingYes] = useState([
-    "They can shape modelling foundations",
-    "They see real technical challenges",
-    "They see high-quality peers",
-    "The interview loop feels structured",
-    "Comp is aligned early",
-    "Product impact is clear"
-  ]);
-  const [decisionMakingNo, setDecisionMakingNo] = useState([
-    "They detect BI-heavy responsibilities",
-    "Ownership is unclear",
-    "Interviewers contradict each other",
-    "The team cannot articulate a modelling philosophy",
-    "They feel the role is actually mid-level disguised as senior"
-  ]);
+  const [avoids, setAvoids] = useState(
+    data?.avoids || [
+      "Unclear ownership",
+      "Legacy BI environments",
+      "Slow decision-making",
+      "Chaotic business stakeholders",
+    ]
+  );
+  const [brutalTruth, setBrutalTruth] = useState(
+    data?.brutalTruth ||
+      'Your strongest candidates aren\'t job hunting. You need to make the role sound energizing, not "stable."'
+  );
+  const [redFlags, setRedFlags] = useState(
+    data?.redFlags || [
+      "Wants pure DS/ML work",
+      "Wants minimal stakeholder interaction",
+      "Wants only dashboards",
+    ]
+  );
+  const [donts, setDonts] = useState(
+    data?.donts || [
+      'Pitch the role as "modern stack, impact, ownership", every company says this',
+      "Oversell AI elements",
+      "Pretend data quality is perfect",
+    ]
+  );
+  const [fixes, setFixes] = useState(
+    data?.fixes || [
+      'Show "the messy truth" early, AEs love honesty',
+      'Position the role as product-building, not "reporting"',
+    ]
+  );
+  const [candidateEvaluation, setCandidateEvaluation] = useState(
+    data?.candidateEvaluation || [
+      "Team competence",
+      "Modelling standards",
+      "Data quality",
+      "PM alignment",
+      "Product roadmap clarity",
+      "Transparency about challenges",
+    ]
+  );
+  const [decisionMakingYes, setDecisionMakingYes] = useState(
+    data?.decisionMakingYes || [
+      "They can shape modelling foundations",
+      "They see real technical challenges",
+      "They see high-quality peers",
+      "The interview loop feels structured",
+      "Comp is aligned early",
+      "Product impact is clear",
+    ]
+  );
+  const [decisionMakingNo, setDecisionMakingNo] = useState(
+    data?.decisionMakingNo || [
+      "They detect BI-heavy responsibilities",
+      "Ownership is unclear",
+      "Interviewers contradict each other",
+      "The team cannot articulate a modelling philosophy",
+      "They feel the role is actually mid-level disguised as senior",
+    ]
+  );
+
+  // Update when data prop changes
+  useEffect(() => {
+    if (data?.persona) setPersona(data.persona);
+    if (data?.motivatedBy) setMotivatedBy(data.motivatedBy);
+    if (data?.avoids) setAvoids(data.avoids);
+    if (data?.brutalTruth) setBrutalTruth(data.brutalTruth);
+    if (data?.redFlags) setRedFlags(data.redFlags);
+    if (data?.donts) setDonts(data.donts);
+    if (data?.fixes) setFixes(data.fixes);
+    if (data?.candidateEvaluation)
+      setCandidateEvaluation(data.candidateEvaluation);
+    if (data?.decisionMakingYes) setDecisionMakingYes(data.decisionMakingYes);
+    if (data?.decisionMakingNo) setDecisionMakingNo(data.decisionMakingNo);
+  }, [data]);
   const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
     {
       fix: "Tailor outreach to persona",
       impact: "+0.3",
-      tooltip: "Relevance is the #1 driver of replies; generic messages get ignored.",
+      tooltip:
+        "Relevance is the #1 driver of replies; generic messages get ignored.",
       talentPoolImpact: "+20% response",
-      riskReduction: "-12% sourcing waste"
+      riskReduction: "-12% sourcing waste",
     },
     {
       fix: "Highlight modelling ownership",
       impact: "+0.2",
       tooltip: "This is the strongest motivator for product-minded AEs.",
       talentPoolImpact: "+15% interest",
-      riskReduction: "-10% dropout"
+      riskReduction: "-10% dropout",
     },
     {
       fix: "Show messy truth early",
       impact: "+0.2",
-      tooltip: "Honesty builds instant credibility and differentiates you from fintech competitors.",
+      tooltip:
+        "Honesty builds instant credibility and differentiates you from fintech competitors.",
       talentPoolImpact: "+10% credibility",
-      riskReduction: "-8% expectation mismatch"
-    }
+      riskReduction: "-8% expectation mismatch",
+    },
   ]);
 
   useEffect(() => {
     const data = {
-      persona, motivatedBy, avoids, brutalTruth, redFlags, donts, fixes, candidateEvaluation, decisionMakingYes, decisionMakingNo, scoreImpactRows
+      persona,
+      motivatedBy,
+      avoids,
+      brutalTruth,
+      redFlags,
+      donts,
+      fixes,
+      candidateEvaluation,
+      decisionMakingYes,
+      decisionMakingNo,
+      scoreImpactRows,
     };
     sessionStorage.setItem("editableFitCard", JSON.stringify(data));
-  }, [persona, motivatedBy, avoids, brutalTruth, redFlags, donts, fixes, candidateEvaluation, decisionMakingYes, decisionMakingNo, scoreImpactRows]);
+  }, [
+    persona,
+    motivatedBy,
+    avoids,
+    brutalTruth,
+    redFlags,
+    donts,
+    fixes,
+    candidateEvaluation,
+    decisionMakingYes,
+    decisionMakingNo,
+    scoreImpactRows,
+  ]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableFitCard");
@@ -114,8 +197,10 @@ export const EditableFitCard = ({
         if (data.redFlags) setRedFlags(data.redFlags);
         if (data.donts) setDonts(data.donts);
         if (data.fixes) setFixes(data.fixes);
-        if (data.candidateEvaluation) setCandidateEvaluation(data.candidateEvaluation);
-        if (data.decisionMakingYes) setDecisionMakingYes(data.decisionMakingYes);
+        if (data.candidateEvaluation)
+          setCandidateEvaluation(data.candidateEvaluation);
+        if (data.decisionMakingYes)
+          setDecisionMakingYes(data.decisionMakingYes);
         if (data.decisionMakingNo) setDecisionMakingNo(data.decisionMakingNo);
         if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
@@ -184,11 +269,7 @@ export const EditableFitCard = ({
       Icon: AlertTriangle,
       tone: "danger" as const,
       content: (
-        <EditableText
-          value={brutalTruth}
-          onChange={setBrutalTruth}
-          multiline
-        />
+        <EditableText value={brutalTruth} onChange={setBrutalTruth} multiline />
       ),
     },
     {
@@ -284,7 +365,9 @@ export const EditableFitCard = ({
           </p>
           <div className="flex flex-wrap gap-2">
             {candidateEvaluation.map((item, idx) => (
-              <Pill key={idx} tone="orange">{item}</Pill>
+              <Pill key={idx} tone="orange">
+                {item}
+              </Pill>
             ))}
           </div>
         </div>
@@ -306,13 +389,24 @@ export const EditableFitCard = ({
       <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
         <div className="flex items-center gap-1">
           <div className="flex-shrink-0 pb-1">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-5 h-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <div>
             <p className="text-sm font-medium text-blue-900">
-              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+              Explore each section below. Click any card to view detailed
+              insights and actionable recommendations.
             </p>
           </div>
         </div>
@@ -341,13 +435,19 @@ export const EditableFitCard = ({
                 <div className="flex flex-col items-center text-center gap-3">
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)`,
+                    }}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
-                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                    <h3 className="text-base font-bold text-gray-900">
+                      {section.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {section.subtitle}
+                    </p>
                   </div>
                 </div>
               </CardHeader>

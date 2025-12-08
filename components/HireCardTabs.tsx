@@ -2,7 +2,23 @@
 
 import React, { useState, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { LayoutDashboard, Briefcase, Code, TrendingUp, Map, DollarSign, Target, BarChart3, UserCheck, MessageSquare, Send, Mic, ClipboardList, CalendarCheck, Lock } from "lucide-react";
+import {
+  LayoutDashboard,
+  Briefcase,
+  Code,
+  TrendingUp,
+  Map,
+  DollarSign,
+  Target,
+  BarChart3,
+  UserCheck,
+  MessageSquare,
+  Send,
+  Mic,
+  ClipboardList,
+  CalendarCheck,
+  Lock,
+} from "lucide-react";
 import { EditModeProvider } from "./EditModeContext";
 import { OverviewCard } from "./cards/OverviewCard";
 import { EditableRealityCard } from "./cards/EditableRealityCard";
@@ -28,26 +44,37 @@ interface HireCardTabsProps {
 // Helper function to get card descriptions for tooltips
 const getCardDescription = (id: string): string => {
   const descriptions: Record<string, string> = {
-    reality: "Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.",
+    reality:
+      "Feasibility score, market conditions, what helps or hurts your case, and the truth about making this hire.",
     role: "What this person will actually do and what success looks like in the first 6–12 months.",
-    skill: "The must-have abilities, tools, and experience needed to perform the role.",
-    market: "How big the talent pool is and how competitive the market is for this profile.",
-    talentmap: "Where the strongest candidates come from, companies, locations, and common backgrounds.",
+    skill:
+      "The must-have abilities, tools, and experience needed to perform the role.",
+    market:
+      "How big the talent pool is and how competitive the market is for this profile.",
+    talentmap:
+      "Where the strongest candidates come from, companies, locations, and common backgrounds.",
     pay: "What candidates expect to earn in this market and how your budget compares.",
-    funnel: "The volume of outreach and interviews you'll need to fill the role.",
+    funnel:
+      "The volume of outreach and interviews you'll need to fill the role.",
     fit: "What motivates this persona, what they care about, and what usually makes them say yes or no.",
     message: "How to pitch the role in a way that actually gets replies.",
-    outreach: "Ready-to-send email and DM templates for reaching ideal candidates.",
-    interview: "The recommended interview process and competencies to assess at each stage.",
-    scorecard: "A simple evaluation framework to keep the team aligned and reduce bias.",
-    plan: "Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well."
+    outreach:
+      "Ready-to-send email and DM templates for reaching ideal candidates.",
+    interview:
+      "The recommended interview process and competencies to assess at each stage.",
+    scorecard:
+      "A simple evaluation framework to keep the team aligned and reduce bias.",
+    plan: "Your next steps, the checklist, SLAs, and actions to kick off and run the hiring process well.",
   };
   return descriptions[id] || "Card details";
 };
 
-export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false, initialCardId }) => {
+export const HireCardTabs: React.FC<HireCardTabsProps> = ({
+  isSubscribed = false,
+  initialCardId,
+}) => {
   const [activeTab, setActiveTab] = useState(initialCardId || "reality");
-  
+
   // Update active tab when initialCardId changes
   React.useEffect(() => {
     if (initialCardId) {
@@ -57,61 +84,141 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
   const [isEditMode, setIsEditMode] = useState(false);
   const [showImprovementPanel, setShowImprovementPanel] = useState(false);
   const [realityScore, setRealityScore] = useState(5.5);
-  const [realityCardData, setRealityCardData] = useState<any>(null);
   const [acceptedImprovementsBoost, setAcceptedImprovementsBoost] = useState(0);
   const lastRealityScoreRef = useRef<number>(5.5);
-  
+
   // Dynamic data for cards
   const [payCardData, setPayCardData] = useState<any>(null);
   const [marketCardData, setMarketCardData] = useState<any>(null);
   const [roleCardData, setRoleCardData] = useState<any>(null);
+  const [skillCardData, setSkillCardData] = useState<any>(null);
+  const [talentMapCardData, setTalentMapCardData] = useState<any>(null);
+  const [realityCardData, setRealityCardData] = useState<any>(null);
+  const [funnelCardData, setFunnelCardData] = useState<any>(null);
+  const [fitCardData, setFitCardData] = useState<any>(null);
+  const [messageCardData, setMessageCardData] = useState<any>(null);
+  const [outreachCardData, setOutreachCardData] = useState<any>(null);
+  const [interviewCardData, setInterviewCardData] = useState<any>(null);
+  const [scorecardCardData, setScorecardCardData] = useState<any>(null);
+  const [planCardData, setPlanCardData] = useState<any>(null);
   const [enrichmentLoading, setEnrichmentLoading] = useState(false);
 
-  // Load enriched data from sessionStorage (already enriched by chatbot)
+  // Separate state for Reality Card (used by improvement panel)
+  const [realityCardDataForPanel, setRealityCardDataForPanel] =
+    useState<any>(null);
+
+  // Load analyzed card data from sessionStorage (from AI analysis)
   React.useEffect(() => {
     console.log("🚀 ============================================");
-    console.log("🚀 HIRECARD TABS: LOADING ENRICHED DATA");
+    console.log("🚀 HIRECARD TABS: LOADING ANALYZED CARD DATA");
     console.log("🚀 ============================================");
 
-    // Check if data was already enriched by chatbot
-    const enrichedPayCardStr = sessionStorage.getItem("enrichedPayCard");
-    const enrichedMarketCardStr = sessionStorage.getItem("enrichedMarketCard");
-    const enrichedRoleCardStr = sessionStorage.getItem("enrichedRoleCard");
+    // First, try to load analyzed card data (from AI transformation)
+    const analyzedCardDataStr = sessionStorage.getItem("analyzedCardData");
 
-    if (enrichedPayCardStr) {
+    if (analyzedCardDataStr) {
       try {
-        const data = JSON.parse(enrichedPayCardStr);
-        console.log("✅ Loading pre-enriched PayCard data");
-        setPayCardData(data);
+        const analyzedData = JSON.parse(analyzedCardDataStr);
+        console.log("✅ Loading AI-analyzed card data");
+        console.log("   Cards available:", Object.keys(analyzedData));
+
+        // Set data for each card
+        if (analyzedData.marketCard) {
+          console.log("   ✅ MarketCard data loaded");
+          setMarketCardData(analyzedData.marketCard);
+        }
+        if (analyzedData.payCard) {
+          console.log("   ✅ PayCard data loaded");
+          setPayCardData(analyzedData.payCard);
+        }
+        if (analyzedData.roleCard) {
+          console.log("   ✅ RoleCard data loaded");
+          setRoleCardData(analyzedData.roleCard);
+        }
+        if (analyzedData.skillCard) {
+          console.log("   ✅ SkillCard data loaded");
+          setSkillCardData(analyzedData.skillCard);
+        }
+        if (analyzedData.talentMapCard) {
+          console.log("   ✅ TalentMapCard data loaded");
+          setTalentMapCardData(analyzedData.talentMapCard);
+        }
+        if (analyzedData.realityCard) {
+          console.log("   ✅ RealityCard data loaded");
+          setRealityCardData(analyzedData.realityCard);
+          setRealityCardDataForPanel(analyzedData.realityCard);
+        }
+        if (analyzedData.funnelCard) {
+          console.log("   ✅ FunnelCard data loaded");
+          setFunnelCardData(analyzedData.funnelCard);
+        }
+        if (analyzedData.fitCard) {
+          console.log("   ✅ FitCard data loaded");
+          setFitCardData(analyzedData.fitCard);
+        }
+        if (analyzedData.messageCard) {
+          console.log("   ✅ MessageCard data loaded");
+          setMessageCardData(analyzedData.messageCard);
+        }
+        if (analyzedData.outreachCard) {
+          console.log("   ✅ OutreachCard data loaded");
+          setOutreachCardData(analyzedData.outreachCard);
+        }
+        if (analyzedData.interviewCard) {
+          console.log("   ✅ InterviewCard data loaded");
+          setInterviewCardData(analyzedData.interviewCard);
+        }
+        if (analyzedData.scorecardCard) {
+          console.log("   ✅ ScorecardCard data loaded");
+          setScorecardCardData(analyzedData.scorecardCard);
+        }
+        if (analyzedData.planCard) {
+          console.log("   ✅ PlanCard data loaded");
+          setPlanCardData(analyzedData.planCard);
+        }
       } catch (e) {
-        console.error("❌ Failed to parse PayCard data:", e);
+        console.error("❌ Failed to parse analyzed card data:", e);
       }
     } else {
-      console.log("⚠️ No pre-enriched PayCard data found");
-    }
+      console.log(
+        "⚠️ No analyzed card data found, trying legacy enriched data"
+      );
 
-    if (enrichedMarketCardStr) {
-      try {
-        const data = JSON.parse(enrichedMarketCardStr);
-        console.log("✅ Loading pre-enriched MarketCard data");
-        setMarketCardData(data);
-      } catch (e) {
-        console.error("❌ Failed to parse MarketCard data:", e);
-      }
-    } else {
-      console.log("⚠️ No pre-enriched MarketCard data found");
-    }
+      // Fallback to legacy enriched data
+      const enrichedPayCardStr = sessionStorage.getItem("enrichedPayCard");
+      const enrichedMarketCardStr =
+        sessionStorage.getItem("enrichedMarketCard");
+      const enrichedRoleCardStr = sessionStorage.getItem("enrichedRoleCard");
 
-    if (enrichedRoleCardStr) {
-      try {
-        const data = JSON.parse(enrichedRoleCardStr);
-        console.log("✅ Loading pre-enriched RoleCard data");
-        setRoleCardData(data);
-      } catch (e) {
-        console.error("❌ Failed to parse RoleCard data:", e);
+      if (enrichedPayCardStr) {
+        try {
+          const data = JSON.parse(enrichedPayCardStr);
+          console.log("✅ Loading legacy PayCard data");
+          setPayCardData(data);
+        } catch (e) {
+          console.error("❌ Failed to parse PayCard data:", e);
+        }
       }
-    } else {
-      console.log("⚠️ No pre-enriched RoleCard data found");
+
+      if (enrichedMarketCardStr) {
+        try {
+          const data = JSON.parse(enrichedMarketCardStr);
+          console.log("✅ Loading legacy MarketCard data");
+          setMarketCardData(data);
+        } catch (e) {
+          console.error("❌ Failed to parse MarketCard data:", e);
+        }
+      }
+
+      if (enrichedRoleCardStr) {
+        try {
+          const data = JSON.parse(enrichedRoleCardStr);
+          console.log("✅ Loading legacy RoleCard data");
+          setRoleCardData(data);
+        } catch (e) {
+          console.error("❌ Failed to parse RoleCard data:", e);
+        }
+      }
     }
 
     console.log("🚀 ============================================");
@@ -134,7 +241,6 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
     { id: "scorecard", label: "Scorecard Card", Icon: ClipboardList },
     { id: "plan", label: "Plan Card", Icon: CalendarCheck },
   ];
-
 
   // Load reality card data for improvement panel
   React.useEffect(() => {
@@ -179,43 +285,67 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
 
     switch (activeTab) {
       case "reality":
-        return <EditableRealityCard 
-          onScoreChange={handleRealityScoreChange} 
-          acceptedImprovementsBoost={acceptedImprovementsBoost}
-          {...commonProps}
-        />;
+        return (
+          <EditableRealityCard
+            data={realityCardData}
+            onScoreChange={handleRealityScoreChange}
+            acceptedImprovementsBoost={acceptedImprovementsBoost}
+            {...commonProps}
+          />
+        );
       case "role":
-        console.log("📋 Rendering EditableRoleCard with data:", roleCardData ? "YES" : "NO");
+        console.log(
+          "📋 Rendering EditableRoleCard with data:",
+          roleCardData ? "YES" : "NO"
+        );
         return <EditableRoleCard data={roleCardData} {...commonProps} />;
       case "skill":
-        return <EditableSkillCard {...commonProps} />;
+        return <EditableSkillCard data={skillCardData} {...commonProps} />;
       case "market":
-        console.log("📊 Rendering EditableMarketCard with data:", marketCardData ? "YES" : "NO");
+        console.log(
+          "📊 Rendering EditableMarketCard with data:",
+          marketCardData ? "YES" : "NO"
+        );
         return <EditableMarketCard data={marketCardData} {...commonProps} />;
       case "talentmap":
-        return <EditableTalentMapCard {...commonProps} />;
+        return (
+          <EditableTalentMapCard data={talentMapCardData} {...commonProps} />
+        );
       case "pay":
-        console.log("💳 Rendering EditablePayCard with data:", payCardData ? "YES" : "NO");
+        console.log(
+          "💳 Rendering EditablePayCard with data:",
+          payCardData ? "YES" : "NO"
+        );
         return <EditablePayCard data={payCardData} {...commonProps} />;
       case "funnel":
-        return <EditableFunnelCard {...commonProps} />;
+        return <EditableFunnelCard data={funnelCardData} {...commonProps} />;
       case "fit":
-        return <EditableFitCard {...commonProps} />;
+        return <EditableFitCard data={fitCardData} {...commonProps} />;
       case "message":
-        return <EditableMessageCard {...commonProps} />;
+        return <EditableMessageCard data={messageCardData} {...commonProps} />;
       case "outreach":
-        return <EditableOutreachCard {...commonProps} />;
+        return (
+          <EditableOutreachCard data={outreachCardData} {...commonProps} />
+        );
       case "interview":
-        return <EditableInterviewCard {...commonProps} />;
+        return (
+          <EditableInterviewCard data={interviewCardData} {...commonProps} />
+        );
       case "scorecard":
-        return <EditableScorecardCard {...commonProps} />;
+        return (
+          <EditableScorecardCard data={scorecardCardData} {...commonProps} />
+        );
       case "plan":
-        return <EditablePlanCard {...commonProps} />;
+        return <EditablePlanCard data={planCardData} {...commonProps} />;
       default:
         return (
           <div className="text-center py-12">
-            <p className="text-gray-500 mb-4">This card is under construction</p>
-            <p className="text-sm text-gray-400">More detailed content coming soon...</p>
+            <p className="text-gray-500 mb-4">
+              This card is under construction
+            </p>
+            <p className="text-sm text-gray-400">
+              More detailed content coming soon...
+            </p>
           </div>
         );
     }
@@ -233,17 +363,14 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
 
   return (
     <div className="w-full">
-
-
       {/* Main Content Area - Full Width */}
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-              <div className="p-4 md:p-5 min-h-[600px]">
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+        <div className="p-4 md:p-5 min-h-[600px]">
           <EditModeProvider isEditMode={isEditMode}>
             {renderCardContent()}
           </EditModeProvider>
         </div>
       </div>
-      
 
       {/* Floating Message Icon - Bottom Right Corner */}
       <motion.button
@@ -273,9 +400,14 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({ isSubscribed = false
         onApplySuggestion={(signalId, targetTab, scoreIncrease) => {
           // Track accepted improvement and its score increase
           if (scoreIncrease) {
-            setAcceptedImprovementsBoost(prev => prev + scoreIncrease);
+            setAcceptedImprovementsBoost((prev) => prev + scoreIncrease);
           }
-          console.log("Applying suggestion:", signalId, "score boost:", scoreIncrease);
+          console.log(
+            "Applying suggestion:",
+            signalId,
+            "score boost:",
+            scoreIncrease
+          );
         }}
         onNavigateToTab={(tabId) => {
           setActiveTab(tabId);

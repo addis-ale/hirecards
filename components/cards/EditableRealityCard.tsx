@@ -1,125 +1,219 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useRef } from "react";
-import { Target, AlertTriangle, CheckCircle, Clock, TrendingUp, Info, Lightbulb, XCircle } from "lucide-react";
+import {
+  Target,
+  AlertTriangle,
+  CheckCircle,
+  Clock,
+  TrendingUp,
+  Info,
+  Lightbulb,
+  XCircle,
+} from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableText, EditableList } from "@/components/EditableCard";
 import { ScoreProgressRing } from "@/components/ScoreProgressRing";
-import { calculateRealityScore, getScoreLabel, getScoreSubtext } from "@/components/RealityScoreCalculator";
-import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import {
+  calculateRealityScore,
+  getScoreLabel,
+  getScoreSubtext,
+} from "@/components/RealityScoreCalculator";
+import {
+  ScoreImpactTable,
+  ScoreImpactRow,
+} from "@/components/ui/ScoreImpactTable";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SectionModal } from "@/components/ui/SectionModal";
 
-export const EditableRealityCard = ({ 
-  onScoreChange,
-  acceptedImprovementsBoost = 0,
-  onNavigateToCard,
-  currentCardId
-}: { 
+interface RealityCardProps {
+  data?: {
+    keyInsights?: string[];
+    helpsCase?: string[];
+    hurtsCase?: string[];
+    hiddenBottleneck?: string;
+    timelineToFailure?: string;
+    bottomLine1?: string;
+    bottomLine2?: string;
+    whatsReallyGoingOn?: string;
+    redFlags?: string[];
+    donts?: string[];
+  };
   onScoreChange?: (score: number) => void;
   acceptedImprovementsBoost?: number;
   onNavigateToCard?: (cardId: string) => void;
   currentCardId?: string;
-}) => {
+}
+
+export const EditableRealityCard = ({
+  data,
+  onScoreChange,
+  acceptedImprovementsBoost = 0,
+  onNavigateToCard,
+  currentCardId,
+}: RealityCardProps) => {
   const [feasibilityScore, setFeasibilityScore] = useState("5.5/10");
-  const [feasibilityTitle, setFeasibilityTitle] = useState("Possible with alignment and speed");
+  const [feasibilityTitle, setFeasibilityTitle] = useState(
+    "Possible with alignment and speed"
+  );
   const [feasibilitySubtext, setFeasibilitySubtext] = useState(
     "Not possible with slow process or strict constraints"
   );
-  const [previousScore, setPreviousScore] = useState<number | undefined>(undefined);
+  const [previousScore, setPreviousScore] = useState<number | undefined>(
+    undefined
+  );
   const [realityCheck1, setRealityCheck1] = useState(
     "This hire is feasible but challenging. You're not sourcing an entry-level analyst, you're competing for senior Analytics Engineers who are already employed, well-compensated, and selective about where they go next."
   );
   const [realityCheck2, setRealityCheck2] = useState(
     "Winning here requires competitive compensation, a tight fast hiring loop, consistent internal alignment, and clear ownership. Half-measures won't work in this market."
   );
-  const [keyInsights, setKeyInsights] = useState([
-    "Market is tight: Senior Analytics Engineers are fully employed. Outbound sourcing is mandatory.",
-    "Speed wins: If your loop is slower than 10–14 days, every top-tier candidate evaporates.",
-    "Compensation reality: If you offer €80k, you won't hire a senior, you'll hire someone who thinks they're senior."
-  ]);
-  const [helpsCase, setHelpsCase] = useState([
-    "Modern stack (dbt, Snowflake, Looker)",
-    "Customer-facing product impact",
-    "Strong brand + scale-up momentum",
-    "Clear ownership and autonomy in the Insights product"
-  ]);
-  const [hurtsCase, setHurtsCase] = useState([
-    "Amsterdam-only requirement",
-    "Slow or unclear interview loop",
-    "Comp ceilings below market",
-    "Misalignment between Data, PM & Engineering"
-  ]);
+  const [keyInsights, setKeyInsights] = useState(
+    data?.keyInsights || [
+      "Market is tight: Senior Analytics Engineers are fully employed. Outbound sourcing is mandatory.",
+      "Speed wins: If your loop is slower than 10–14 days, every top-tier candidate evaporates.",
+      "Compensation reality: If you offer €80k, you won't hire a senior, you'll hire someone who thinks they're senior.",
+    ]
+  );
+  const [helpsCase, setHelpsCase] = useState(
+    data?.helpsCase || [
+      "Modern stack (dbt, Snowflake, Looker)",
+      "Customer-facing product impact",
+      "Strong brand + scale-up momentum",
+      "Clear ownership and autonomy in the Insights product",
+    ]
+  );
+  const [hurtsCase, setHurtsCase] = useState(
+    data?.hurtsCase || [
+      "Amsterdam-only requirement",
+      "Slow or unclear interview loop",
+      "Comp ceilings below market",
+      "Misalignment between Data, PM & Engineering",
+    ]
+  );
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
-    "Stakeholder alignment. If PM, Data, and Engineering want different outcomes, no candidate will pass all interviews. This is the #1 reason these searches restart."
+    data?.hiddenBottleneck ||
+      "Stakeholder alignment. If PM, Data, and Engineering want different outcomes, no candidate will pass all interviews. This is the #1 reason these searches restart."
   );
   const [timelineToFailure, setTimelineToFailure] = useState(
-    "If alignment isn't locked in during week 1 → expect the search to stall and restart around week 6."
+    data?.timelineToFailure ||
+      "If alignment isn't locked in during week 1 → expect the search to stall and restart around week 6."
   );
   const [bottomLine1, setBottomLine1] = useState(
-    "Move fast (10-14 day loop), pay market rate (€95k-110k), and run targeted outbound sourcing, you'll hire."
+    data?.bottomLine1 ||
+      "Move fast (10-14 day loop), pay market rate (€95k-110k), and run targeted outbound sourcing, you'll hire."
   );
   const [bottomLine2, setBottomLine2] = useState(
-    "Post-and-pray, take 4-6 weeks to decide, and lowball on comp, you won't."
+    data?.bottomLine2 ||
+      "Post-and-pray, take 4-6 weeks to decide, and lowball on comp, you won't."
   );
   const [whatsReallyGoingOn, setWhatsReallyGoingOn] = useState(
-    "You're competing for senior Analytics Engineers who are: fully employed, well-paid, selective, not browsing job boards for fun. If your scope, messaging, and speed aren't sharp, you're effectively entering the race with untied shoelaces."
+    data?.whatsReallyGoingOn ||
+      "You're competing for senior Analytics Engineers who are: fully employed, well-paid, selective, not browsing job boards for fun. If your scope, messaging, and speed aren't sharp, you're effectively entering the race with untied shoelaces."
   );
-  const [redFlags, setRedFlags] = useState([
-    "JD reads like BI maintenance",
-    "Stakeholders give different definitions of success",
-    "No owner for modelling standards",
-    "\"Comp is still being figured out\""
-  ]);
-  const [donts, setDonts] = useState([
-    "Post-and-pray",
-    "Pretend data debt is tiny (they'll find it faster than you think)",
-    "Add every nice-to-have into the JD",
-    "Start sourcing before alignment is real, not imagined"
-  ]);
+  const [redFlags, setRedFlags] = useState(
+    data?.redFlags || [
+      "JD reads like BI maintenance",
+      "Stakeholders give different definitions of success",
+      "No owner for modelling standards",
+      '"Comp is still being figured out"',
+    ]
+  );
+  const [donts, setDonts] = useState(
+    data?.donts || [
+      "Post-and-pray",
+      "Pretend data debt is tiny (they'll find it faster than you think)",
+      "Add every nice-to-have into the JD",
+      "Start sourcing before alignment is real, not imagined",
+    ]
+  );
+
+  // Update when data prop changes
+  useEffect(() => {
+    if (data?.keyInsights) setKeyInsights(data.keyInsights);
+    if (data?.helpsCase) setHelpsCase(data.helpsCase);
+    if (data?.hurtsCase) setHurtsCase(data.hurtsCase);
+    if (data?.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
+    if (data?.timelineToFailure) setTimelineToFailure(data.timelineToFailure);
+    if (data?.bottomLine1) setBottomLine1(data.bottomLine1);
+    if (data?.bottomLine2) setBottomLine2(data.bottomLine2);
+    if (data?.whatsReallyGoingOn)
+      setWhatsReallyGoingOn(data.whatsReallyGoingOn);
+    if (data?.redFlags) setRedFlags(data.redFlags);
+    if (data?.donts) setDonts(data.donts);
+  }, [data]);
   const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
     {
       fix: "Align on 3 non-negotiable skills",
       impact: "+0.2",
-      tooltip: "Why it matters: Removes noisy requirements. Reduces friction with HM.",
+      tooltip:
+        "Why it matters: Removes noisy requirements. Reduces friction with HM.",
       talentPoolImpact: "+18% available market",
-      riskReduction: "-10% restart risk"
+      riskReduction: "-10% restart risk",
     },
     {
       fix: "Pre-approve comp guardrails",
       impact: "+0.3",
-      tooltip: "Why it matters: Prevents late rejections; seniors won't move without clarity.",
+      tooltip:
+        "Why it matters: Prevents late rejections; seniors won't move without clarity.",
       talentPoolImpact: "+22% candidate engagement",
-      riskReduction: "-20% offer-fail risk"
+      riskReduction: "-20% offer-fail risk",
     },
     {
       fix: "Pre-block interview slots",
       impact: "+0.2",
       tooltip: "Why it matters: Time kills deals. Removes hidden bottlenecks.",
       talentPoolImpact: "+12% conversion",
-      riskReduction: "-15% dropout risk"
+      riskReduction: "-15% dropout risk",
     },
     {
       fix: "Clarify modelling ownership",
       impact: "+0.3",
       tooltip: "Why it matters: Seniors reject vague jobs instantly.",
       talentPoolImpact: "+15% persona match",
-      riskReduction: "-25% misalignment risk"
-    }
+      riskReduction: "-25% misalignment risk",
+    },
   ]);
 
   useEffect(() => {
     const data = {
-      feasibilityScore, feasibilityTitle, feasibilitySubtext,
-      realityCheck1, realityCheck2, keyInsights, helpsCase, hurtsCase,
-      hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2,
-      whatsReallyGoingOn, redFlags, donts, scoreImpactRows
+      feasibilityScore,
+      feasibilityTitle,
+      feasibilitySubtext,
+      realityCheck1,
+      realityCheck2,
+      keyInsights,
+      helpsCase,
+      hurtsCase,
+      hiddenBottleneck,
+      timelineToFailure,
+      bottomLine1,
+      bottomLine2,
+      whatsReallyGoingOn,
+      redFlags,
+      donts,
+      scoreImpactRows,
     };
     sessionStorage.setItem("editableRealityCard", JSON.stringify(data));
-  }, [feasibilityScore, feasibilityTitle, feasibilitySubtext, realityCheck1, realityCheck2, 
-      keyInsights, helpsCase, hurtsCase, hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2,
-      whatsReallyGoingOn, redFlags, donts, scoreImpactRows]);
+  }, [
+    feasibilityScore,
+    feasibilityTitle,
+    feasibilitySubtext,
+    realityCheck1,
+    realityCheck2,
+    keyInsights,
+    helpsCase,
+    hurtsCase,
+    hiddenBottleneck,
+    timelineToFailure,
+    bottomLine1,
+    bottomLine2,
+    whatsReallyGoingOn,
+    redFlags,
+    donts,
+    scoreImpactRows,
+  ]);
 
   useEffect(() => {
     const saved = sessionStorage.getItem("editableRealityCard");
@@ -128,17 +222,20 @@ export const EditableRealityCard = ({
         const data = JSON.parse(saved);
         if (data.feasibilityScore) setFeasibilityScore(data.feasibilityScore);
         if (data.feasibilityTitle) setFeasibilityTitle(data.feasibilityTitle);
-        if (data.feasibilitySubtext) setFeasibilitySubtext(data.feasibilitySubtext);
+        if (data.feasibilitySubtext)
+          setFeasibilitySubtext(data.feasibilitySubtext);
         if (data.realityCheck1) setRealityCheck1(data.realityCheck1);
         if (data.realityCheck2) setRealityCheck2(data.realityCheck2);
         if (data.keyInsights) setKeyInsights(data.keyInsights);
         if (data.helpsCase) setHelpsCase(data.helpsCase);
         if (data.hurtsCase) setHurtsCase(data.hurtsCase);
         if (data.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
-        if (data.timelineToFailure) setTimelineToFailure(data.timelineToFailure);
+        if (data.timelineToFailure)
+          setTimelineToFailure(data.timelineToFailure);
         if (data.bottomLine1) setBottomLine1(data.bottomLine1);
         if (data.bottomLine2) setBottomLine2(data.bottomLine2);
-        if (data.whatsReallyGoingOn) setWhatsReallyGoingOn(data.whatsReallyGoingOn);
+        if (data.whatsReallyGoingOn)
+          setWhatsReallyGoingOn(data.whatsReallyGoingOn);
         if (data.redFlags) setRedFlags(data.redFlags);
         if (data.donts) setDonts(data.donts);
         if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
@@ -165,14 +262,29 @@ export const EditableRealityCard = ({
     });
     // Add accepted improvements boost (capped at 10)
     return Math.min(10, baseScore + acceptedImprovementsBoost);
-  }, [feasibilityScore, helpsCase, hurtsCase, keyInsights, realityCheck1, realityCheck2, hiddenBottleneck, timelineToFailure, bottomLine1, bottomLine2, acceptedImprovementsBoost]);
+  }, [
+    feasibilityScore,
+    helpsCase,
+    hurtsCase,
+    keyInsights,
+    realityCheck1,
+    realityCheck2,
+    hiddenBottleneck,
+    timelineToFailure,
+    bottomLine1,
+    bottomLine2,
+    acceptedImprovementsBoost,
+  ]);
 
   // Track previous calculated score to prevent unnecessary updates
   const previousCalculatedScoreRef = useRef<number | undefined>(undefined);
 
   // Update score when it changes
   useEffect(() => {
-    if (calculatedScore !== undefined && previousCalculatedScoreRef.current !== calculatedScore) {
+    if (
+      calculatedScore !== undefined &&
+      previousCalculatedScoreRef.current !== calculatedScore
+    ) {
       previousCalculatedScoreRef.current = calculatedScore;
       onScoreChange?.(calculatedScore);
       // Update previous score after a delay to show change animation
@@ -343,8 +455,10 @@ export const EditableRealityCard = ({
     <>
       {/* Feasibility Score with Progress Ring - Keep visible */}
       <div className="bg-gradient-to-br from-[#278f8c] to-[#1a6764] text-white rounded-xl p-8 mb-6">
-        <p className="text-sm font-medium mb-4 opacity-90 text-center">Feasibility Score</p>
-        
+        <p className="text-sm font-medium mb-4 opacity-90 text-center">
+          Feasibility Score
+        </p>
+
         <div className="flex flex-col md:flex-row items-center justify-center gap-6 mb-4">
           <div className="flex-shrink-0">
             <ScoreProgressRing
@@ -356,15 +470,17 @@ export const EditableRealityCard = ({
               showChange={true}
             />
           </div>
-          
+
           <div className="flex-1 text-center md:text-left">
-            <div className="text-4xl font-bold mb-2">{calculatedScore.toFixed(1)}/10</div>
+            <div className="text-4xl font-bold mb-2">
+              {calculatedScore.toFixed(1)}/10
+            </div>
             <div className="text-lg font-medium mb-2">
               <EditableText
                 value={feasibilityTitle}
                 onChange={setFeasibilityTitle}
                 className="text-lg font-medium text-white"
-                style={{ color: 'white' }}
+                style={{ color: "white" }}
               />
             </div>
             <div className="text-sm opacity-90">
@@ -372,23 +488,27 @@ export const EditableRealityCard = ({
                 value={feasibilitySubtext}
                 onChange={setFeasibilitySubtext}
                 className="text-sm text-white opacity-90"
-                style={{ color: 'white' }}
+                style={{ color: "white" }}
               />
             </div>
           </div>
         </div>
 
         <div className="mt-4 pt-4 border-t border-white/20">
-          <div className="text-xs opacity-75 mb-2 text-center">Manual Override (Optional)</div>
+          <div className="text-xs opacity-75 mb-2 text-center">
+            Manual Override (Optional)
+          </div>
           <div className="flex items-center justify-center gap-2">
             <EditableText
               value={feasibilityScore}
               onChange={setFeasibilityScore}
               className="text-sm font-medium text-white bg-white/10 px-3 py-1 rounded"
-              style={{ color: 'white' }}
+              style={{ color: "white" }}
               placeholder="5.5/10"
             />
-            <span className="text-xs opacity-75">(Auto-calculated: {calculatedScore.toFixed(1)}/10)</span>
+            <span className="text-xs opacity-75">
+              (Auto-calculated: {calculatedScore.toFixed(1)}/10)
+            </span>
           </div>
         </div>
       </div>
@@ -397,13 +517,24 @@ export const EditableRealityCard = ({
       <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
         <div className="flex items-center gap-1">
           <div className="flex-shrink-0 pb-1">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-5 h-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <div>
             <p className="text-sm font-medium text-blue-900">
-              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+              Explore each section below. Click any card to view detailed
+              insights and actionable recommendations.
             </p>
           </div>
         </div>
@@ -432,13 +563,19 @@ export const EditableRealityCard = ({
                 <div className="flex flex-col items-center text-center gap-3">
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)`,
+                    }}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
-                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                    <h3 className="text-base font-bold text-gray-900">
+                      {section.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {section.subtitle}
+                    </p>
                   </div>
                 </div>
               </CardHeader>

@@ -33,6 +33,12 @@ interface MarketCardProps {
       primaryLocations: string[];
       remoteAvailability: number;
     };
+    primaryLocation?: string; // Location from original job data
+    talentSupply?: {
+      midLevel?: string; // e.g., "High", "Medium", "Low"
+      senior?: string;
+      productMinded?: string;
+    };
   };
 }
 
@@ -49,8 +55,14 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
     console.log("📊 Data content:", JSON.stringify(data, null, 2));
   }
 
+  // Get primary location from data or use default
+  const primaryLocation =
+    data?.primaryLocation ||
+    data?.geographic?.primaryLocations?.[0] ||
+    "Primary Location";
+
   // Initialize from data or use defaults
-  const [amsterdamCount, setAmsterdamCount] = useState(
+  const [primaryLocationCount, setPrimaryLocationCount] = useState(
     data?.talentAvailability?.total
       ? `${data.talentAvailability.total}`
       : "250-400"
@@ -65,9 +77,23 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
       ? `~${Math.round(data.supplyDemand.availableCandidates * 0.6)}+`
       : "~3,000+"
   );
+
+  // Talent Supply levels - dynamic based on scraped data
+  const [talentSupplyMidLevel, setTalentSupplyMidLevel] = useState(
+    data?.talentSupply?.midLevel || "High"
+  );
+  const [talentSupplySenior, setTalentSupplySenior] = useState(
+    data?.talentSupply?.senior || "Low"
+  );
+  const [talentSupplyProductMinded, setTalentSupplyProductMinded] = useState(
+    data?.talentSupply?.productMinded || "Very low"
+  );
+
   const [marketConditions, setMarketConditions] = useState(
     data?.redFlags && data.redFlags.length > 0
       ? data.redFlags
+      : data?.insights && data.insights.length > 0
+      ? data.insights
       : ["Top talent is employed", "High competition", "Outbound required"]
   );
   const [brutalTruth, setBrutalTruth] = useState(
@@ -82,7 +108,7 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
       poolImpact: "+35%",
     },
     {
-      lever: "Hybrid vs Amsterdam-only",
+      lever: `Hybrid vs ${primaryLocation}-only`,
       why: "Expands to broader EU",
       poolImpact: "+20%",
     },
@@ -140,10 +166,10 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
     console.log("📊 useEffect triggered - data changed");
     if (data?.talentAvailability?.total) {
       console.log(
-        "📊 Updating amsterdamCount from data:",
+        "📊 Updating primaryLocationCount from data:",
         data.talentAvailability.total
       );
-      setAmsterdamCount(`${data.talentAvailability.total}`);
+      setPrimaryLocationCount(`${data.talentAvailability.total}`);
     }
     if (data?.supplyDemand?.availableCandidates) {
       console.log(
@@ -169,11 +195,20 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
       console.log("📊 Updating brutalTruth from insights:", data.insights[0]);
       setBrutalTruth(data.insights[0]);
     }
+    if (data?.talentSupply?.midLevel) {
+      setTalentSupplyMidLevel(data.talentSupply.midLevel);
+    }
+    if (data?.talentSupply?.senior) {
+      setTalentSupplySenior(data.talentSupply.senior);
+    }
+    if (data?.talentSupply?.productMinded) {
+      setTalentSupplyProductMinded(data.talentSupply.productMinded);
+    }
   }, [data]);
 
   useEffect(() => {
     const data = {
-      amsterdamCount,
+      primaryLocationCount,
       euRelocationCount,
       remoteFlexCount,
       marketConditions,
@@ -183,7 +218,7 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
     };
     sessionStorage.setItem("editableMarketCard", JSON.stringify(data));
   }, [
-    amsterdamCount,
+    primaryLocationCount,
     euRelocationCount,
     remoteFlexCount,
     marketConditions,
@@ -197,7 +232,8 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
     if (saved) {
       try {
         const data = JSON.parse(saved);
-        if (data.amsterdamCount) setAmsterdamCount(data.amsterdamCount);
+        if (data.primaryLocationCount)
+          setPrimaryLocationCount(data.primaryLocationCount);
         if (data.euRelocationCount)
           setEuRelocationCount(data.euRelocationCount);
         if (data.remoteFlexCount) setRemoteFlexCount(data.remoteFlexCount);
@@ -223,12 +259,14 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 text-center">
             <EditableText
-              value={amsterdamCount}
-              onChange={setAmsterdamCount}
+              value={primaryLocationCount}
+              onChange={setPrimaryLocationCount}
               className="text-3xl font-bold mb-1"
               style={{ color: "#278f8c" }}
             />
-            <p className="text-sm font-medium text-gray-600">Amsterdam</p>
+            <p className="text-sm font-medium text-gray-600">
+              {primaryLocation}
+            </p>
             <p className="text-xs text-gray-500 mt-1">Strong fits</p>
           </div>
           <div className="bg-purple-50 border-2 border-purple-200 rounded-lg p-4 text-center">
@@ -260,27 +298,87 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
           Talent Supply
         </h4>
         <div className="space-y-3">
-          <div className="flex items-center gap-3 p-2 bg-green-50 border border-green-200 rounded-lg">
-            <div className="w-3 h-3 rounded-full bg-green-500" />
+          <div
+            className={`flex items-center gap-3 p-2 border rounded-lg ${
+              talentSupplyMidLevel.toLowerCase().includes("high") ||
+              talentSupplyMidLevel.toLowerCase().includes("very high")
+                ? "bg-green-50 border-green-200"
+                : talentSupplyMidLevel.toLowerCase().includes("low") ||
+                  talentSupplyMidLevel.toLowerCase().includes("very low")
+                ? "bg-red-50 border-red-200"
+                : "bg-yellow-50 border-yellow-200"
+            }`}
+          >
+            <div
+              className={`w-3 h-3 rounded-full ${
+                talentSupplyMidLevel.toLowerCase().includes("high") ||
+                talentSupplyMidLevel.toLowerCase().includes("very high")
+                  ? "bg-green-500"
+                  : talentSupplyMidLevel.toLowerCase().includes("low") ||
+                    talentSupplyMidLevel.toLowerCase().includes("very low")
+                  ? "bg-red-500"
+                  : "bg-yellow-500"
+              }`}
+            />
             <div className="flex-1">
               <p className="text-xs font-bold" style={{ color: "#102a63" }}>
-                High for mid-level
+                {talentSupplyMidLevel} for mid-level
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <div className="w-3 h-3 rounded-full bg-yellow-500" />
+          <div
+            className={`flex items-center gap-3 p-2 border rounded-lg ${
+              talentSupplySenior.toLowerCase().includes("high") ||
+              talentSupplySenior.toLowerCase().includes("very high")
+                ? "bg-green-50 border-green-200"
+                : talentSupplySenior.toLowerCase().includes("low") ||
+                  talentSupplySenior.toLowerCase().includes("very low")
+                ? "bg-red-50 border-red-200"
+                : "bg-yellow-50 border-yellow-200"
+            }`}
+          >
+            <div
+              className={`w-3 h-3 rounded-full ${
+                talentSupplySenior.toLowerCase().includes("high") ||
+                talentSupplySenior.toLowerCase().includes("very high")
+                  ? "bg-green-500"
+                  : talentSupplySenior.toLowerCase().includes("low") ||
+                    talentSupplySenior.toLowerCase().includes("very low")
+                  ? "bg-red-500"
+                  : "bg-yellow-500"
+              }`}
+            />
             <div className="flex-1">
               <p className="text-xs font-bold" style={{ color: "#102a63" }}>
-                Low for senior
+                {talentSupplySenior} for senior
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-2 bg-red-50 border border-red-200 rounded-lg">
-            <div className="w-3 h-3 rounded-full bg-red-500" />
+          <div
+            className={`flex items-center gap-3 p-2 border rounded-lg ${
+              talentSupplyProductMinded.toLowerCase().includes("high") ||
+              talentSupplyProductMinded.toLowerCase().includes("very high")
+                ? "bg-green-50 border-green-200"
+                : talentSupplyProductMinded.toLowerCase().includes("low") ||
+                  talentSupplyProductMinded.toLowerCase().includes("very low")
+                ? "bg-red-50 border-red-200"
+                : "bg-yellow-50 border-yellow-200"
+            }`}
+          >
+            <div
+              className={`w-3 h-3 rounded-full ${
+                talentSupplyProductMinded.toLowerCase().includes("high") ||
+                talentSupplyProductMinded.toLowerCase().includes("very high")
+                  ? "bg-green-500"
+                  : talentSupplyProductMinded.toLowerCase().includes("low") ||
+                    talentSupplyProductMinded.toLowerCase().includes("very low")
+                  ? "bg-red-500"
+                  : "bg-yellow-500"
+              }`}
+            />
             <div className="flex-1">
               <p className="text-xs font-bold" style={{ color: "#102a63" }}>
-                Very low for product-minded
+                {talentSupplyProductMinded} for product-minded
               </p>
             </div>
           </div>

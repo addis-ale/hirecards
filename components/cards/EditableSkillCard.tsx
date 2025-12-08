@@ -1,94 +1,148 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Code, AlertTriangle, Hammer, Brain, Users, TrendingUp, XCircle, Target, BookOpen } from "lucide-react";
+import {
+  Code,
+  AlertTriangle,
+  Hammer,
+  Brain,
+  Users,
+  TrendingUp,
+  XCircle,
+  Target,
+  BookOpen,
+} from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
 import { EditableList, EditableText } from "@/components/EditableCard";
-import { ScoreImpactTable, ScoreImpactRow } from "@/components/ui/ScoreImpactTable";
+import {
+  ScoreImpactTable,
+  ScoreImpactRow,
+} from "@/components/ui/ScoreImpactTable";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SectionModal } from "@/components/ui/SectionModal";
 
-export const EditableSkillCard = ({
-  onNavigateToCard,
-  currentCardId
-}: {
+interface SkillCardProps {
+  data?: {
+    technicalSkills?: string[];
+    productSkills?: string[];
+    behaviouralSkills?: string[];
+    brutalTruth?: string;
+    redFlags?: string[];
+    donts?: string[];
+    upskillableSkills?: string[];
+    mustHaveSkills?: string[];
+  };
   onNavigateToCard?: (cardId: string) => void;
   currentCardId?: string;
-} = {}) => {
-  const [technicalSkills, setTechnicalSkills] = useState([
-    "Advanced SQL",
-    "dbt modelling",
-    "Dimensional modelling",
-    "BI tools",
-    "Pipeline building",
-  ]);
-  const [productSkills, setProductSkills] = useState([
-    "Define clear metrics",
-    "Shape analytics UX",
-    "Model business logic",
-  ]);
-  const [behaviouralSkills, setBehaviouralSkills] = useState([
-    "Ownership mindset",
-    "Handles ambiguity",
-    "Clear communication",
-    "Quality focused",
-  ]);
-  const [brutalTruth, setBrutalTruth] = useState(
-    'Most "analytics engineers" are BI developers. Find system designers.'
+}
+
+export const EditableSkillCard = ({
+  data,
+  onNavigateToCard,
+  currentCardId,
+}: SkillCardProps = {}) => {
+  const [technicalSkills, setTechnicalSkills] = useState(
+    data?.technicalSkills || [
+      "Advanced SQL",
+      "dbt modelling",
+      "Dimensional modelling",
+      "BI tools",
+      "Pipeline building",
+    ]
   );
-  const [redFlags, setRedFlags] = useState([
-    "Dashboard-focused only",
-    "No testing opinions",
-    "Avoids documentation",
-    "Dismisses governance",
-  ]);
-  const [donts, setDonts] = useState([
-    "Hire without dbt experience",
-    "Skip modelling exercises",
-    "Confuse data/analytics engineers",
-  ]);
-  const [upskillableSkills, setUpskillableSkills] = useState([
-    "Looker",
-    "Metric layers",
-    "Domain-specific metrics",
-    "Airflow DAG writing"
-  ]);
-  const [mustHaveSkills, setMustHaveSkills] = useState([
-    "Modelling fundamentals",
-    "dbt proficiency",
-    "SQL testing discipline",
-    "Ownership mindset"
-  ]);
+  const [productSkills, setProductSkills] = useState(
+    data?.productSkills || [
+      "Define clear metrics",
+      "Shape analytics UX",
+      "Model business logic",
+    ]
+  );
+  const [behaviouralSkills, setBehaviouralSkills] = useState(
+    data?.behaviouralSkills || [
+      "Ownership mindset",
+      "Handles ambiguity",
+      "Clear communication",
+      "Quality focused",
+    ]
+  );
+  const [brutalTruth, setBrutalTruth] = useState(
+    data?.brutalTruth ||
+      'Most "analytics engineers" are BI developers. Find system designers.'
+  );
+  const [redFlags, setRedFlags] = useState(
+    data?.redFlags || [
+      "Dashboard-focused only",
+      "No testing opinions",
+      "Avoids documentation",
+      "Dismisses governance",
+    ]
+  );
+  const [donts, setDonts] = useState(
+    data?.donts || [
+      "Hire without dbt experience",
+      "Skip modelling exercises",
+      "Confuse data/analytics engineers",
+    ]
+  );
+  const [upskillableSkills, setUpskillableSkills] = useState(
+    data?.upskillableSkills || [
+      "Looker",
+      "Metric layers",
+      "Domain-specific metrics",
+      "Airflow DAG writing",
+    ]
+  );
+  const [mustHaveSkills, setMustHaveSkills] = useState(
+    data?.mustHaveSkills || [
+      "Modelling fundamentals",
+      "dbt proficiency",
+      "SQL testing discipline",
+      "Ownership mindset",
+    ]
+  );
+
+  // Update when data prop changes
+  useEffect(() => {
+    if (data?.technicalSkills) setTechnicalSkills(data.technicalSkills);
+    if (data?.productSkills) setProductSkills(data.productSkills);
+    if (data?.behaviouralSkills) setBehaviouralSkills(data.behaviouralSkills);
+    if (data?.brutalTruth) setBrutalTruth(data.brutalTruth);
+    if (data?.redFlags) setRedFlags(data.redFlags);
+    if (data?.donts) setDonts(data.donts);
+    if (data?.upskillableSkills) setUpskillableSkills(data.upskillableSkills);
+    if (data?.mustHaveSkills) setMustHaveSkills(data.mustHaveSkills);
+  }, [data]);
   const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
     {
       fix: "Remove non-essential skills",
       impact: "+0.3",
       tooltip: "Why it matters: Removes blockers without lowering quality.",
       talentPoolImpact: "+25% pool expansion",
-      riskReduction: "-15% false negatives"
+      riskReduction: "-15% false negatives",
     },
     {
       fix: "Prioritise top 5 must-haves",
       impact: "+0.2",
       tooltip: "Why it matters: AEs choose clarity.",
       talentPoolImpact: "+15% persona match",
-      riskReduction: "-10% interview waste"
+      riskReduction: "-10% interview waste",
     },
     {
       fix: "Clarify upskillable skills",
       impact: "+0.1",
       tooltip: "Why it matters: Prevents needless rejections.",
       talentPoolImpact: "+10% more candidates",
-      riskReduction: "-5% HM conflict"
+      riskReduction: "-5% HM conflict",
     },
     {
       fix: "Add modelling evaluation",
       impact: "+0.2",
-      tooltip: "Why it matters: Filters accurately without over-indexing CV buzzwords.",
+      tooltip:
+        "Why it matters: Filters accurately without over-indexing CV buzzwords.",
       talentPoolImpact: "+12% signal quality",
-      riskReduction: "-15% bad hires"
-    }
+      riskReduction: "-15% bad hires",
+    },
   ]);
 
   // Save to sessionStorage
@@ -102,10 +156,20 @@ export const EditableSkillCard = ({
       donts,
       upskillableSkills,
       mustHaveSkills,
-      scoreImpactRows
+      scoreImpactRows,
     };
     sessionStorage.setItem("editableSkillCard", JSON.stringify(data));
-  }, [technicalSkills, productSkills, behaviouralSkills, brutalTruth, redFlags, donts, upskillableSkills, mustHaveSkills, scoreImpactRows]);
+  }, [
+    technicalSkills,
+    productSkills,
+    behaviouralSkills,
+    brutalTruth,
+    redFlags,
+    donts,
+    upskillableSkills,
+    mustHaveSkills,
+    scoreImpactRows,
+  ]);
 
   // Load from sessionStorage
   useEffect(() => {
@@ -115,11 +179,13 @@ export const EditableSkillCard = ({
         const data = JSON.parse(saved);
         if (data.technicalSkills) setTechnicalSkills(data.technicalSkills);
         if (data.productSkills) setProductSkills(data.productSkills);
-        if (data.behaviouralSkills) setBehaviouralSkills(data.behaviouralSkills);
+        if (data.behaviouralSkills)
+          setBehaviouralSkills(data.behaviouralSkills);
         if (data.brutalTruth) setBrutalTruth(data.brutalTruth);
         if (data.redFlags) setRedFlags(data.redFlags);
         if (data.donts) setDonts(data.donts);
-        if (data.upskillableSkills) setUpskillableSkills(data.upskillableSkills);
+        if (data.upskillableSkills)
+          setUpskillableSkills(data.upskillableSkills);
         if (data.mustHaveSkills) setMustHaveSkills(data.mustHaveSkills);
         if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
       } catch (e) {
@@ -231,7 +297,9 @@ export const EditableSkillCard = ({
       content: (
         <div className="space-y-4">
           <div>
-            <p className="text-xs font-bold text-emerald-700 mb-2">Can be trained quickly (shouldn't block seniors):</p>
+            <p className="text-xs font-bold text-emerald-700 mb-2">
+              Can be trained quickly (shouldn't block seniors):
+            </p>
             <EditableList
               items={upskillableSkills}
               onChange={setUpskillableSkills}
@@ -240,7 +308,9 @@ export const EditableSkillCard = ({
             />
           </div>
           <div>
-            <p className="text-xs font-bold text-red-700 mb-2">Cannot be trained fast enough (must-have at entry):</p>
+            <p className="text-xs font-bold text-red-700 mb-2">
+              Cannot be trained fast enough (must-have at entry):
+            </p>
             <EditableList
               items={mustHaveSkills}
               onChange={setMustHaveSkills}
@@ -267,13 +337,24 @@ export const EditableSkillCard = ({
       <div className="mb-6 p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r-lg">
         <div className="flex items-center gap-1">
           <div className="flex-shrink-0 pb-1">
-            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-5 h-5 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <div>
             <p className="text-sm font-medium text-blue-900">
-              Explore each section below. Click any card to view detailed insights and actionable recommendations.
+              Explore each section below. Click any card to view detailed
+              insights and actionable recommendations.
             </p>
           </div>
         </div>
@@ -302,13 +383,19 @@ export const EditableSkillCard = ({
                 <div className="flex flex-col items-center text-center gap-3">
                   <div
                     className="w-12 h-12 rounded-lg flex items-center justify-center"
-                    style={{ background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)` }}
+                    style={{
+                      background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)`,
+                    }}
                   >
                     <Icon className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-base font-bold text-gray-900">{section.title}</h3>
-                    <p className="text-xs text-gray-600 mt-1">{section.subtitle}</p>
+                    <h3 className="text-base font-bold text-gray-900">
+                      {section.title}
+                    </h3>
+                    <p className="text-xs text-gray-600 mt-1">
+                      {section.subtitle}
+                    </p>
                   </div>
                 </div>
               </CardHeader>
