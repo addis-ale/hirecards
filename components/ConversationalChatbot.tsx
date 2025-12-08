@@ -213,9 +213,86 @@ export default function ConversationalChatbot() {
         console.log("✅ Base cards generated");
       }
 
-      // STEP 2: Enrich cards with Apify data (slow - 1-2 minutes)
+      // STEP 2: Bulk scrape LinkedIn jobs (NEW - Advanced Scraper)
+      console.log("📊 Step 2: Scraping LinkedIn jobs (bulk)...");
+      console.log("   Using advanced bulk scraper - this may take 1-2 minutes");
+
+      const bulkScrapeResponse = await fetch('/api/scrape-jobs-bulk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          roleTitle: extractedData.roleTitle,
+          location: extractedData.location,
+          company: null, // Can be added later
+          workModel: extractedData.workModel,
+          experienceLevel: extractedData.experienceLevel,
+          minSalary: extractedData.minSalary,
+          maxSalary: extractedData.maxSalary,
+        }),
+      });
+
+      const bulkScrapeData = await bulkScrapeResponse.json();
+
+      if (bulkScrapeData.success && bulkScrapeData.data) {
+        console.log(`✅ Bulk scraping successful: ${bulkScrapeData.data.length} jobs found`);
+        
+        // Store the scraped jobs data for debugging
+        sessionStorage.setItem("job-scraped-data", JSON.stringify(bulkScrapeData.data));
+        sessionStorage.setItem("job-scraped-metadata", JSON.stringify(bulkScrapeData.metadata));
+        
+        console.log("💾 Stored scraped jobs data in sessionStorage");
+      } else if (bulkScrapeData.needsChatbot) {
+        console.log("⚠️ Insufficient data for bulk scraping. Missing fields:", bulkScrapeData.missingFields);
+        // TODO: Open chatbot with suggestions
+      } else {
+        console.warn("⚠️ Bulk scraping failed:", bulkScrapeData.error);
+      }
+
+      // STEP 2.5: Search LinkedIn profiles (NEW - Profile Search Scraper)
+      console.log("👥 Step 2.5: Searching LinkedIn profiles...");
+      console.log("   Finding candidates matching the role criteria");
+
+      // Build search criteria from extracted data
+      const profileSearchCriteria = {
+        currentJobTitles: [extractedData.roleTitle],
+        locations: extractedData.location && extractedData.location !== 'Remote' 
+          ? [extractedData.location] 
+          : undefined,
+        maxItems: 100, // Search for up to 100 profiles
+        profileScraperMode: 'Full', // Get full profile data including skills
+      };
+
+      console.log("🔍 Profile search criteria:", profileSearchCriteria);
+
+      const profileSearchResponse = await fetch('/api/scrape-profiles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profileSearchCriteria),
+      });
+
+      const profileSearchData = await profileSearchResponse.json();
+
+      if (profileSearchData.success && profileSearchData.data) {
+        console.log(`✅ Profile search successful: ${profileSearchData.data.length} profiles found`);
+        console.log(`   Profiles with skills: ${profileSearchData.metadata.profilesWithSkills}`);
+        console.log(`   Profiles with experience: ${profileSearchData.metadata.profilesWithExperience}`);
+        
+        if (profileSearchData.metadata.pagination) {
+          console.log(`   Total available on LinkedIn: ${profileSearchData.metadata.pagination.totalElements}`);
+        }
+        
+        // Store the scraped profile data for debugging
+        sessionStorage.setItem("linkedin-people-profile-scraped-data", JSON.stringify(profileSearchData.data));
+        sessionStorage.setItem("profile-scraped-metadata", JSON.stringify(profileSearchData.metadata));
+        
+        console.log("💾 Stored profile search data in sessionStorage");
+      } else {
+        console.warn("⚠️ Profile search failed:", profileSearchData.error);
+      }
+
+      // STEP 3: Enrich cards with Apify data (slow - 1-2 minutes)
       // Call all enrichment APIs in parallel
-      console.log("📊 Step 2: Enriching cards with market data...");
+      console.log("📊 Step 3: Enriching cards with market data...");
       console.log("   This will take 1-2 minutes (Apify scraping)");
 
       const [payResponse, marketResponse, roleResponse] = await Promise.all([

@@ -4,21 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { HireCardTabs } from "@/components/HireCardTabs";
 import {
   ArrowLeft,
   Loader2,
   CheckCircle,
   LayoutDashboard,
   Lock,
-  TrendingUp,
 } from "lucide-react";
-import { CardPreview } from "@/components/cards/CardPreview";
-import {
-  cardCategories,
-  allCards,
-  getCardsByCategory,
-} from "@/lib/cardCategories";
-import { motion } from "framer-motion";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -832,6 +825,17 @@ export default function ResultsPage() {
           </div>
         </div>
       )}
+
+      {/* Debug Data Viewers for Scraped Data */}
+      <DebugDataViewer storageKey="job-scraped-data" title="job-scraped-data" />
+      <DebugDataViewer
+        storageKey="linkedin-people-profile-scraped-data"
+        title="people-profile-scraped-data"
+      />
+      <DebugDataViewer
+        storageKey="apifyRawProfilesData"
+        title="people-profile-scraped-data (from market enrichment)"
+      />
     </main>
   );
 }

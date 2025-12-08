@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { scrapeLinkedInJobs } from "@/lib/apifyClient";
+import { scrapeLinkedInJobsBulk, BulkLinkedInJobScraperInput } from "@/lib/apifyClient";
 import {
   formatForApifyInput,
   analyzeAndFormatPayCard,
@@ -69,22 +69,80 @@ export async function POST(request: NextRequest) {
     console.log("   Location:", apifyInput.location);
     console.log("   Experience Level:", apifyInput.experienceLevel);
 
-    // STEP 2: Call Apify LinkedIn Jobs Scraper
+    // STEP 2: Call Apify LinkedIn Jobs Scraper (NEW BULK SCRAPER)
     console.log("🔵 ============================================");
-    console.log("🔵 STEP 2: APIFY LINKEDIN JOBS SCRAPER");
+    console.log("🔵 STEP 2: APIFY LINKEDIN JOBS BULK SCRAPER");
     console.log("🔵 ============================================");
-    console.log("📊 Calling Apify with:");
+    console.log("📊 Calling Apify Bulk Scraper with:");
     console.log("   Job Title:", apifyInput.jobTitle);
     console.log("   Location:", apifyInput.location);
     console.log("   Experience Level:", apifyInput.experienceLevel);
     console.log("   Max Jobs:", 50);
     
-    const jobs = await scrapeLinkedInJobs(
-      apifyInput.jobTitle,
-      apifyInput.location,
-      apifyInput.experienceLevel,
-      50 // Get 50 jobs for analysis
-    );
+    // Build input for bulk scraper
+    // Handle location intelligently
+    const isValidLocation = (loc: string) => {
+      if (!loc) return false;
+      const normalized = loc.toLowerCase().trim();
+      // Skip generic terms that aren't real locations
+      const invalidLocations = ['remote', 'hybrid', 'on-site', 'onsite', 'anywhere', 'global', 'worldwide'];
+      return !invalidLocations.includes(normalized);
+    };
+
+    const bulkScraperInput: BulkLinkedInJobScraperInput = {
+      jobTitles: [apifyInput.jobTitle],
+      maxItems: 50, // Get 50 jobs for analysis
+      sortBy: 'relevance',
+      postedLimit: 'month', // Recent jobs only (must use: "1h", "24h", "week", "month")
+    };
+    
+    // Handle location and workplace type intelligently
+    const locationLower = apifyInput.location?.toLowerCase().trim() || '';
+    
+    if (locationLower === 'remote' || locationLower === 'anywhere' || locationLower === 'global') {
+      // User wants remote jobs globally - don't set location, just set workplaceType
+      bulkScraperInput.workplaceType = ['remote'];
+      console.log("🌍 Searching: Remote jobs globally (no location filter, workplaceType: remote)");
+    } else if (isValidLocation(apifyInput.location)) {
+      // Valid geographic location - use it
+      bulkScraperInput.locations = [apifyInput.location];
+      console.log("🌍 Searching: Jobs in", apifyInput.location);
+    } else {
+      // No valid location - search globally without filters
+      console.log("🌍 Searching: Jobs globally (no location or workplace filter)");
+    }
+
+    // Map experience level if provided (must be array)
+    if (apifyInput.experienceLevel) {
+      const expLevelMap: Record<string, string> = {
+        'Entry Level': 'entryLevel',
+        'Junior': 'entryLevel',
+        'Mid Level': 'associate',
+        'Mid-Level': 'associate',
+        'Senior': 'midSenior',
+        'Lead': 'director',
+        'Director': 'director',
+        'Executive': 'executive',
+        'Principal': 'executive',
+      };
+      const mappedLevel = expLevelMap[apifyInput.experienceLevel];
+      if (mappedLevel) {
+        bulkScraperInput.experienceLevel = [mappedLevel];
+      }
+    }
+    
+    const bulkJobs = await scrapeLinkedInJobsBulk(bulkScraperInput);
+    
+    // Convert bulk jobs to old format for compatibility with existing analysis
+    const jobs = bulkJobs.map(job => ({
+      title: job.title,
+      company: job.company.name,
+      location: job.location.linkedinText,
+      salary: job.salary ? job.salary.text : '',
+      url: job.linkedinUrl,
+      postedDate: job.postedDate,
+      description: job.descriptionText,
+    }));
 
     console.log(`📊 Apify returned ${jobs.length} jobs`);
     
@@ -140,7 +198,14 @@ export async function POST(request: NextRequest) {
     console.log("🔵 ============================================");
     console.log("🔵 FINAL RESPONSE");
     console.log("🔵 ============================================");
-    console.log(JSON.stringify(response, null, 2));
+    console.log("✅ Response prepared with:", {
+      success: response.success,
+      hasSalaryData: response.hasSalaryData,
+      jobsAnalyzed: response.metadata.jobsAnalyzed,
+      jobsWithSalary: response.metadata.jobsWithSalary,
+      dataQuality: response.metadata.dataQuality
+    });
+    // Note: Not logging full response to avoid console spam with job descriptions
 
     return NextResponse.json(response);
   } catch (error) {
