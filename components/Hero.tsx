@@ -95,6 +95,7 @@ export const Hero = () => {
   const [showClarityModal, setShowClarityModal] = useState(false)
   const [isInputFocused, setIsInputFocused] = useState(false)
   const [showScrapedData, setShowScrapedData] = useState(false)
+  const [missingCoreFields, setMissingCoreFields] = useState<string[]>([])
 
   const containerRef = useRef<HTMLDivElement>(null)
   const mouseX = useMotionValue(0)
@@ -320,6 +321,17 @@ export const Hero = () => {
         if (parsedData.skills && parsedData.skills.length > 0 && isValidValue(parsedData.skills)) {
           extractedFields.criticalSkills = parsedData.skills.join(", ")
         }
+
+        // Check core fields (required for scraping to work)
+        let coreFieldsMissing: string[] = []
+        if (!parsedData.jobTitle || parsedData.jobTitle === "Job Position" || !isValidValue(parsedData.jobTitle))
+          coreFieldsMissing.push("Job Title")
+        if (!isValidValue(parsedData.location)) coreFieldsMissing.push("Location")
+        if (!isValidValue(parsedData.workModel)) coreFieldsMissing.push("Work Model (Remote/Hybrid/On-site)")
+        if (!isValidValue(parsedData.minSalary) || !isValidValue(parsedData.maxSalary))
+          coreFieldsMissing.push("Salary Range")
+        
+        setMissingCoreFields(coreFieldsMissing)
 
         let missing: string[] = []
         if (!parsedData.jobTitle || parsedData.jobTitle === "Job Position" || !isValidValue(parsedData.jobTitle))
@@ -933,6 +945,7 @@ export const Hero = () => {
         category={analysisResult?.category || ""}
         message={analysisResult?.message || ""}
         missingFields={missingFields}
+        missingCoreFields={missingCoreFields}
         onCompleteFields={handleCompleteFields}
         onGenerateAnyway={handleGenerateAnyway}
       />
