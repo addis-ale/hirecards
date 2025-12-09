@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/ScoreImpactTable";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SectionModal } from "@/components/ui/SectionModal";
+import { shouldShowInline, renderContentPreview } from "@/lib/sectionContentHelper";
 
 interface PlanCardProps {
   onNavigateToCard?: (cardId: string) => void;
@@ -402,33 +403,23 @@ export const EditablePlanCard: React.FC<PlanCardProps> = ({
             danger: { accent: "#dc2626", bg: "rgba(220,38,38,0.1)" },
           };
           const colors = toneColors[section.tone] || toneColors.info;
+          const isSmall = shouldShowInline(section.content, section.id);
 
           return (
             <Card
               key={section.id}
-              className="w-full cursor-pointer hover:shadow-md transition-shadow"
-              onClick={() => setOpenModal(section.id)}
+              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
-              <CardHeader className="p-4">
-                <div className="flex flex-col items-center text-center gap-3">
-                  <div
-                    className="w-12 h-12 rounded-lg flex items-center justify-center"
-                    style={{
-                      background: `linear-gradient(135deg, ${colors.accent} 0%, #1a6764 100%)`,
-                    }}
-                  >
-                    <Icon className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900">
-                      {section.title}
-                    </h3>
-                    <p className="text-xs text-gray-600 mt-1">
-                      {section.subtitle}
-                    </p>
-                  </div>
-                </div>
-              </CardHeader>
+              {/* Show content with title and edit button */}
+              {renderContentPreview(
+                section.content,
+                isSmall,
+                section.title,
+                () => setOpenModal(section.id),
+                section.tone,
+                section.id
+              )}
             </Card>
           );
         })}
