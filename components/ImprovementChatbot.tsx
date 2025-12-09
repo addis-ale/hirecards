@@ -107,7 +107,7 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
                   const actionMessage: ChatMessage = {
                     id: "3",
                     role: "bot",
-                    content: `Would you like me to take you to ${signal.action.toLowerCase()} so you can make this change?`,
+                    content: `Would you like me to take you to ${signal.action?.toLowerCase() || "the relevant section"} so you can make this change?`,
                     timestamp: new Date(),
                   };
                   setMessages((prev) => [...prev, actionMessage]);

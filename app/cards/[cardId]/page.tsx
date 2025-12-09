@@ -46,7 +46,7 @@ export default function CardDetailPage() {
             Card Not Found
           </h1>
           <p className="text-gray-600 mb-6">
-            The card you're looking for doesn't exist.
+            The card you&apos;re looking for doesn&apos;t exist.
           </p>
           <button
             onClick={() => router.push("/results")}

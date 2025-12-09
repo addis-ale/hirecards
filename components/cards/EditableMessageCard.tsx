@@ -260,7 +260,7 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
         className="text-sm font-semibold mb-3"
         style={{ color: "#102a63" }}
       >
-        Short "Scroll Stopper" Variants
+        Short &quot;Scroll Stopper&quot; Variants
       </h4>
       <EditableList
         items={scrollStoppers}

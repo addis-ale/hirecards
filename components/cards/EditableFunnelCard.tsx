@@ -33,6 +33,7 @@ interface FunnelCardProps {
     fixes?: string[];
     hiddenBottleneck?: string;
     funnelHealthComparison?: Array<{ type: string; outcome: string }>;
+    bottomLine?: string;
   };
   onNavigateToCard?: (cardId: string) => void;
   currentCardId?: string;

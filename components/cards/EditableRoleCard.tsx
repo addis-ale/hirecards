@@ -19,6 +19,7 @@ interface RoleCardProps {
     fixes?: string[];
     brutalTruth?: string;
     whatGreatLooksLike?: string[];
+    roleMission?: string;
   };
   onNavigateToCard?: (cardId: string) => void;
   currentCardId?: string;

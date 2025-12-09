@@ -283,7 +283,7 @@ export const ShareCardsModal: React.FC<ShareCardsModalProps> = ({
                 </div>
                 <div className="flex items-center gap-2">
                   {/* Native Share (if available) */}
-                  {typeof navigator !== "undefined" && navigator.share && (
+                  {typeof navigator !== "undefined" && typeof navigator.share === "function" && (
                     <button
                       onClick={handleNativeShare}
                       className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors flex items-center gap-2 text-sm font-medium"

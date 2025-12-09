@@ -431,100 +431,16 @@ export default function ConversationalChatbot() {
       }
 
       // STEP 4: Analyze scraped data and transform to card structures
-      console.log("🤖 Step 4: Analyzing scraped data with AI...");
-
-      // Get all scraped data from sessionStorage
-      const rawJobsPayCard = sessionStorage.getItem("apifyRawJobsData_PayCard");
-      const rawJobsMarketCard = sessionStorage.getItem(
-        "apifyRawJobsData_MarketCard"
-      );
-      const rawProfiles = sessionStorage.getItem("apifyRawProfilesData");
-      const linkedinProfiles = sessionStorage.getItem(
-        "linkedin-people-profile-scraped-data"
-      );
-
-      // Combine profile sources
-      let allProfiles: any[] = [];
-      if (rawProfiles) {
-        try {
-          allProfiles = allProfiles.concat(JSON.parse(rawProfiles));
-        } catch (e) {
-          console.error("Failed to parse rawProfiles:", e);
-        }
-      }
-      if (linkedinProfiles) {
-        try {
-          const linkedin = JSON.parse(linkedinProfiles);
-          allProfiles = allProfiles.concat(
-            Array.isArray(linkedin) ? linkedin : []
-          );
-        } catch (e) {
-          console.error("Failed to parse linkedinProfiles:", e);
-        }
-      }
-
-      // Remove duplicates based on profile URL or ID
-      const uniqueProfiles = Array.from(
-        new Map(
-          allProfiles.map((p) => [p.id || p.linkedinUrl || p.profileUrl, p])
-        ).values()
-      );
-
-      if (rawJobsPayCard || rawJobsMarketCard || uniqueProfiles.length > 0) {
-        console.log(
-          `📊 Analyzing: ${
-            rawJobsPayCard ? JSON.parse(rawJobsPayCard).length : 0
-          } PayCard jobs, ${
-            rawJobsMarketCard ? JSON.parse(rawJobsMarketCard).length : 0
-          } MarketCard jobs, ${uniqueProfiles.length} profiles`
-        );
-
-        try {
-          const analyzeResponse = await fetch("/api/analyze-scraped-data", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              jobsPayCard: rawJobsPayCard ? JSON.parse(rawJobsPayCard) : [],
-              jobsMarketCard: rawJobsMarketCard
-                ? JSON.parse(rawJobsMarketCard)
-                : [],
-              profiles: uniqueProfiles,
-              originalJobData: formData,
-            }),
-          });
-
-          const analyzeData = await analyzeResponse.json();
-
-          if (analyzeData.success && analyzeData.data) {
-            console.log("✅ Scraped data analyzed and transformed");
-            console.log(
-              `   Cards generated: ${Object.keys(analyzeData.data).length}`
-            );
-
-            // Store analyzed card data
-            sessionStorage.setItem(
-              "analyzedCardData",
-              JSON.stringify(analyzeData.data)
-            );
-            sessionStorage.setItem(
-              "analyzedCardMetadata",
-              JSON.stringify(analyzeData.metadata)
-            );
-
-            console.log("💾 Stored analyzed card data in sessionStorage");
-          } else {
-            console.warn("⚠️ Analysis failed:", analyzeData.error);
-          }
-        } catch (analyzeError) {
-          console.error("❌ Analysis error:", analyzeError);
-          // Continue anyway - cards will use static data
-        }
-      } else {
-        console.log("⚠️ No scraped data to analyze");
-      }
-
+      // DISABLED: Skip transformation, use static cards instead
+      console.log("⏭️ Step 4: Skipping AI transformation - using static cards");
+      
+      // Clear any existing analyzed card data to ensure static cards are used
+      sessionStorage.removeItem("analyzedCardData");
+      sessionStorage.removeItem("analyzedCardMetadata");
+      
       console.log("🚀 ============================================");
-      console.log("🚀 ENRICHMENT COMPLETE - NAVIGATING TO RESULTS");
+      console.log("🚀 SCRAPING COMPLETE - NAVIGATING TO RESULTS");
+      console.log("🚀 Using static/default cards");
       console.log("🚀 ============================================");
     } catch (error) {
       console.error("Error generating/enriching cards:", error);

@@ -103,7 +103,7 @@ export function Section({
           <motion.div
             initial={collapsible ? { height: 0, opacity: 0 } : false}
             animate={collapsible ? { height: "auto", opacity: 1 } : false}
-            exit={collapsible ? { height: 0, opacity: 0 } : false}
+            exit={collapsible ? { height: 0, opacity: 0 } : undefined}
             transition={{ duration: 0.2, ease: "easeInOut" }}
             className={collapsible ? "overflow-hidden" : ""}
           >

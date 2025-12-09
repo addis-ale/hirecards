@@ -209,7 +209,7 @@ export const EditableInterviewCard: React.FC<InterviewCardProps> = ({
           className="text-sm font-semibold mb-3"
           style={{ color: "#102a63" }}
         >
-          1️⃣ RECRUITER SCREEN — "Filter Out the Wrong Personas Fast"
+          1️⃣ RECRUITER SCREEN — &quot;Filter Out the Wrong Personas Fast&quot;
         </h4>
         <p className="text-xs text-gray-600 mb-3">
           Ask these 5 signal questions:

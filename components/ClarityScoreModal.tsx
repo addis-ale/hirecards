@@ -115,7 +115,7 @@ export default function ClarityScoreModal({
                   ))}
                 </ul>
                 <p className="text-xs text-red-500 mt-3 font-medium">
-                  ⚠️ "Generate Anyway" is disabled until these core fields are provided.
+                  ⚠️ &quot;Generate Anyway&quot; is disabled until these core fields are provided.
                 </p>
               </div>
             )}

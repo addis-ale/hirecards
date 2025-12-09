@@ -304,7 +304,7 @@ export const EditableSkillCard = ({
         <div className="space-y-4">
           <div>
             <p className="text-xs font-bold text-emerald-700 mb-2">
-              Can be trained quickly (shouldn't block seniors):
+              Can be trained quickly (shouldn&apos;t block seniors):
             </p>
             <EditableList
               items={upskillableSkills}

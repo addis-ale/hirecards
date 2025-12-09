@@ -40,6 +40,9 @@ interface RealityCardProps {
     whatsReallyGoingOn?: string;
     redFlags?: string[];
     donts?: string[];
+    feasibilityScore?: string;
+    feasibilityTitle?: string;
+    feasibilitySubtext?: string;
   };
   onScoreChange?: (score: number) => void;
   acceptedImprovementsBoost?: number;

@@ -194,6 +194,13 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
           if (!result.data.timeline) missingFields.push('Timeline');
           if (!result.data.flexible) missingFields.push('Nice-to-Have Skills');
           
+          // Get missing core fields (essential fields required for generation)
+          const missingCoreFields = [];
+          if (!result.data.roleTitle) missingCoreFields.push('Role Title');
+          if (!result.data.department) missingCoreFields.push('Department');
+          if (!result.data.experienceLevel) missingCoreFields.push('Experience Level');
+          if (!result.data.criticalSkills || result.data.criticalSkills.length === 0) missingCoreFields.push('Critical Skills');
+          
           // Generate category and message
           let category = '';
           let message = '';
@@ -217,6 +224,7 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
             category,
             message,
             missingFields,
+            missingCoreFields,
             data: result.data,
           });
           
@@ -495,7 +503,8 @@ export default function JobURLInput({ onDataExtracted }: JobURLInputProps) {
           score={clarityData.score}
           category={clarityData.category}
           message={clarityData.message}
-          missingFields={clarityData.missingFields}
+          missingFields={clarityData.missingFields || []}
+          missingCoreFields={clarityData.missingCoreFields || []}
           onCompleteFields={handleCompleteFields}
           onGenerateAnyway={handleGenerateAnyway}
         />
