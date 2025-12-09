@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { Code, X, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from "react";
+import { Code, X, RefreshCw } from "lucide-react";
 
 interface DebugDataViewerProps {
   storageKey?: string;
   title?: string;
 }
 
-export default function DebugDataViewer({ 
-  storageKey = 'formData',
-  title = 'Debug: FormData'
+export default function DebugDataViewer({
+  storageKey = "formData",
+  title = "Debug: FormData",
 }: DebugDataViewerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [data, setData] = useState<any>(null);
@@ -28,7 +28,7 @@ export default function DebugDataViewer({
         setError(`No data found in sessionStorage.${storageKey}`);
       }
     } catch (err) {
-      setError('Failed to parse data: ' + (err as Error).message);
+      setError("Failed to parse data: " + (err as Error).message);
       setData(null);
     }
   };
@@ -37,12 +37,12 @@ export default function DebugDataViewer({
   useEffect(() => {
     if (isOpen) {
       loadData();
-      
+
       // Poll for changes every 500ms when open
       const interval = setInterval(() => {
         loadData();
       }, 500);
-      
+
       return () => clearInterval(interval);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -52,7 +52,7 @@ export default function DebugDataViewer({
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-4 right-4 z-50 flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg shadow-lg hover:bg-purple-700 transition-all"
+        className="hidden bottom-4 right-4 z-50 fixed items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg shadow-lg hover:bg-purple-700 transition-all"
         title="Open Debug Viewer"
       >
         <Code className="w-5 h-5" />
@@ -97,29 +97,36 @@ export default function DebugDataViewer({
           <div className="space-y-3">
             {/* Field Count */}
             <div className="bg-purple-50 border border-purple-200 rounded p-3">
-              <div className="text-xs text-purple-600 font-semibold mb-1">FIELD COUNT</div>
+              <div className="text-xs text-purple-600 font-semibold mb-1">
+                FIELD COUNT
+              </div>
               <div className="text-2xl font-bold text-purple-700">
-                {Object.entries(data).filter(([key, value]) => {
-                  if (Array.isArray(value)) return value.length > 0;
-                  return value !== null && value !== '' && value !== undefined;
-                }).length} / {Object.keys(data).length}
+                {
+                  Object.entries(data).filter(([key, value]) => {
+                    if (Array.isArray(value)) return value.length > 0;
+                    return (
+                      value !== null && value !== "" && value !== undefined
+                    );
+                  }).length
+                }{" "}
+                / {Object.keys(data).length}
               </div>
             </div>
 
             {/* Data Fields */}
             <div className="space-y-2">
               {Object.entries(data).map(([key, value]) => {
-                const isEmpty = Array.isArray(value) 
-                  ? value.length === 0 
-                  : !value || value === '';
-                
+                const isEmpty = Array.isArray(value)
+                  ? value.length === 0
+                  : !value || value === "";
+
                 return (
-                  <div 
+                  <div
                     key={key}
                     className={`border rounded p-2 ${
-                      isEmpty 
-                        ? 'bg-gray-50 border-gray-200' 
-                        : 'bg-green-50 border-green-200'
+                      isEmpty
+                        ? "bg-gray-50 border-gray-200"
+                        : "bg-green-50 border-green-200"
                     }`}
                   >
                     <div className="flex items-start justify-between gap-2">
@@ -137,7 +144,7 @@ export default function DebugDataViewer({
                         value.length > 0 ? (
                           <div className="flex flex-wrap gap-1 mt-1">
                             {value.map((item, idx) => (
-                              <span 
+                              <span
                                 key={idx}
                                 className="inline-block px-2 py-0.5 bg-purple-100 text-purple-800 rounded text-xs"
                               >
@@ -146,7 +153,9 @@ export default function DebugDataViewer({
                             ))}
                           </div>
                         ) : (
-                          <span className="text-gray-400 italic">Empty array</span>
+                          <span className="text-gray-400 italic">
+                            Empty array
+                          </span>
                         )
                       ) : isEmpty ? (
                         <span className="text-gray-400 italic">Empty</span>
@@ -181,7 +190,8 @@ export default function DebugDataViewer({
       {/* Footer */}
       <div className="border-t px-4 py-2 bg-gray-50 rounded-b-lg">
         <div className="text-xs text-gray-500">
-          Storage Key: <code className="bg-gray-200 px-1 rounded">{storageKey}</code>
+          Storage Key:{" "}
+          <code className="bg-gray-200 px-1 rounded">{storageKey}</code>
         </div>
       </div>
     </div>

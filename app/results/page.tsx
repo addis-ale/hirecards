@@ -45,7 +45,8 @@ export default function ResultsPage() {
     // Scroll to cards grid after a short delay to ensure DOM is updated
     setTimeout(() => {
       if (cardsGridRef.current) {
-        const elementPosition = cardsGridRef.current.getBoundingClientRect().top;
+        const elementPosition =
+          cardsGridRef.current.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.pageYOffset - 120; // 120px gap from top
         window.scrollTo({
           top: offsetPosition,
@@ -676,16 +677,12 @@ export default function ResultsPage() {
               >
                 <div
                   className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
-                    !selectedCategory
-                      ? "bg-white/20"
-                      : "bg-gray-50"
+                    !selectedCategory ? "bg-white/20" : "bg-gray-50"
                   }`}
                 >
                   <svg
                     className={`w-5 h-5 ${
-                      !selectedCategory
-                        ? "text-white"
-                        : "text-gray-600"
+                      !selectedCategory ? "text-white" : "text-gray-600"
                     }`}
                     fill="none"
                     viewBox="0 0 24 24"
@@ -701,18 +698,14 @@ export default function ResultsPage() {
                 </div>
                 <h4
                   className={`font-bold mb-1 text-base ${
-                    !selectedCategory
-                      ? "text-white"
-                      : "text-gray-900"
+                    !selectedCategory ? "text-white" : "text-gray-900"
                   }`}
                 >
                   All Cards
                 </h4>
                 <p
                   className={`text-xs leading-tight ${
-                    !selectedCategory
-                      ? "text-white/90"
-                      : "text-gray-600"
+                    !selectedCategory ? "text-white/90" : "text-gray-600"
                   }`}
                 >
                   View all 13 hiring strategy cards
@@ -724,7 +717,7 @@ export default function ResultsPage() {
                 )}
               </motion.button>
             </div>
-            
+
             {/* Share Button - Below Categories, Right Aligned */}
             <div className="flex justify-end mt-4">
               <motion.button
@@ -887,7 +880,7 @@ export default function ResultsPage() {
       <Footer />
 
       {/* Debug Button - Bottom Left Corner */}
-      <button
+      {/* <button
         onClick={handleDebugClick}
         className="fixed bottom-6 left-6 z-50 px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white text-sm font-medium rounded-lg shadow-lg transition-all duration-200 hover:scale-105 flex items-center gap-2"
         title="View Raw Scraped Data"
@@ -906,7 +899,7 @@ export default function ResultsPage() {
           />
         </svg>
         Debug Data
-      </button>
+      </button> */}
 
       {/* Debug Modal - Centered */}
       {showDebugModal && (
