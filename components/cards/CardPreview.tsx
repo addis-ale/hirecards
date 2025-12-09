@@ -76,28 +76,36 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
 
       {/* Content */}
       <div className="space-y-2">
-        <div className="flex items-start justify-between">
+        <div className="flex items-start justify-between gap-2">
           <h3 className={`
-            font-bold text-base leading-tight
+            font-bold text-sm leading-tight tracking-tight flex-1
             ${isCurrent ? "text-white" : "text-gray-900"}
           `}>
             {card.shortLabel}
           </h3>
-          <span className={`
-            inline-flex items-center justify-center px-2 py-0.5 rounded-full text-xs font-bold
-            ${isCurrent 
-              ? "bg-white text-purple-600" 
-              : isCompleted
-                ? "bg-emerald-100 text-emerald-700"
-                : card.color === "purple" ? "bg-purple-100 text-purple-700" :
-                  card.color === "blue" ? "bg-blue-100 text-blue-700" :
-                  card.color === "emerald" ? "bg-emerald-100 text-emerald-700" :
-                  card.color === "amber" ? "bg-amber-100 text-amber-700" :
-                  "bg-indigo-100 text-indigo-700"
-            }
-          `}>
-            {card.impact}
-          </span>
+          <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+            <span className={`
+              text-[9px] font-medium uppercase tracking-wider
+              ${isCurrent ? "text-white/70" : "text-gray-500"}
+            `}>
+              Score Impact
+            </span>
+            <span className={`
+              w-10 h-10 rounded-full flex items-center justify-center text-xs font-bold
+              ${isCurrent 
+                ? "bg-white text-purple-600" 
+                : isCompleted
+                  ? "bg-emerald-100 text-emerald-700"
+                  : card.color === "purple" ? "bg-purple-100 text-purple-700" :
+                    card.color === "blue" ? "bg-blue-100 text-blue-700" :
+                    card.color === "emerald" ? "bg-emerald-100 text-emerald-700" :
+                    card.color === "amber" ? "bg-amber-100 text-amber-700" :
+                    "bg-indigo-100 text-indigo-700"
+              }
+            `}>
+              {card.impact}
+            </span>
+          </div>
         </div>
 
         {/* Teaser Text */}

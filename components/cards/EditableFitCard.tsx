@@ -44,22 +44,25 @@ export const EditableFitCard = ({
   onNavigateToCard,
   currentCardId,
 }: FitCardProps = {}) => {
-  const [persona, setPersona] = useState(data?.persona || "Product-Minded AE");
+  const [persona, setPersona] = useState(data?.persona ?? "The Product-Minded Analytics Engineer");
   const [motivatedBy, setMotivatedBy] = useState(
-    data?.motivatedBy || [
-      "Ownership",
-      "Impact",
-      "Modern modelling standards",
-      "Clean data and clear interfaces",
-      "Tight PM partnership",
+    data?.motivatedBy ?? [
+      "Ownership of modelling domains",
+      "Shipping analytics that customers actually use",
+      "Modelling craft & clean architecture",
+      "Strong partnerships with PM & Engineering",
+      "Working with a competent team",
     ]
   );
   const [avoids, setAvoids] = useState(
-    data?.avoids || [
-      "Unclear ownership",
-      "Legacy BI environments",
-      "Slow decision-making",
-      "Chaotic business stakeholders",
+    data?.avoids ?? [
+      "BI maintenance disguised as AE",
+      "Undefined scope (\"you'll do a bit of everything…\")",
+      "Slow decision-making loops",
+      "Politics, unclear ownership",
+      "Teams with weak modelling foundations",
+      "Overpromising / underexplaining",
+      "\"Just build dashboards\" requests",
     ]
   );
   const [brutalTruth, setBrutalTruth] = useState(
@@ -379,7 +382,7 @@ export const EditableFitCard = ({
       subtitle: "Actions to improve your hiring score",
       Icon: Target,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.7" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.7" cardId="fit" />,
     },
   ];
 
@@ -468,6 +471,7 @@ export const EditableFitCard = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

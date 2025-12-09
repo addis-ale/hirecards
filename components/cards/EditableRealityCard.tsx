@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/ScoreImpactTable";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SectionModal } from "@/components/ui/SectionModal";
+import { useAcceptedFixes } from "@/contexts/AcceptedFixesContext";
 
 interface RealityCardProps {
   data?: {
@@ -53,12 +54,13 @@ export const EditableRealityCard = ({
   onNavigateToCard,
   currentCardId,
 }: RealityCardProps) => {
-  const [feasibilityScore, setFeasibilityScore] = useState("5.5/10");
+  const { getTotalImpact } = useAcceptedFixes();
+  const [feasibilityScore, setFeasibilityScore] = useState(data?.feasibilityScore ?? "5.5/10");
   const [feasibilityTitle, setFeasibilityTitle] = useState(
-    "Possible with alignment and speed"
+    data?.feasibilityTitle ?? "Possible — but only if alignment, speed, and comp tighten immediately."
   );
   const [feasibilitySubtext, setFeasibilitySubtext] = useState(
-    "Not possible with slow process or strict constraints"
+    data?.feasibilitySubtext ?? "Not possible if criteria remain rigid or process is slow/vague."
   );
   const [previousScore, setPreviousScore] = useState<number | undefined>(
     undefined
@@ -77,36 +79,36 @@ export const EditableRealityCard = ({
     ]
   );
   const [helpsCase, setHelpsCase] = useState(
-    data?.helpsCase || [
-      "Modern stack (dbt, Snowflake, Looker)",
-      "Customer-facing product impact",
-      "Strong brand + scale-up momentum",
-      "Clear ownership and autonomy in the Insights product",
+    data?.helpsCase ?? [
+      "Product-facing analytics (rare → instantly attractive)",
+      "Stack that seniors actually want (dbt, Snowflake, Looker)",
+      "Clear domain ownership (AEs hate \"own everything\" chaos)",
+      "Strong brand with real customer impact",
     ]
   );
   const [hurtsCase, setHurtsCase] = useState(
-    data?.hurtsCase || [
+    data?.hurtsCase ?? [
       "Amsterdam-only requirement",
-      "Slow or unclear interview loop",
-      "Comp ceilings below market",
-      "Misalignment between Data, PM & Engineering",
+      "4+ step interview loop",
+      "Compensation ceilings below €90k",
+      "PM / Data / Engineering pulling in different directions",
     ]
   );
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
-    data?.hiddenBottleneck ||
-      "Stakeholder alignment. If PM, Data, and Engineering want different outcomes, no candidate will pass all interviews. This is the #1 reason these searches restart."
+    data?.hiddenBottleneck ??
+      "If your team doesn't agree on what good looks like in week one, a restart around week 5–7 is guaranteed. Most searches don't fail because \"the market is hard.\" They fail because internal alignment is harder."
   );
   const [timelineToFailure, setTimelineToFailure] = useState(
-    data?.timelineToFailure ||
-      "If alignment isn't locked in during week 1 → expect the search to stall and restart around week 6."
+    data?.timelineToFailure ??
+      "If alignment isn't fixed by Day 7 → expect a stall/reset around week 5–7. You won't know it's happening until candidates quietly stop responding."
   );
   const [bottomLine1, setBottomLine1] = useState(
-    data?.bottomLine1 ||
-      "Move fast (10-14 day loop), pay market rate (€95k-110k), and run targeted outbound sourcing, you'll hire."
+    data?.bottomLine1 ??
+      "If you: ✔ align fast ✔ move within 10–14 days ✔ pay proper senior rates ✔ run targeted outbound → You will hire."
   );
   const [bottomLine2, setBottomLine2] = useState(
-    data?.bottomLine2 ||
-      "Post-and-pray, take 4-6 weeks to decide, and lowball on comp, you won't."
+    data?.bottomLine2 ??
+      "If not → You won't."
   );
   const [whatsReallyGoingOn, setWhatsReallyGoingOn] = useState(
     data?.whatsReallyGoingOn ||
@@ -246,7 +248,7 @@ export const EditableRealityCard = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Calculate dynamic score based on card data + accepted improvements
+  // Calculate dynamic score based on card data + accepted improvements from ALL cards
   const calculatedScore = useMemo(() => {
     const baseScore = calculateRealityScore({
       feasibilityScore,
@@ -260,8 +262,9 @@ export const EditableRealityCard = ({
       bottomLine1,
       bottomLine2,
     });
-    // Add accepted improvements boost (capped at 10)
-    return Math.min(10, baseScore + acceptedImprovementsBoost);
+    // Add accepted improvements boost from all cards (capped at 9.9)
+    const totalAcceptedImpact = getTotalImpact();
+    return Math.min(9.9, baseScore + acceptedImprovementsBoost + totalAcceptedImpact);
   }, [
     feasibilityScore,
     helpsCase,
@@ -274,12 +277,13 @@ export const EditableRealityCard = ({
     bottomLine1,
     bottomLine2,
     acceptedImprovementsBoost,
+    getTotalImpact,
   ]);
 
   // Track previous calculated score to prevent unnecessary updates
   const previousCalculatedScoreRef = useRef<number | undefined>(undefined);
 
-  // Update score when it changes
+  // Update score when it changes (toast notifications are handled globally in useScoreChangeNotification)
   useEffect(() => {
     if (
       calculatedScore !== undefined &&
@@ -287,6 +291,7 @@ export const EditableRealityCard = ({
     ) {
       previousCalculatedScoreRef.current = calculatedScore;
       onScoreChange?.(calculatedScore);
+      
       // Update previous score after a delay to show change animation
       const timer = setTimeout(() => {
         setPreviousScore(calculatedScore);
@@ -403,7 +408,7 @@ export const EditableRealityCard = ({
       subtitle: "Actions to improve your hiring score",
       Icon: Target,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" cardId="reality" />,
     },
     {
       id: "timeline-failure",
@@ -464,7 +469,7 @@ export const EditableRealityCard = ({
             <ScoreProgressRing
               currentScore={calculatedScore}
               previousScore={previousScore}
-              maxScore={10}
+              maxScore={9.9}
               size={140}
               strokeWidth={10}
               showChange={true}
@@ -473,7 +478,7 @@ export const EditableRealityCard = ({
 
           <div className="flex-1 text-center md:text-left">
             <div className="text-4xl font-bold mb-2">
-              {calculatedScore.toFixed(1)}/10
+              {calculatedScore.toFixed(1)}/9.9
             </div>
             <div className="text-lg font-medium mb-2">
               <EditableText

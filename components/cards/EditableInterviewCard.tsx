@@ -38,11 +38,11 @@ export const EditableInterviewCard: React.FC<InterviewCardProps> = ({
 }) => {
   // Initialize from data or use defaults
   const [optimalLoop, setOptimalLoop] = useState(
-    data?.optimalLoop || [
-      "Recruiter screen",
-      "Modelling + SQL deep dive",
-      "Product/PM collaboration session",
-      "Final cultural alignment",
+    data?.optimalLoop ?? [
+      "Recruiter Screen (30 min)",
+      "Modelling + SQL Deep Dive (60–90 min)",
+      "Product Collaboration Interview (45–60 min)",
+      "Values & Ownership Conversation (30–45 min)",
     ]
   );
   const [brutalTruth, setBrutalTruth] = useState(
@@ -293,7 +293,7 @@ export const EditableInterviewCard: React.FC<InterviewCardProps> = ({
       Icon: Target,
       tone: "success" as const,
       content: (
-        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" />
+        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" cardId="interview" />
       ),
     },
     {
@@ -395,6 +395,7 @@ export const EditableInterviewCard: React.FC<InterviewCardProps> = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

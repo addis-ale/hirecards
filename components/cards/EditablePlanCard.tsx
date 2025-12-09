@@ -40,22 +40,35 @@ export const EditablePlanCard: React.FC<PlanCardProps> = ({
 }) => {
   // Initialize from data or use defaults
   const [first7Days, setFirst7Days] = useState(
-    data?.first7Days || [
-      "Finalize RoleCard",
+    data?.first7Days ?? [
+      "Finalise RoleCard",
+      "Align on outcomes, ownership, and expectations.",
       "Align scorecard",
+      "Confirm the 6 competencies + rating anchors.",
       "Approve comp",
+      "No sourcing until the band is locked.",
       "Build outbound list",
-      "Schedule weekly sync",
+      "50–80 qualified profiles to target in Week 1.",
+      "Pre-book interview slots",
+      "Remove the #1 cause of process delays.",
+      "Rewrite JD",
+      "Outcome-based, persona-aligned, no BI clutter.",
       "Launch sourcing",
+      "Start with two outbound waves + referral pass.",
     ]
   );
   const [weeklyRhythm, setWeeklyRhythm] = useState(
-    data?.weeklyRhythm || [
+    data?.weeklyRhythm ?? [
       "Pipeline review",
-      "Blockers removed",
-      "Calibration maintained",
-      "Messaging updated",
-      "Time-to-align tracked",
+      "Identify leaks early (reply rates, test pass rates, drops).",
+      "Remove blockers",
+      "Clear interview bottlenecks within 24 hours.",
+      "Recalibrate expectations",
+      "Update HM if market reality ≠ initial assumptions.",
+      "Update messaging",
+      "Adjust outreach if replies drop or persona mismatch appears.",
+      "Track time-to-align",
+      "Slow alignment = slow hiring.",
     ]
   );
   const [brutalTruth, setBrutalTruth] = useState(
@@ -331,7 +344,7 @@ export const EditablePlanCard: React.FC<PlanCardProps> = ({
       Icon: Target,
       tone: "success" as const,
       content: (
-        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" />
+        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" cardId="plan" />
       ),
     },
     {
@@ -433,6 +446,7 @@ export const EditablePlanCard: React.FC<PlanCardProps> = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

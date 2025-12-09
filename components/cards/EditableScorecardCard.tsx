@@ -40,10 +40,10 @@ export const EditableScorecardCard: React.FC<ScorecardCardProps> = ({
 }) => {
   // Initialize from data or use defaults
   const [competencies, setCompetencies] = useState(
-    data?.competencies || [
-      "Modelling",
-      "Data quality discipline",
-      "Product thinking",
+    data?.competencies ?? [
+      "Modelling Quality",
+      "Data Reliability Discipline",
+      "Product Thinking",
       "Collaboration",
       "Communication",
       "Ownership",
@@ -387,7 +387,7 @@ export const EditableScorecardCard: React.FC<ScorecardCardProps> = ({
       Icon: Target,
       tone: "success" as const,
       content: (
-        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />
+        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="scorecard" />
       ),
     },
     {
@@ -489,6 +489,7 @@ export const EditableScorecardCard: React.FC<ScorecardCardProps> = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

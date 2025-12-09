@@ -42,51 +42,53 @@ export const EditableSkillCard = ({
   onNavigateToCard,
   currentCardId,
 }: SkillCardProps = {}) => {
+  // Initialize from data prop, fallback to static example data
   const [technicalSkills, setTechnicalSkills] = useState(
-    data?.technicalSkills || [
-      "Advanced SQL",
-      "dbt modelling",
-      "Dimensional modelling",
-      "BI tools",
-      "Pipeline building",
+    data?.technicalSkills ?? [
+      "Advanced SQL + testing discipline",
+      "Strong dbt (macros, tests, structure, ref patterns)",
+      "Dimensional modelling & semantic layer design",
+      "Pipeline design + data reliability engineering",
+      "BI familiarity (Looker ideal)",
     ]
   );
   const [productSkills, setProductSkills] = useState(
-    data?.productSkills || [
-      "Define clear metrics",
-      "Shape analytics UX",
-      "Model business logic",
+    data?.productSkills ?? [
+      "Translate messy business logic → clean models",
+      "Define metrics with Product",
+      "Reason through tradeoffs",
+      "Influence analytics UX",
     ]
   );
   const [behaviouralSkills, setBehaviouralSkills] = useState(
-    data?.behaviouralSkills || [
+    data?.behaviouralSkills ?? [
       "Ownership mindset",
-      "Handles ambiguity",
-      "Clear communication",
-      "Quality focused",
+      "Writes clear reasoning",
+      "Thrives in ambiguity",
+      "Protects modelling quality",
     ]
   );
   const [brutalTruth, setBrutalTruth] = useState(
-    data?.brutalTruth ||
-      'Most "analytics engineers" are BI developers. Find system designers.'
+    data?.brutalTruth ?? 'Most "analytics engineers" are BI developers. Find system designers.'
   );
   const [redFlags, setRedFlags] = useState(
-    data?.redFlags || [
-      "Dashboard-focused only",
-      "No testing opinions",
+    data?.redFlags ?? [
+      "Only built dashboards",
       "Avoids documentation",
-      "Dismisses governance",
+      "Weak testing discipline",
+      "No ownership vocabulary",
     ]
   );
   const [donts, setDonts] = useState(
-    data?.donts || [
-      "Hire without dbt experience",
+    data?.donts ?? [
+      "Hire BI devs mislabelled as AEs",
       "Skip modelling exercises",
-      "Confuse data/analytics engineers",
+      "Over-index on domain experience",
+      "Confuse \"good with dashboards\" = \"strong AE\"",
     ]
   );
   const [upskillableSkills, setUpskillableSkills] = useState(
-    data?.upskillableSkills || [
+    data?.upskillableSkills ?? [
       "Looker",
       "Metric layers",
       "Domain-specific metrics",
@@ -94,7 +96,7 @@ export const EditableSkillCard = ({
     ]
   );
   const [mustHaveSkills, setMustHaveSkills] = useState(
-    data?.mustHaveSkills || [
+    data?.mustHaveSkills ?? [
       "Modelling fundamentals",
       "dbt proficiency",
       "SQL testing discipline",
@@ -102,16 +104,18 @@ export const EditableSkillCard = ({
     ]
   );
 
-  // Update when data prop changes
+  // Update when data prop changes - check for !== undefined and !== null to handle empty arrays/strings
   useEffect(() => {
-    if (data?.technicalSkills) setTechnicalSkills(data.technicalSkills);
-    if (data?.productSkills) setProductSkills(data.productSkills);
-    if (data?.behaviouralSkills) setBehaviouralSkills(data.behaviouralSkills);
-    if (data?.brutalTruth) setBrutalTruth(data.brutalTruth);
-    if (data?.redFlags) setRedFlags(data.redFlags);
-    if (data?.donts) setDonts(data.donts);
-    if (data?.upskillableSkills) setUpskillableSkills(data.upskillableSkills);
-    if (data?.mustHaveSkills) setMustHaveSkills(data.mustHaveSkills);
+    if (data !== undefined && data !== null) {
+      if (data.technicalSkills !== undefined) setTechnicalSkills(data.technicalSkills);
+      if (data.productSkills !== undefined) setProductSkills(data.productSkills);
+      if (data.behaviouralSkills !== undefined) setBehaviouralSkills(data.behaviouralSkills);
+      if (data.brutalTruth !== undefined) setBrutalTruth(data.brutalTruth);
+      if (data.redFlags !== undefined) setRedFlags(data.redFlags);
+      if (data.donts !== undefined) setDonts(data.donts);
+      if (data.upskillableSkills !== undefined) setUpskillableSkills(data.upskillableSkills);
+      if (data.mustHaveSkills !== undefined) setMustHaveSkills(data.mustHaveSkills);
+    }
   }, [data]);
   const [scoreImpactRows, setScoreImpactRows] = useState<ScoreImpactRow[]>([
     {
@@ -171,29 +175,31 @@ export const EditableSkillCard = ({
     scoreImpactRows,
   ]);
 
-  // Load from sessionStorage
+  // Load from sessionStorage ONLY if no data prop is provided (fallback)
   useEffect(() => {
-    const saved = sessionStorage.getItem("editableSkillCard");
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.technicalSkills) setTechnicalSkills(data.technicalSkills);
-        if (data.productSkills) setProductSkills(data.productSkills);
-        if (data.behaviouralSkills)
-          setBehaviouralSkills(data.behaviouralSkills);
-        if (data.brutalTruth) setBrutalTruth(data.brutalTruth);
-        if (data.redFlags) setRedFlags(data.redFlags);
-        if (data.donts) setDonts(data.donts);
-        if (data.upskillableSkills)
-          setUpskillableSkills(data.upskillableSkills);
-        if (data.mustHaveSkills) setMustHaveSkills(data.mustHaveSkills);
-        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
-      } catch (e) {
-        console.error("Failed to load saved data:", e);
+    if (data === undefined || data === null) {
+      const saved = sessionStorage.getItem("editableSkillCard");
+      if (saved) {
+        try {
+          const savedData = JSON.parse(saved);
+          if (savedData.technicalSkills !== undefined) setTechnicalSkills(savedData.technicalSkills);
+          if (savedData.productSkills !== undefined) setProductSkills(savedData.productSkills);
+          if (savedData.behaviouralSkills !== undefined)
+            setBehaviouralSkills(savedData.behaviouralSkills);
+          if (savedData.brutalTruth !== undefined) setBrutalTruth(savedData.brutalTruth);
+          if (savedData.redFlags !== undefined) setRedFlags(savedData.redFlags);
+          if (savedData.donts !== undefined) setDonts(savedData.donts);
+          if (savedData.upskillableSkills !== undefined)
+            setUpskillableSkills(savedData.upskillableSkills);
+          if (savedData.mustHaveSkills !== undefined) setMustHaveSkills(savedData.mustHaveSkills);
+          if (savedData.scoreImpactRows !== undefined) setScoreImpactRows(savedData.scoreImpactRows);
+        } catch (e) {
+          console.error("Failed to load saved data:", e);
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [data]);
 
   const [openModal, setOpenModal] = useState<string | null>(null);
 
@@ -327,7 +333,7 @@ export const EditableSkillCard = ({
       subtitle: "Actions to improve your hiring score",
       Icon: Target,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" cardId="skill" />,
     },
   ];
 
@@ -416,6 +422,7 @@ export const EditableSkillCard = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

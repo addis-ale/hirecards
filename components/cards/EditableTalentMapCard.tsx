@@ -50,32 +50,30 @@ export const EditableTalentMapCard = ({
   currentCardId,
 }: TalentMapCardProps = {}) => {
   const [primaryFeeders, setPrimaryFeeders] = useState(
-    data?.primaryFeeders || [
+    data?.primaryFeeders ?? [
       "Adyen",
       "bunq",
-      "Booking",
+      "Booking.com",
       "bol",
-      "Picnic",
-      "PayPal",
       "Klarna",
       "Revolut",
-      "Mollie-like scaleups",
+      "PayPal",
+      "mid-sized scale-ups",
     ]
   );
   const [secondaryFeeders, setSecondaryFeeders] = useState(
-    data?.secondaryFeeders || [
-      "ING",
-      "Rabobank",
-      "ABN AMRO",
+    data?.secondaryFeeders ?? [
       "Modern data consultancies",
+      "ING / Rabobank specialist modelling pods",
+      "Data platform engineers",
     ]
   );
   const [avoidList, setAvoidList] = useState(
-    data?.avoidList || [
-      "Legacy BI teams",
-      "Excel-heavy organizations",
-      "Candidates with no ownership experience",
-      "Pure analysts dressed as engineers",
+    data?.avoidList ?? [
+      "Legacy BI teams (ETL-heavy, dashboard-focused)",
+      "Excel-heavy analytics functions",
+      "Reporting analysts with no semantic layer experience",
+      "\"Analytics Engineers\" who only built dashboards",
     ]
   );
   const [brutalTruth, setBrutalTruth] = useState(
@@ -403,7 +401,7 @@ export const EditableTalentMapCard = ({
       subtitle: "Actions to improve your hiring score",
       Icon: Target,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="talent-map" />,
     },
     {
       id: "hidden-bottleneck",
@@ -506,6 +504,7 @@ export const EditableTalentMapCard = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

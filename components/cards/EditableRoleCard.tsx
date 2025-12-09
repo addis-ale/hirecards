@@ -34,15 +34,15 @@ export const EditableRoleCard: React.FC<RoleCardProps> = ({ data, onNavigateToCa
   }
 
   const [roleSummary, setRoleSummary] = useState(
-    data?.roleSummary || "Build production-grade analytics models, own modelling standards, and partner with teams to ship features."
+    data?.roleSummary ?? "Analytics engineering at Mollie is not BI maintenance — it is product-building. Your work becomes a live, customer-facing feature, not an internal dashboard."
   );
   const [outcomes, setOutcomes] = useState(
-    data?.outcomes || [
-      "Deliver stable dbt models",
-      "Replace legacy pipelines",
-      "Ship analytics features",
-      "Improve data quality",
-      "Mentor team members",
+    data?.outcomes ?? [
+      "Deliver reliable, well-tested dbt models",
+      "Replace fragile legacy pipelines",
+      "Define meaningful metrics with Product",
+      "Improve modelling consistency across teams",
+      "Raise modelling standards across the org",
     ]
   );
   const [redFlags, setRedFlags] = useState(
@@ -70,7 +70,7 @@ export const EditableRoleCard: React.FC<RoleCardProps> = ({ data, onNavigateToCa
     data?.brutalTruth || "Be honest about the data debt. Seniors will discover it anyway."
   );
   const [roleMission, setRoleMission] = useState(
-    "Analytics engineering at Mollie is not BI maintenance — it is product-building. Your work becomes a live, customer-facing feature, not an internal dashboard. You own the modelling layer behind merchant analytics. You design stable, production-grade dbt models that shape the Insights product and directly influence thousands of merchants every day."
+    data?.roleMission ?? "You own the modelling layer behind merchant analytics. You design stable, production-grade dbt models that shape the Insights product and directly influence thousands of merchants every day."
   );
   const [whatGreatLooksLike, setWhatGreatLooksLike] = useState([
     "Thinks in systems, not dashboards",
@@ -414,7 +414,7 @@ export const EditableRoleCard: React.FC<RoleCardProps> = ({ data, onNavigateToCa
       subtitle: "Actions to improve your hiring score",
       Icon: Target,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" cardId="role" />,
     },
   ];
 
@@ -486,6 +486,7 @@ export const EditableRoleCard: React.FC<RoleCardProps> = ({ data, onNavigateToCa
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

@@ -7,6 +7,7 @@ import {
   AlertTriangle,
   Wrench,
   XCircle,
+  Target,
 } from "lucide-react";
 import { Section } from "@/components/ui/Section";
 import { Callout } from "@/components/ui/Callout";
@@ -43,44 +44,44 @@ export const EditableFunnelCard = ({
   currentCardId,
 }: FunnelCardProps = {}) => {
   const [funnelStages, setFunnelStages] = useState(
-    data?.funnelStages || [
-      { label: "Outreach", value: "120–150" },
+    data?.funnelStages ?? [
+      { label: "Outbound messages", value: "120–150" },
       { label: "Positive replies", value: "20–25" },
-      { label: "Screens", value: "10–12" },
-      { label: "Tech rounds", value: "7–8" },
+      { label: "Recruiter screens", value: "10–12" },
+      { label: "Technical rounds", value: "7–8" },
       { label: "Finalists", value: "2–3" },
-      { label: "Offers", value: "1–2" },
       { label: "Hire", value: "1" },
     ]
   );
   const [benchmarks, setBenchmarks] = useState(
-    data?.benchmarks || [
-      { label: "Outbound reply rate", value: "20–30%" },
-      { label: "Tech pass rate", value: "40–60%" },
+    data?.benchmarks ?? [
+      { label: "Reply rate", value: "20–30%" },
+      { label: "Screen → Tech", value: "60–70%" },
+      { label: "Tech pass", value: "40–60%" },
       { label: "Offer acceptance", value: "70–85%" },
     ]
   );
   const [brutalTruth, setBrutalTruth] = useState(
-    data?.brutalTruth ||
-      "Your biggest funnel leak isn't sourcing. It's candidate dropout caused by internal delays."
+    data?.brutalTruth ??
+      "Senior AEs rarely apply — the funnel is outbound-led. They are highly selective and vet you harder than you vet them. They drop out instantly if they sense: BI flavour, vague JD, slow loop, unclear comp, low bar in interview process. The funnel is hard by design — but predictable if you manage it well."
   );
   const [redFlags, setRedFlags] = useState(
-    data?.redFlags || [
-      "Gaps >72 hours between stages",
-      "Tech test longer than 2 hours",
-      "Generic messaging",
-      "Late comp conversations",
+    data?.redFlags ?? [
+      "Time gaps >72h",
+      "Slow calendar coordination",
+      "Take-homes >2 hours",
+      "Comp misalignment happens too late",
     ]
   );
   const [donts, setDonts] = useState(
-    data?.donts || [
+    data?.donts ?? [
       "Rely only on LinkedIn outbound",
       "Overqualify early",
       "Add take-home assignments for seniors",
     ]
   );
   const [fixes, setFixes] = useState(
-    data?.fixes || [
+    data?.fixes ?? [
       "Warm candidates every 48–72 hours",
       "Kill long take-homes",
       "Use calendar blocking for interviewers",
@@ -88,8 +89,12 @@ export const EditableFunnelCard = ({
     ]
   );
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
-    data?.hiddenBottleneck ||
-      "Your first screening question: If the recruiter can't articulate the product impact clearly → conversion dies."
+    data?.hiddenBottleneck ??
+      "Slow process = conversion death. Most funnel leaks happen between stages, not at sourcing."
+  );
+  const [bottomLine, setBottomLine] = useState(
+    data?.bottomLine ??
+      "Your funnel isn't a sourcing problem — It's a speed, clarity, and consistency problem. Fix the flow → conversion jumps. Fix conversion → time-to-hire drops. Fix time-to-hire → you win against fintech competitors."
   );
   const [funnelHealthComparison, setFunnelHealthComparison] = useState(
     data?.funnelHealthComparison || [
@@ -117,6 +122,7 @@ export const EditableFunnelCard = ({
     if (data?.donts) setDonts(data.donts);
     if (data?.fixes) setFixes(data.fixes);
     if (data?.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
+    if (data?.bottomLine) setBottomLine(data.bottomLine);
     if (data?.funnelHealthComparison)
       setFunnelHealthComparison(data.funnelHealthComparison);
   }, [data]);
@@ -160,6 +166,7 @@ export const EditableFunnelCard = ({
       donts,
       fixes,
       hiddenBottleneck,
+      bottomLine,
       funnelHealthComparison,
       scoreImpactRows,
     };
@@ -172,31 +179,65 @@ export const EditableFunnelCard = ({
     donts,
     fixes,
     hiddenBottleneck,
+    bottomLine,
     funnelHealthComparison,
     scoreImpactRows,
   ]);
 
+  // Load from sessionStorage ONLY if no data prop is provided (fallback)
   useEffect(() => {
-    const saved = sessionStorage.getItem("editableFunnelCard");
-    if (saved) {
-      try {
-        const data = JSON.parse(saved);
-        if (data.funnelStages) setFunnelStages(data.funnelStages);
-        if (data.benchmarks) setBenchmarks(data.benchmarks);
-        if (data.brutalTruth) setBrutalTruth(data.brutalTruth);
-        if (data.redFlags) setRedFlags(data.redFlags);
-        if (data.donts) setDonts(data.donts);
-        if (data.fixes) setFixes(data.fixes);
-        if (data.hiddenBottleneck) setHiddenBottleneck(data.hiddenBottleneck);
-        if (data.funnelHealthComparison)
-          setFunnelHealthComparison(data.funnelHealthComparison);
-        if (data.scoreImpactRows) setScoreImpactRows(data.scoreImpactRows);
-      } catch (e) {
-        console.error("Failed to load saved data:", e);
+    if (data === undefined || data === null) {
+      const saved = sessionStorage.getItem("editableFunnelCard");
+      if (saved) {
+        try {
+          const savedData = JSON.parse(saved);
+          // Only load if the saved data has valid values (not empty arrays/zeros)
+          if (savedData.funnelStages && Array.isArray(savedData.funnelStages) && savedData.funnelStages.length > 0) {
+            // Check if values are not all zeros/empty/invalid
+            const hasValidValues = savedData.funnelStages.some((stage: any) => 
+              stage.value && 
+              stage.value !== "0" && 
+              stage.value !== "0–0" && 
+              !stage.value.match(/^0+[–-]0+$/) &&
+              stage.value !== "8–8" // Invalid default
+            );
+            if (hasValidValues) {
+              setFunnelStages(savedData.funnelStages);
+            } else {
+              // Clear invalid data from sessionStorage
+              sessionStorage.removeItem("editableFunnelCard");
+            }
+          }
+          if (savedData.benchmarks && Array.isArray(savedData.benchmarks) && savedData.benchmarks.length > 0) {
+            setBenchmarks(savedData.benchmarks);
+          }
+          if (savedData.brutalTruth) setBrutalTruth(savedData.brutalTruth);
+          if (savedData.redFlags && Array.isArray(savedData.redFlags) && savedData.redFlags.length > 0) {
+            setRedFlags(savedData.redFlags);
+          }
+          if (savedData.donts && Array.isArray(savedData.donts) && savedData.donts.length > 0) {
+            setDonts(savedData.donts);
+          }
+          if (savedData.fixes && Array.isArray(savedData.fixes) && savedData.fixes.length > 0) {
+            setFixes(savedData.fixes);
+          }
+          if (savedData.hiddenBottleneck) setHiddenBottleneck(savedData.hiddenBottleneck);
+          if (savedData.bottomLine) setBottomLine(savedData.bottomLine);
+          if (savedData.funnelHealthComparison && Array.isArray(savedData.funnelHealthComparison) && savedData.funnelHealthComparison.length > 0) {
+            setFunnelHealthComparison(savedData.funnelHealthComparison);
+          }
+          if (savedData.scoreImpactRows && Array.isArray(savedData.scoreImpactRows) && savedData.scoreImpactRows.length > 0) {
+            setScoreImpactRows(savedData.scoreImpactRows);
+          }
+        } catch (e) {
+          console.error("Failed to load saved data:", e);
+          // Clear corrupted data
+          sessionStorage.removeItem("editableFunnelCard");
+        }
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [data]);
 
   const [openModal, setOpenModal] = useState<string | null>(null);
 
@@ -298,7 +339,7 @@ export const EditableFunnelCard = ({
       subtitle: "Actions to improve your hiring score",
       Icon: TrendingUp,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" cardId="funnel" />,
     },
     {
       id: "hidden-bottleneck",
@@ -310,6 +351,21 @@ export const EditableFunnelCard = ({
         <EditableText
           value={hiddenBottleneck}
           onChange={setHiddenBottleneck}
+          multiline
+        />
+      ),
+    },
+    {
+      id: "bottom-line",
+      title: "Bottom Line",
+      subtitle: "The key takeaways and recommendations",
+      Icon: Target,
+      tone: "info" as const,
+      content: (
+        <EditableText
+          value={bottomLine}
+          onChange={setBottomLine}
+          className="text-sm text-gray-800"
           multiline
         />
       ),
@@ -401,6 +457,7 @@ export const EditableFunnelCard = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

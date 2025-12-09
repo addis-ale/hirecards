@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect } from "react";
-import { X, LucideIcon } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { X, LucideIcon, Edit2, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { EditModeProvider } from "@/components/EditModeContext";
 
 interface SectionModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface SectionModalProps {
   Icon?: LucideIcon;
   children: React.ReactNode;
   tone?: "default" | "success" | "danger" | "warning" | "info" | "purple";
+  allowEdit?: boolean; // New prop to enable editing
 }
 
 const toneConfig: Record<string, { accent: string; titleClass: string }> = {
@@ -31,13 +33,19 @@ export function SectionModal({
   Icon,
   children,
   tone = "default",
+  allowEdit = false,
 }: SectionModalProps) {
+  const [isEditMode, setIsEditMode] = useState(false);
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
       return () => {
         document.body.style.overflow = "";
       };
+    } else {
+      // Reset edit mode when modal closes
+      setIsEditMode(false);
     }
   }, [isOpen]);
 
@@ -78,17 +86,47 @@ export function SectionModal({
                 )}
               </div>
             </div>
-            <button
-              onClick={onClose}
-              className="flex-shrink-0 p-2 hover:bg-gray-200 rounded-lg transition-colors"
-            >
-              <X className="w-5 h-5 text-gray-500" />
-            </button>
+            <div className="flex items-center gap-2">
+              {allowEdit && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsEditMode(!isEditMode);
+                  }}
+                  className={`flex-shrink-0 px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${
+                    isEditMode
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700"
+                      : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  }`}
+                  title={isEditMode ? "Save changes" : "Edit content"}
+                >
+                  {isEditMode ? (
+                    <>
+                      <Check className="w-4 h-4" />
+                      <span className="text-sm font-medium">Done</span>
+                    </>
+                  ) : (
+                    <>
+                      <Edit2 className="w-4 h-4" />
+                      <span className="text-sm font-medium">Edit</span>
+                    </>
+                  )}
+                </button>
+              )}
+              <button
+                onClick={onClose}
+                className="flex-shrink-0 p-2 hover:bg-gray-200 rounded-lg transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-500" />
+              </button>
+            </div>
           </div>
 
           {/* Modal Content */}
           <div className="flex-1 overflow-y-auto p-6">
-            {children}
+            <EditModeProvider isEditMode={isEditMode}>
+              {children}
+            </EditModeProvider>
           </div>
         </motion.div>
       </div>

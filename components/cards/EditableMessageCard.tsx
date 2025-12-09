@@ -42,18 +42,20 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
 }) => {
   // Initialize from data or use defaults
   const [corePitch, setCorePitch] = useState(
-    data?.corePitch ||
-      "Your models will directly power merchant-facing analytics used by thousands of businesses, not internal dashboards. You shape the product, not just the pipeline."
+    data?.corePitch ??
+      "You own the modelling layer behind merchant analytics, not dashboards. Your dbt models become live features in Mollie's Insights product, visible to thousands of merchants. You fix metric chaos, replace fragile pipelines, and set modelling standards, instead of maintaining legacy BI."
   );
   const [brutalTruth, setBrutalTruth] = useState(
-    data?.brutalTruth ||
-      'If your messaging sounds like every other "modern dbt stack + impact" pitch, candidates ignore you.'
+    data?.brutalTruth ??
+      'Senior Analytics Engineers get spammed with: "We use a modern stack, you will have impact, we are data driven." They ignore it because every company says the same thing. The only way to stand out is to be extremely specific about: what they will own, which problems they will solve, how close they are to the product. Everything else is background noise.'
   );
   const [donts, setDonts] = useState(
-    data?.donts || [
-      "Start with company history",
-      "Over-describe culture",
-      'Use clichés ("fast-paced environment")',
+    data?.donts ?? [
+      "\"Fast paced environment\"",
+      "\"Passionate about data\"",
+      "\"We are a leading fintech\"",
+      "A full company history in the first message",
+      "Vague promises about AI without concrete use cases",
     ]
   );
   const [fixThisNow, setFixThisNow] = useState(
@@ -65,13 +67,13 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
       "Your messaging is often too polite and too vague. Senior talent responds to direct, specific value, not generalities."
   );
   const [template1, setTemplate1] = useState(
-    "We're hiring a {ROLE}. But here's the difference: \nYour work becomes an actual customer-facing product feature, not a buried internal dashboard. \nIf you want a role where impact is visible in weeks (not quarters), this is it."
+    "Saw your work on {specific modelling project, repo, or company}.\n\nWe are hiring a Senior Analytics Engineer to own the modelling layer behind Mollie's merchant analytics, the models you build show up directly in our merchant Insights product, not in internal dashboards.\n\nThe problems are very real: legacy pipelines, metric drift, and a semantic layer that needs a proper owner.\n\nWorth a quick look to see if this is closer to what you actually want to be doing?"
   );
   const [template2, setTemplate2] = useState(
-    "Most data roles optimize pipelines. This one optimizes outcomes.\n\nWe're looking for a {ROLE} who wants to work on:\n• Production-facing models that power merchant analytics  \n• Systems where correctness matters more than dashboards  \n• A stack grounded in {TECH_STACK} with room for ownership end-to-end  \n\nIf you enjoy turning ambiguous problems into real product capabilities, let's talk."
+    "Quick extra context:\n\n• Stack: dbt, Snowflake, Looker\n• Scope: own the models behind our merchant revenue and profitability views\n• Impact: your models determine what thousands of merchants see in their dashboards every day\n\nYou would work directly with Product and Engineering on the Insights product, not sit in a BI queue.\n\nIf that sounds closer to your ideal setup, happy to share more."
   );
   const [template3, setTemplate3] = useState(
-    "Every data team claims impact. Few can prove it.\n\nAt {COMPANY} the models our team builds determine what thousands of businesses see on their screens every day. \nYour work becomes the 'why' behind key decisions, not the forgotten system behind the scenes.\n\nWe're hiring a {ROLE} who wants:\n• Ownership of model strategy  \n• A tight feedback loop with product + engineering  \n• The ability to shape an analytics platform used globally  \n\nIf you're tired of doing invisible work and want your output to *change how businesses make decisions*, this is your seat at the table."
+    "No pressure at all, but given your background, this feels unusually close to what you are already good at.\n\nIf you ever want a five minute sanity check on whether this is a step up from your current setup, I am happy to walk you through it."
   );
   const [scrollStoppers, setScrollStoppers] = useState(
     data?.scrollStoppers || [
@@ -338,7 +340,7 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
       Icon: Target,
       tone: "success" as const,
       content: (
-        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" />
+        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="message" />
       ),
     },
     {
@@ -455,6 +457,7 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
+            allowEdit={true}
           >
             {section.content}
           </SectionModal>

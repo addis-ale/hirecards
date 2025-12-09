@@ -22,7 +22,7 @@ const RealityScoreVisual: React.FC<{ isCurrent?: boolean }> = ({ isCurrent }) =>
         if (data.feasibilityScore) {
           const match = data.feasibilityScore.match(/(\d+\.?\d*)/);
           if (match) {
-            setScore(parseFloat(match[1]));
+            setScore(Math.min(9.9, parseFloat(match[1])));
           }
         }
       } catch (e) {
@@ -44,7 +44,7 @@ const RealityScoreVisual: React.FC<{ isCurrent?: boolean }> = ({ isCurrent }) =>
         <div className={`text-4xl font-bold ${getScoreColor(score)}`}>
           {score.toFixed(1)}
         </div>
-        <div className="text-xs text-gray-500 mt-1">/ 10</div>
+        <div className="text-xs text-gray-500 mt-1">/ 9.9</div>
         <div className="text-xs font-semibold text-purple-600 mt-1">Feasibility Score</div>
       </div>
     </div>

@@ -35,6 +35,7 @@ import { EditableOutreachCard } from "./cards/EditableOutreachCard";
 import { EditableInterviewCard } from "./cards/EditableInterviewCard";
 import { EditableScorecardCard } from "./cards/EditableScorecardCard";
 import { EditablePlanCard } from "./cards/EditablePlanCard";
+import { useScoreChangeNotification } from "@/hooks/useScoreChangeNotification";
 
 interface HireCardTabsProps {
   isSubscribed?: boolean;
@@ -73,6 +74,9 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({
   isSubscribed = false,
   initialCardId,
 }) => {
+  // Track score changes globally for all cards
+  useScoreChangeNotification();
+  
   const [activeTab, setActiveTab] = useState(initialCardId || "reality");
 
   // Update active tab when initialCardId changes

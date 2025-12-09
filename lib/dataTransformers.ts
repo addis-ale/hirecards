@@ -59,12 +59,13 @@ export async function transformScrapedDataToCards(data: {
     }
   }
 
-  // Transform Skill Card
-  if (data.profiles || data.jobsMarketCard) {
+  // Transform Skill Card - prioritize original JD data
+  if (data.originalJobData || data.profiles || data.jobsMarketCard) {
     try {
       results.skillCard = await transformToSkillCard(
         data.profiles || [],
-        data.jobsMarketCard || []
+        data.jobsMarketCard || [],
+        data.originalJobData
       );
     } catch (e) {
       console.error("❌ Skill Card transformation error:", e);
@@ -219,10 +220,11 @@ async function transformToPayCard(
  */
 async function transformToSkillCard(
   profiles: any[],
-  jobs: any[]
+  jobs: any[],
+  originalJobData?: any
 ): Promise<any> {
   if (OPENAI_API_KEY) {
-    return await aiTransformSkillCard(profiles, jobs);
+    return await aiTransformSkillCard(profiles, jobs, originalJobData);
   }
   return basicTransformSkillCard(profiles, jobs);
 }
@@ -489,42 +491,103 @@ Return ONLY valid JSON.`;
 
 async function aiTransformSkillCard(
   profiles: any[],
-  jobs: any[]
+  jobs: any[],
+  originalJobData?: any
 ): Promise<any> {
   try {
-    const skillsFromProfiles = profiles
-      .filter((p) => p.skills)
-      .flatMap((p) => p.skills.map((s: any) => s.name || s))
-      .slice(0, 50);
+    // Prioritize original JD data - if available, use it primarily
+    const hasOriginalJD = originalJobData && (
+      originalJobData.description || 
+      originalJobData.descriptionText || 
+      originalJobData.jobDescription ||
+      originalJobData.requirements ||
+      originalJobData.skills
+    );
 
-    const jobDescriptions = jobs
-      .slice(0, 10)
-      .map((j) => j.descriptionText || j.description)
-      .filter(Boolean);
+    let prompt = "";
 
-    const prompt = `Analyze skills from ${profiles.length} profiles and ${
-      jobs.length
-    } jobs.
+    if (hasOriginalJD) {
+      // PRIMARY: Use original JD data
+      const jdText = originalJobData.description || 
+                     originalJobData.descriptionText || 
+                     originalJobData.jobDescription || 
+                     "";
+      const jdRequirements = originalJobData.requirements || 
+                             originalJobData.skills || 
+                             originalJobData.requiredSkills || 
+                             [];
+      const jdTitle = originalJobData.jobTitle || 
+                      originalJobData.title || 
+                      originalJobData.role || 
+                      "";
 
-SKILLS FROM PROFILES:
-${JSON.stringify(skillsFromProfiles.slice(0, 30), null, 2)}
+      prompt = `Analyze the USER'S JOB DESCRIPTION to generate a Skill Card. This is the PRIMARY source - base everything on this JD.
 
-JOB DESCRIPTIONS (first 500 chars each):
-${jobDescriptions.slice(0, 3).map((d: string) => d.substring(0, 500))}
+USER'S JOB DESCRIPTION:
+Title: ${jdTitle}
+Description: ${jdText.substring(0, 2000)}
+Requirements/Skills: ${Array.isArray(jdRequirements) ? JSON.stringify(jdRequirements) : jdRequirements}
 
-Generate:
+${jobs.length > 0 ? `\nADDITIONAL CONTEXT (LinkedIn similar jobs - use only for reference, not primary source):\n${JSON.stringify(jobs.slice(0, 3).map((j: any) => ({
+  title: j.title,
+  description: (j.descriptionText || j.description || "").substring(0, 500)
+})), null, 2)}` : ""}
+
+YOUR TASK:
+Generate a comprehensive Skill Card based PRIMARILY on the user's job description above. 
+- Extract technical skills directly from the JD requirements and description
+- Identify product-focused skills mentioned in the JD
+- Determine behavioural skills needed based on the role description
+- Distinguish between skills that can be trained quickly vs must-haves at entry
+- Provide honest insights about skill requirements based on the JD
+
+Generate a complete JSON object with ALL fields (arrays should have at least 3-5 items, strings should be meaningful):
 {
   "technicalSkills": ["skill1", "skill2", "skill3", "skill4", "skill5"],
   "productSkills": ["skill1", "skill2", "skill3"],
   "behaviouralSkills": ["skill1", "skill2", "skill3", "skill4"],
-  "brutalTruth": "truth about skills",
+  "brutalTruth": "truth about skills based on the job description",
   "redFlags": ["flag1", "flag2", "flag3", "flag4"],
   "donts": ["dont1", "dont2", "dont3"],
   "upskillableSkills": ["skill1", "skill2", "skill3", "skill4"],
   "mustHaveSkills": ["skill1", "skill2", "skill3", "skill4"]
 }
 
+IMPORTANT: 
+- Base ALL content on the user's job description (PRIMARY source)
+- Only use LinkedIn jobs as reference/context, not as primary source
+- ALL fields are required - do not leave any empty
+- Arrays must have at least 3 items each
+- Be specific and actionable based on the JD
+
 Return ONLY valid JSON.`;
+    } else {
+      // FALLBACK: If no JD, generate from AI knowledge (not LinkedIn profiles)
+      prompt = `Generate a Skill Card based on general hiring best practices. Do NOT use LinkedIn profile data.
+
+YOUR TASK:
+Generate a comprehensive Skill Card for a hiring role. Since no specific job description was provided, create a well-structured skill framework that can be customized.
+
+Generate a complete JSON object with ALL fields (arrays should have at least 3-5 items, strings should be meaningful):
+{
+  "technicalSkills": ["skill1", "skill2", "skill3", "skill4", "skill5"],
+  "productSkills": ["skill1", "skill2", "skill3"],
+  "behaviouralSkills": ["skill1", "skill2", "skill3", "skill4"],
+  "brutalTruth": "truth about skills for this type of role",
+  "redFlags": ["flag1", "flag2", "flag3", "flag4"],
+  "donts": ["dont1", "dont2", "dont3"],
+  "upskillableSkills": ["skill1", "skill2", "skill3", "skill4"],
+  "mustHaveSkills": ["skill1", "skill2", "skill3", "skill4"]
+}
+
+IMPORTANT: 
+- ALL fields are required - do not leave any empty
+- Arrays must have at least 3 items each
+- Base on hiring best practices, not LinkedIn data
+- Be specific and actionable
+
+Return ONLY valid JSON.`;
+    }
 
     const response = await callOpenAI(prompt);
     return response;
@@ -638,21 +701,84 @@ async function aiTransformRoleCard(
   originalJobData?: any
 ): Promise<any> {
   try {
-    const descriptions = jobs
-      .slice(0, 5)
-      .map((j) => j.descriptionText || j.description)
-      .filter(Boolean)
-      .map((d: string) => d.substring(0, 1000));
+    // Prioritize original JD data - if available, use it primarily
+    const hasOriginalJD = originalJobData && (
+      originalJobData.description || 
+      originalJobData.descriptionText || 
+      originalJobData.jobDescription ||
+      originalJobData.responsibilities ||
+      originalJobData.requirements
+    );
 
-    const prompt = `Analyze ${
-      jobs.length
-    } job descriptions to generate Role Card.
+    let prompt = "";
 
-JOB DESCRIPTIONS:
-${JSON.stringify(descriptions, null, 2)}
+    if (hasOriginalJD) {
+      // PRIMARY: Use original JD data
+      const jdText = originalJobData.description || 
+                     originalJobData.descriptionText || 
+                     originalJobData.jobDescription || 
+                     "";
+      const jdResponsibilities = originalJobData.responsibilities || 
+                                 originalJobData.keyResponsibilities || 
+                                 [];
+      const jdTitle = originalJobData.jobTitle || 
+                      originalJobData.title || 
+                      originalJobData.role || 
+                      "";
+      const jdRequirements = originalJobData.requirements || 
+                             originalJobData.requiredSkills || 
+                             [];
 
-ORIGINAL JOB:
-${JSON.stringify(originalJobData || {}, null, 2)}
+      prompt = `Analyze the USER'S JOB DESCRIPTION to generate a Role Card. This is the PRIMARY source - base everything on this JD.
+
+USER'S JOB DESCRIPTION:
+Title: ${jdTitle}
+Description: ${jdText.substring(0, 2000)}
+Responsibilities: ${Array.isArray(jdResponsibilities) ? JSON.stringify(jdResponsibilities) : jdResponsibilities}
+Requirements: ${Array.isArray(jdRequirements) ? JSON.stringify(jdRequirements) : jdRequirements}
+
+${jobs.length > 0 ? `\nADDITIONAL CONTEXT (LinkedIn similar jobs - use only for reference, not primary source):\n${JSON.stringify(jobs.slice(0, 2).map((j: any) => ({
+  title: j.title,
+  description: (j.descriptionText || j.description || "").substring(0, 500)
+})), null, 2)}` : ""}
+
+YOUR TASK:
+Generate a Role Card based PRIMARILY on the user's job description above.
+- Extract role summary from the JD title and description
+- Identify key outcomes/results expected from the role description
+- Determine what great performance looks like based on the JD
+- Provide honest insights about the role based on the JD
+- List warning signs and common mistakes related to this role
+
+Generate:
+{
+  "roleSummary": "brief summary based on the JD",
+  "outcomes": ["outcome1", "outcome2", "outcome3", "outcome4", "outcome5"],
+  "redFlags": ["flag1", "flag2", "flag3"],
+  "donts": ["dont1", "dont2", "dont3"],
+  "fixes": ["fix1", "fix2", "fix3"],
+  "brutalTruth": "truth about this role based on the JD",
+  "whatGreatLooksLike": ["trait1", "trait2", "trait3", "trait4", "trait5", "trait6"],
+  "roleMission": "mission statement based on JD",
+  "jdBefore": "original JD text (first 500 chars)",
+  "jdAfter": "improved/refined JD suggestion",
+  "commonFailureModes": ["failure1", "failure2", "failure3"]
+}
+
+IMPORTANT: 
+- Base ALL content on the user's job description (PRIMARY source)
+- Only use LinkedIn jobs as reference/context, not as primary source
+- ALL fields are required - do not leave any empty
+- Arrays must have at least 3-5 items each
+- Be specific and actionable based on the JD
+
+Return ONLY valid JSON.`;
+    } else {
+      // FALLBACK: If no JD, generate from AI knowledge (not LinkedIn jobs)
+      prompt = `Generate a Role Card based on general hiring best practices. Do NOT use LinkedIn job data.
+
+YOUR TASK:
+Generate a Role Card for a hiring role. Since no specific job description was provided, create a well-structured role framework that can be customized.
 
 Generate:
 {
@@ -661,11 +787,21 @@ Generate:
   "redFlags": ["flag1", "flag2", "flag3"],
   "donts": ["dont1", "dont2", "dont3"],
   "fixes": ["fix1", "fix2", "fix3"],
-  "brutalTruth": "truth",
-  "whatGreatLooksLike": ["trait1", "trait2", "trait3", "trait4", "trait5", "trait6"]
+  "brutalTruth": "truth about role clarity",
+  "whatGreatLooksLike": ["trait1", "trait2", "trait3", "trait4", "trait5", "trait6"],
+  "roleMission": "mission statement",
+  "jdBefore": "placeholder for original JD",
+  "jdAfter": "improved JD suggestion",
+  "commonFailureModes": ["failure1", "failure2", "failure3"]
 }
 
+IMPORTANT: 
+- Base on hiring best practices, not LinkedIn data
+- ALL fields are required - do not leave any empty
+- Arrays must have at least 3-5 items each
+
 Return ONLY valid JSON.`;
+    }
 
     const response = await callOpenAI(prompt);
     return response;

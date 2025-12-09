@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -12,6 +12,7 @@ import {
   CheckCircle,
   LayoutDashboard,
   Lock,
+  Share2,
 } from "lucide-react";
 import {
   allCards,
@@ -20,6 +21,7 @@ import {
 } from "@/lib/cardCategories";
 import { CardPreview } from "@/components/cards/CardPreview";
 import DebugDataViewer from "@/components/DebugDataViewer";
+import { ShareCardsModal } from "@/components/ShareCardsModal";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -31,10 +33,27 @@ export default function ResultsPage() {
   const [scrapedData, setScrapedData] = useState<any>(null);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [currentCardId, setCurrentCardId] = useState<string | null>(null);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const cardsGridRef = useRef<HTMLDivElement>(null);
 
   const filteredCards = selectedCategory
     ? getCardsByCategory(selectedCategory)
     : allCards;
+
+  const handleCategoryClick = (categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    // Scroll to cards grid after a short delay to ensure DOM is updated
+    setTimeout(() => {
+      if (cardsGridRef.current) {
+        const elementPosition = cardsGridRef.current.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - 120; // 120px gap from top
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: "smooth",
+        });
+      }
+    }, 100);
+  };
 
   const selectedCategoryData = selectedCategory
     ? cardCategories.find((cat) => cat.id === selectedCategory)
@@ -322,14 +341,14 @@ export default function ResultsPage() {
 
           {/* Category Cards - Clickable */}
           <div className="max-w-7xl mx-auto mb-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
               {/* Foundation */}
               <motion.button
-                onClick={() => setSelectedCategory("foundation")}
+                onClick={() => handleCategoryClick("foundation")}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 className={`
-                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  p-3 rounded-xl border-2 transition-all text-left cursor-pointer
                   ${
                     selectedCategory === "foundation"
                       ? "bg-gradient-to-br from-purple-600 to-indigo-600 border-purple-700 text-white shadow-xl"
@@ -338,14 +357,14 @@ export default function ResultsPage() {
                 `}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
                     selectedCategory === "foundation"
                       ? "bg-white/20"
                       : "bg-purple-50"
                   }`}
                 >
                   <svg
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 ${
                       selectedCategory === "foundation"
                         ? "text-white"
                         : "text-purple-600"
@@ -363,7 +382,7 @@ export default function ResultsPage() {
                   </svg>
                 </div>
                 <h4
-                  className={`font-bold mb-2 text-lg ${
+                  className={`font-bold mb-1 text-base ${
                     selectedCategory === "foundation"
                       ? "text-white"
                       : "text-gray-900"
@@ -372,7 +391,7 @@ export default function ResultsPage() {
                   Foundation
                 </h4>
                 <p
-                  className={`text-sm ${
+                  className={`text-xs leading-tight ${
                     selectedCategory === "foundation"
                       ? "text-white/90"
                       : "text-gray-600"
@@ -381,18 +400,18 @@ export default function ResultsPage() {
                   Core understanding of the role, requirements & skills needed
                 </p>
                 {selectedCategory === "foundation" && (
-                  <div className="mt-3 text-xs font-semibold text-white/80">
+                  <div className="mt-2 text-xs font-semibold text-white/80">
                     {getCardsByCategory("foundation").length} cards
                   </div>
                 )}
               </motion.button>
               {/* Market Intelligence */}
               <motion.button
-                onClick={() => setSelectedCategory("market")}
+                onClick={() => handleCategoryClick("market")}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 className={`
-                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  p-3 rounded-xl border-2 transition-all text-left cursor-pointer
                   ${
                     selectedCategory === "market"
                       ? "bg-gradient-to-br from-blue-600 to-cyan-600 border-blue-700 text-white shadow-xl"
@@ -401,12 +420,12 @@ export default function ResultsPage() {
                 `}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
                     selectedCategory === "market" ? "bg-white/20" : "bg-blue-50"
                   }`}
                 >
                   <svg
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 ${
                       selectedCategory === "market"
                         ? "text-white"
                         : "text-blue-600"
@@ -424,7 +443,7 @@ export default function ResultsPage() {
                   </svg>
                 </div>
                 <h4
-                  className={`font-bold mb-2 text-lg ${
+                  className={`font-bold mb-1 text-base ${
                     selectedCategory === "market"
                       ? "text-white"
                       : "text-gray-900"
@@ -433,7 +452,7 @@ export default function ResultsPage() {
                   Market Intelligence
                 </h4>
                 <p
-                  className={`text-sm ${
+                  className={`text-xs leading-tight ${
                     selectedCategory === "market"
                       ? "text-white/90"
                       : "text-gray-600"
@@ -442,7 +461,7 @@ export default function ResultsPage() {
                   Demand, supply, competition analysis & salary benchmarks
                 </p>
                 {selectedCategory === "market" && (
-                  <div className="mt-3 text-xs font-semibold text-white/80">
+                  <div className="mt-2 text-xs font-semibold text-white/80">
                     {getCardsByCategory("market").length} cards
                   </div>
                 )}
@@ -450,11 +469,11 @@ export default function ResultsPage() {
 
               {/* Talent Sourcing / Outreach */}
               <motion.button
-                onClick={() => setSelectedCategory("outreach")}
+                onClick={() => handleCategoryClick("outreach")}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 className={`
-                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  p-3 rounded-xl border-2 transition-all text-left cursor-pointer
                   ${
                     selectedCategory === "outreach"
                       ? "bg-gradient-to-br from-emerald-600 to-teal-600 border-emerald-700 text-white shadow-xl"
@@ -463,14 +482,14 @@ export default function ResultsPage() {
                 `}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
                     selectedCategory === "outreach"
                       ? "bg-white/20"
                       : "bg-emerald-50"
                   }`}
                 >
                   <svg
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 ${
                       selectedCategory === "outreach"
                         ? "text-white"
                         : "text-emerald-600"
@@ -488,7 +507,7 @@ export default function ResultsPage() {
                   </svg>
                 </div>
                 <h4
-                  className={`font-bold mb-2 text-lg ${
+                  className={`font-bold mb-1 text-base ${
                     selectedCategory === "outreach"
                       ? "text-white"
                       : "text-gray-900"
@@ -497,7 +516,7 @@ export default function ResultsPage() {
                   Talent Sourcing
                 </h4>
                 <p
-                  className={`text-sm ${
+                  className={`text-xs leading-tight ${
                     selectedCategory === "outreach"
                       ? "text-white/90"
                       : "text-gray-600"
@@ -507,7 +526,7 @@ export default function ResultsPage() {
                   building
                 </p>
                 {selectedCategory === "outreach" && (
-                  <div className="mt-3 text-xs font-semibold text-white/80">
+                  <div className="mt-2 text-xs font-semibold text-white/80">
                     {getCardsByCategory("outreach").length} cards
                   </div>
                 )}
@@ -515,11 +534,11 @@ export default function ResultsPage() {
 
               {/* Interview System / Selection */}
               <motion.button
-                onClick={() => setSelectedCategory("selection")}
+                onClick={() => handleCategoryClick("selection")}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 className={`
-                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  p-3 rounded-xl border-2 transition-all text-left cursor-pointer
                   ${
                     selectedCategory === "selection"
                       ? "bg-gradient-to-br from-amber-600 to-orange-600 border-amber-700 text-white shadow-xl"
@@ -528,14 +547,14 @@ export default function ResultsPage() {
                 `}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
                     selectedCategory === "selection"
                       ? "bg-white/20"
                       : "bg-amber-50"
                   }`}
                 >
                   <svg
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 ${
                       selectedCategory === "selection"
                         ? "text-white"
                         : "text-amber-600"
@@ -553,7 +572,7 @@ export default function ResultsPage() {
                   </svg>
                 </div>
                 <h4
-                  className={`font-bold mb-2 text-lg ${
+                  className={`font-bold mb-1 text-base ${
                     selectedCategory === "selection"
                       ? "text-white"
                       : "text-gray-900"
@@ -562,7 +581,7 @@ export default function ResultsPage() {
                   Interview System
                 </h4>
                 <p
-                  className={`text-sm ${
+                  className={`text-xs leading-tight ${
                     selectedCategory === "selection"
                       ? "text-white/90"
                       : "text-gray-600"
@@ -571,7 +590,7 @@ export default function ResultsPage() {
                   Structured questions, scorecards & evaluation frameworks
                 </p>
                 {selectedCategory === "selection" && (
-                  <div className="mt-3 text-xs font-semibold text-white/80">
+                  <div className="mt-2 text-xs font-semibold text-white/80">
                     {getCardsByCategory("selection").length} cards
                   </div>
                 )}
@@ -579,11 +598,11 @@ export default function ResultsPage() {
 
               {/* Action Plans / Onboarding */}
               <motion.button
-                onClick={() => setSelectedCategory("onboarding")}
+                onClick={() => handleCategoryClick("onboarding")}
                 whileHover={{ scale: 1.02, y: -2 }}
                 whileTap={{ scale: 0.98 }}
                 className={`
-                  p-5 rounded-xl border-2 transition-all text-left cursor-pointer
+                  p-3 rounded-xl border-2 transition-all text-left cursor-pointer
                   ${
                     selectedCategory === "onboarding"
                       ? "bg-gradient-to-br from-indigo-600 to-purple-600 border-indigo-700 text-white shadow-xl"
@@ -592,14 +611,14 @@ export default function ResultsPage() {
                 `}
               >
                 <div
-                  className={`w-12 h-12 rounded-lg flex items-center justify-center mb-3 ${
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
                     selectedCategory === "onboarding"
                       ? "bg-white/20"
                       : "bg-indigo-50"
                   }`}
                 >
                   <svg
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 ${
                       selectedCategory === "onboarding"
                         ? "text-white"
                         : "text-indigo-600"
@@ -617,7 +636,7 @@ export default function ResultsPage() {
                   </svg>
                 </div>
                 <h4
-                  className={`font-bold mb-2 text-lg ${
+                  className={`font-bold mb-1 text-base ${
                     selectedCategory === "onboarding"
                       ? "text-white"
                       : "text-gray-900"
@@ -626,7 +645,7 @@ export default function ResultsPage() {
                   Action Plans
                 </h4>
                 <p
-                  className={`text-sm ${
+                  className={`text-xs leading-tight ${
                     selectedCategory === "onboarding"
                       ? "text-white/90"
                       : "text-gray-600"
@@ -635,10 +654,87 @@ export default function ResultsPage() {
                   Week-by-week roadmap & execution templates
                 </p>
                 {selectedCategory === "onboarding" && (
-                  <div className="mt-3 text-xs font-semibold text-white/80">
+                  <div className="mt-2 text-xs font-semibold text-white/80">
                     {getCardsByCategory("onboarding").length} cards
                   </div>
                 )}
+              </motion.button>
+
+              {/* Show All Cards */}
+              <motion.button
+                onClick={() => handleCategoryClick(null)}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                className={`
+                  p-3 rounded-xl border-2 transition-all text-left cursor-pointer
+                  ${
+                    !selectedCategory
+                      ? "bg-gradient-to-br from-gray-700 to-gray-900 border-gray-800 text-white shadow-xl"
+                      : "bg-white border-gray-200 hover:border-gray-400 hover:shadow-lg"
+                  }
+                `}
+              >
+                <div
+                  className={`w-10 h-10 rounded-lg flex items-center justify-center mb-2 ${
+                    !selectedCategory
+                      ? "bg-white/20"
+                      : "bg-gray-50"
+                  }`}
+                >
+                  <svg
+                    className={`w-5 h-5 ${
+                      !selectedCategory
+                        ? "text-white"
+                        : "text-gray-600"
+                    }`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 6h16M4 12h16M4 18h16"
+                    />
+                  </svg>
+                </div>
+                <h4
+                  className={`font-bold mb-1 text-base ${
+                    !selectedCategory
+                      ? "text-white"
+                      : "text-gray-900"
+                  }`}
+                >
+                  All Cards
+                </h4>
+                <p
+                  className={`text-xs leading-tight ${
+                    !selectedCategory
+                      ? "text-white/90"
+                      : "text-gray-600"
+                  }`}
+                >
+                  View all 13 hiring strategy cards
+                </p>
+                {!selectedCategory && (
+                  <div className="mt-2 text-xs font-semibold text-white/80">
+                    {allCards.length} cards
+                  </div>
+                )}
+              </motion.button>
+            </div>
+            
+            {/* Share Button - Below Categories, Right Aligned */}
+            <div className="flex justify-end mt-4">
+              <motion.button
+                onClick={() => setShowShareModal(true)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="flex items-center gap-2 px-4 py-2 bg-[#278f8c] text-white rounded-lg hover:bg-[#1a6764] transition-colors shadow-md"
+              >
+                <Share2 className="w-4 h-4" />
+                <span className="font-medium text-sm">Share Cards</span>
               </motion.button>
             </div>
           </div>
@@ -658,15 +754,40 @@ export default function ResultsPage() {
               </div>
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
             </div>
-            {selectedCategory && (
-              <p className="text-center text-sm text-gray-500 mt-3">
-                {selectedCategoryData?.description}
-              </p>
-            )}
+            <div className="flex items-center justify-start gap-3 mt-4">
+              {selectedCategory && (
+                <>
+                  <motion.button
+                    onClick={() => handleCategoryClick(null)}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-all border border-gray-300 hover:border-gray-400 flex items-center gap-2"
+                  >
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M4 6h16M4 12h16M4 18h16"
+                      />
+                    </svg>
+                    Show All Cards
+                  </motion.button>
+                  <p className="text-sm text-gray-500">
+                    {selectedCategoryData?.description}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
 
           {/* Cards Grid */}
-          <div className="max-w-7xl mx-auto">
+          <div ref={cardsGridRef} className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               {filteredCards.map((card, index) => (
                 <motion.div
@@ -693,28 +814,64 @@ export default function ResultsPage() {
                 Score Impact Summary
               </h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
+                <motion.button
+                  onClick={() => handleCategoryClick("foundation")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
+                    selectedCategory === "foundation"
+                      ? "bg-purple-50 border-2 border-purple-300"
+                      : "hover:bg-gray-50 border-2 border-transparent"
+                  }`}
+                >
                   <div className="text-2xl font-bold text-purple-600">+3.8</div>
                   <div className="text-sm text-gray-600 mt-1">Foundation</div>
-                </div>
-                <div className="text-center">
+                </motion.button>
+                <motion.button
+                  onClick={() => handleCategoryClick("market")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
+                    selectedCategory === "market"
+                      ? "bg-blue-50 border-2 border-blue-300"
+                      : "hover:bg-gray-50 border-2 border-transparent"
+                  }`}
+                >
                   <div className="text-2xl font-bold text-blue-600">+2.3</div>
                   <div className="text-sm text-gray-600 mt-1">
                     Market Intelligence
                   </div>
-                </div>
-                <div className="text-center">
+                </motion.button>
+                <motion.button
+                  onClick={() => handleCategoryClick("outreach")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
+                    selectedCategory === "outreach"
+                      ? "bg-emerald-50 border-2 border-emerald-300"
+                      : "hover:bg-gray-50 border-2 border-transparent"
+                  }`}
+                >
                   <div className="text-2xl font-bold text-emerald-600">
                     +2.1
                   </div>
                   <div className="text-sm text-gray-600 mt-1">
                     Outreach & Engagement
                   </div>
-                </div>
-                <div className="text-center">
+                </motion.button>
+                <motion.button
+                  onClick={() => handleCategoryClick("selection")}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
+                    selectedCategory === "selection"
+                      ? "bg-amber-50 border-2 border-amber-300"
+                      : "hover:bg-gray-50 border-2 border-transparent"
+                  }`}
+                >
                   <div className="text-2xl font-bold text-amber-600">+1.5</div>
                   <div className="text-sm text-gray-600 mt-1">Selection</div>
-                </div>
+                </motion.button>
               </div>
               <div className="mt-4 pt-4 border-t border-gray-200 text-center">
                 <div className="text-3xl font-bold text-emerald-600">+9.0</div>
@@ -843,6 +1000,12 @@ export default function ResultsPage() {
       <DebugDataViewer
         storageKey="apifyRawProfilesData"
         title="people-profile-scraped-data (from market enrichment)"
+      />
+
+      {/* Share Cards Modal */}
+      <ShareCardsModal
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
       />
     </main>
   );

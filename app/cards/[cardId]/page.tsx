@@ -76,20 +76,24 @@ export default function CardDetailPage() {
           
           <div className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
             <div className="flex items-start justify-between">
-              <div className="flex items-center gap-4">
-                <div className={`w-16 h-16 rounded-lg ${card.gradient} flex items-center justify-center`}>
+              <div className="flex items-center gap-4 flex-1">
+                <div className={`w-16 h-16 rounded-lg ${card.gradient} flex items-center justify-center flex-shrink-0`}>
                   <card.icon className="w-8 h-8 text-white" />
                 </div>
-                <div>
-                  <h1 className="text-2xl font-bold mb-1" style={{ color: "#102a63" }}>
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-lg font-bold mb-1 tracking-tight leading-tight" style={{ color: "#102a63" }}>
                     {card.label}
                   </h1>
-                  <p className="text-gray-600">{card.teaser}</p>
+                  <p className="text-gray-600 text-sm">{card.teaser}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-sm text-gray-500 mb-1">Score Impact</div>
-                <div className="text-2xl font-bold text-emerald-600">{card.impact}</div>
+              <div className="flex flex-col items-center gap-0.5 flex-shrink-0 ml-4">
+                <span className="text-[9px] font-medium uppercase tracking-wider text-gray-500">
+                  Score Impact
+                </span>
+                <div className="w-12 h-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-sm font-bold">
+                  {card.impact}
+                </div>
               </div>
             </div>
           </div>
@@ -112,4 +116,5 @@ export default function CardDetailPage() {
     </div>
   );
 }
+
 

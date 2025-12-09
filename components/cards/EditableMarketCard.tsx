@@ -65,17 +65,17 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
   const [primaryLocationCount, setPrimaryLocationCount] = useState(
     data?.talentAvailability?.total
       ? `${data.talentAvailability.total}`
-      : "250-400"
+      : "250–400"
   );
   const [euRelocationCount, setEuRelocationCount] = useState(
     data?.supplyDemand?.availableCandidates
       ? `~${Math.round(data.supplyDemand.availableCandidates * 0.3)}+`
-      : "~1,500+"
+      : "1,500+"
   );
   const [remoteFlexCount, setRemoteFlexCount] = useState(
     data?.supplyDemand?.availableCandidates
       ? `~${Math.round(data.supplyDemand.availableCandidates * 0.6)}+`
-      : "~3,000+"
+      : "3,000+"
   );
 
   // Talent Supply levels - dynamic based on scraped data
@@ -99,7 +99,7 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
   const [brutalTruth, setBrutalTruth] = useState(
     data?.insights && data.insights.length > 0
       ? data.insights[0]
-      : "Strict location + low comp = long search."
+      : "Senior AEs are: already employed, selective about scope and team quality, motivated by ownership & modelling craft, uninterested in BI-maintenance roles, sensitive to comp clarity and process speed. They don't apply — they respond when the role is specific, honest, and product-oriented."
   );
   const [marketExpansionLevers, setMarketExpansionLevers] = useState([
     {
@@ -458,7 +458,7 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
       subtitle: "Actions you can take to improve your hiring score",
       Icon: Target,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" cardId="market" />,
     },
     {
       id: "bottom-line",

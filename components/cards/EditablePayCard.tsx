@@ -50,10 +50,10 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
     data?.brutalTruth || "If you offer €80k, you will not hire a senior. You will hire someone who thinks they're senior."
   );
   const [redFlags, setRedFlags] = useState(
-    data?.redFlags || [
-      "Candidate wants >20% above internal band",
-      "Company refuses to budge on comp",
-      "Internal equity blocks competitive offers",
+    data?.redFlags ?? [
+      "Candidate wants +20% above top band",
+      "Internal equity blocks competitiveness",
+      "Comp approval takes >5 days",
     ]
   );
   const [donts, setDonts] = useState(
@@ -71,7 +71,7 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
     ]
   );
   const [hiddenBottleneck, setHiddenBottleneck] = useState(
-    data?.hiddenBottleneck || "Your comp is competing with remote US employers you can't see."
+    data?.hiddenBottleneck ?? "US remote companies are paying +20–40% for the same profile. You won't see them — but they're in your inbox competing with you."
   );
   const [timelineToFailure, setTimelineToFailure] = useState(
     data?.timelineToFailure || "If comp approval takes >5 days → expect candidate rejection."
@@ -251,7 +251,7 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
       subtitle: "Actions to improve your hiring score",
       Icon: TrendingUp,
       tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" />,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" cardId="pay" />,
     },
     {
       id: "hidden-bottleneck",
