@@ -18,6 +18,7 @@ import {
   ScoreImpactTable,
   ScoreImpactRow,
 } from "@/components/ui/ScoreImpactTable";
+import { FixMeNowBoxes } from "@/components/ui/FixMeNowBoxes";
 import { Card, CardHeader } from "@/components/ui/card";
 import { SectionModal } from "@/components/ui/SectionModal";
 import { shouldShowInline, renderContentPreview } from "@/lib/sectionContentHelper";
@@ -404,7 +405,12 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-0">
-        {sections.map((section) => {
+        {[...sections].sort((a, b) => {
+          // Ensure score-impact is always last
+          if (a.id === "score-impact") return 1;
+          if (b.id === "score-impact") return -1;
+          return 0;
+        }).map((section) => {
           const Icon = section.Icon;
           const toneColors: Record<string, { accent: string; bg: string }> = {
             info: { accent: "#2563eb", bg: "rgba(37,99,235,0.1)" },
@@ -415,26 +421,43 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
           };
           const colors = toneColors[section.tone] || toneColors.info;
           const isSmall = shouldShowInline(section.content, section.id);
+          const isScoreImpact = section.id === "score-impact";
 
           return (
             <Card
               key={section.id}
-              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4 ${isScoreImpact ? 'md:col-span-2' : ''}`}
               style={{
                 borderTopColor: colors.accent,
                 backgroundColor: colors.bg,
               }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
-              {/* Show content with title and edit button */}
-              {renderContentPreview(
-                section.content,
-                isSmall,
-                section.title,
-                () => setOpenModal(section.id),
-                section.tone,
-                section.id,
-                false
+              {/* Special handling for score-impact: show boxes inline */}
+              {isScoreImpact ? (
+                <div className="p-3">
+                  <div className="flex items-center justify-between mb-3">
+                    <h3 className={`text-sm font-bold ${colors.accent ? `text-[${colors.accent}]` : 'text-emerald-700'}`} style={{ color: colors.accent }}>
+                      {section.title}
+                    </h3>
+                  </div>
+                  <FixMeNowBoxes
+                    rows={scoreImpactRows}
+                    totalUplift="+0.6"
+                    cardId="message"
+                  />
+                </div>
+              ) : (
+                /* Show content with title and edit button */
+                renderContentPreview(
+                  section.content,
+                  isSmall,
+                  section.title,
+                  () => setOpenModal(section.id),
+                  section.tone,
+                  section.id,
+                  false
+                )
               )}
             </Card>
           );
@@ -442,23 +465,25 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
       </div>
 
       {/* Modals */}
-      {sections.map((section) => {
-        const Icon = section.Icon;
-        return (
-          <SectionModal
-            key={section.id}
-            isOpen={openModal === section.id}
-            onClose={() => setOpenModal(null)}
-            title={section.title}
-            subtitle={section.subtitle}
-            Icon={Icon}
-            tone={section.tone}
-            allowEdit={false}
-          >
-            {section.content}
-          </SectionModal>
-        );
-      })}
+      {sections
+        .filter((section) => section.id !== "score-impact")
+        .map((section) => {
+          const Icon = section.Icon;
+          return (
+            <SectionModal
+              key={section.id}
+              isOpen={openModal === section.id}
+              onClose={() => setOpenModal(null)}
+              title={section.title}
+              subtitle={section.subtitle}
+              Icon={Icon}
+              tone={section.tone}
+              allowEdit={false}
+            >
+              {section.content}
+            </SectionModal>
+          );
+        })}
     </>
   );
 };

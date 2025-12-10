@@ -8,11 +8,12 @@ import { ChevronRight, Edit2 } from "lucide-react";
  */
 export function shouldShowInline(content: React.ReactElement, sectionId?: string): boolean {
   // These sections use modal (very large or complex content)
-  if (sectionId === 'full-jd' || sectionId === 'templates' || sectionId === 'score-impact') {
+  if (sectionId === 'full-jd' || sectionId === 'templates') {
     return false;
   }
 
-  // All other sections show inline (including jd-rewrite)
+  // score-impact now shows inline as boxes, but still has modal for details
+  // All other sections show inline (including jd-rewrite and score-impact)
   return true;
 }
 
