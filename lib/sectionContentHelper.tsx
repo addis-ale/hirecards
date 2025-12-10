@@ -130,26 +130,27 @@ export function renderContentPreview(
   title?: string,
   onEdit?: () => void,
   tone?: string,
-  sectionId?: string
+  sectionId?: string,
+  allowEdit: boolean = true
 ): React.ReactNode {
   const titleColorClass = getTitleColorClass(tone);
   
   if (isSmall) {
     // Show full content inline with title and edit button
     return (
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-3">
-          <h3 className={`text-base font-bold ${titleColorClass}`}>{title}</h3>
-          {onEdit && (
+      <div className="p-3">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className={`text-sm font-bold ${titleColorClass}`}>{title}</h3>
+          {allowEdit && onEdit && (
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 onEdit();
               }}
-              className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
               title="Edit content"
             >
-              <Edit2 className="w-4 h-4 text-gray-600" />
+              <Edit2 className="w-3.5 h-3.5 text-gray-600" />
             </button>
           )}
         </div>
@@ -173,33 +174,33 @@ export function renderContentPreview(
   const fixCount = isScoreImpact && content.props?.rows ? content.props.rows.length : 0;
   
   return (
-    <div className="p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className={`text-base font-bold ${titleColorClass}`}>{title}</h3>
-        {onEdit && (
+    <div className="p-3">
+      <div className="flex items-center justify-between mb-2">
+        <h3 className={`text-sm font-bold ${titleColorClass}`}>{title}</h3>
+        {allowEdit && onEdit && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onEdit();
             }}
-            className="p-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+            className="p-1 hover:bg-gray-100 rounded-lg transition-colors"
             title="Edit content"
           >
-            <Edit2 className="w-4 h-4 text-gray-600" />
+            <Edit2 className="w-3.5 h-3.5 text-gray-600" />
           </button>
         )}
       </div>
       {isFullJd && (
-        <p className="text-xs text-blue-600 mb-2 font-medium">
+        <p className="text-xs text-blue-600 mb-1.5 font-medium">
           ✨ We&apos;ve generated your complete job description based on your role requirements
         </p>
       )}
       {isScoreImpact && (
-        <p className="text-xs text-emerald-600 mb-2 font-medium">
+        <p className="text-xs text-emerald-600 mb-1.5 font-medium">
           🎯 {fixCount} actionable fixes to boost your hiring score{totalUplift ? ` by up to ${totalUplift}` : ''}. Click to see details and accept fixes!
         </p>
       )}
-      <div className={`text-sm text-gray-700 ${isFullJd ? 'line-clamp-5' : isScoreImpact ? 'line-clamp-4' : 'line-clamp-3'} mb-2 ${isFullJd ? 'whitespace-pre-wrap font-mono bg-gray-50 p-3 rounded border border-gray-200' : ''}`}>
+      <div className={`text-xs text-gray-700 ${isFullJd ? 'line-clamp-5' : isScoreImpact ? 'line-clamp-4' : 'line-clamp-3'} mb-2 ${isFullJd ? 'whitespace-pre-wrap font-mono bg-gray-50 p-2 rounded border border-gray-200' : ''}`}>
         {preview}
       </div>
       <button
@@ -207,7 +208,7 @@ export function renderContentPreview(
           e.stopPropagation();
           if (onEdit) onEdit();
         }}
-        className="flex items-center gap-1.5 px-3 py-1.5 bg-[#278f8c] hover:bg-[#1a6764] text-white text-xs font-medium rounded-lg transition-colors shadow-sm hover:shadow-md"
+        className="flex items-center gap-1.5 px-2.5 py-1 bg-[#278f8c] hover:bg-[#1a6764] text-white text-xs font-medium rounded-lg transition-colors shadow-sm hover:shadow-md"
       >
         <span>See more</span>
         <ChevronRight className="w-3 h-3" />

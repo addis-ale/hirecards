@@ -431,6 +431,14 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
       content: talentPoolContent,
     },
     {
+      id: "expansion-levers",
+      title: "Market Expansion Levers",
+      subtitle: "What actually moves the needle to expand your talent pool",
+      Icon: Zap,
+      tone: "purple" as const,
+      content: marketExpansionContent,
+    },
+    {
       id: "market-conditions",
       title: "Market Conditions",
       subtitle: "Competition, supply, and market dynamics you're up against",
@@ -446,22 +454,6 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
       ),
     },
     {
-      id: "expansion-levers",
-      title: "Market Expansion Levers",
-      subtitle: "What actually moves the needle to expand your talent pool",
-      Icon: Zap,
-      tone: "purple" as const,
-      content: marketExpansionContent,
-    },
-    {
-      id: "score-impact",
-      title: "Score Impact Fixes",
-      subtitle: "Actions you can take to improve your hiring score",
-      Icon: Target,
-      tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" cardId="market" />,
-    },
-    {
       id: "bottom-line",
       title: "Bottom Line",
       subtitle: "The key takeaway from this market analysis",
@@ -475,6 +467,14 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
           multiline
         />
       ),
+    },
+    {
+      id: "score-impact",
+      title: "Fix Me Now",
+      subtitle: "Actions you can take to improve your hiring score",
+      Icon: Target,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" cardId="market" />,
     },
   ];
 
@@ -517,11 +517,14 @@ export const EditableMarketCard: React.FC<MarketCardProps> = ({
           };
           const colors = toneColors[section.tone] || toneColors.info;
           const isSmall = shouldShowInline(section.content, section.id);
-
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}

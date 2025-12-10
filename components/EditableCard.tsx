@@ -75,7 +75,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
             }}
             onKeyDown={handleKeyDown}
             onBlur={handleSave}
-            className={`w-full border-2 border-[#278f8c] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#278f8c]/20 resize-none transition-all`}
+            className={`w-full border-2 border-[#278f8c] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#278f8c]/20 resize-none transition-all text-sm`}
             placeholder={placeholder}
             style={editStyle}
             rows={1}
@@ -88,7 +88,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
             onChange={(e) => setEditValue(e.target.value)}
             onKeyDown={handleKeyDown}
             onBlur={handleSave}
-            className={`w-full border-2 border-[#278f8c] rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#278f8c]/20 transition-all`}
+            className={`w-full border-2 border-[#278f8c] rounded-lg px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-[#278f8c]/20 transition-all text-sm`}
             placeholder={placeholder}
             style={editStyle}
           />
@@ -109,7 +109,7 @@ export const EditableText: React.FC<EditableTextProps> = ({
   return (
     <div
       onClick={() => setIsEditing(true)}
-      className={`${className} cursor-pointer hover:bg-blue-50/50 rounded-lg px-3 py-2 -mx-3 -my-2 transition-all border-2 border-transparent hover:border-blue-200`}
+      className={`${className} cursor-pointer hover:bg-blue-50/50 rounded-lg px-2 py-1 -mx-2 -my-1 transition-all border-2 border-transparent hover:border-blue-200`}
       title="Click to edit"
       style={style}
     >
@@ -153,7 +153,7 @@ export const EditableList: React.FC<EditableListProps> = ({
   return (
     <div className={className}>
       <ul 
-        className={`list-disc pl-5 space-y-2 ${!isEditMode ? 'grid grid-cols-2 gap-x-8 gap-y-2' : ''} marker:${markerColor}`}
+        className={`list-disc pl-4 space-y-1 marker:${markerColor}`}
       >
         {items.map((item, index) => (
           <li 
@@ -181,9 +181,9 @@ export const EditableList: React.FC<EditableListProps> = ({
       {isEditMode && (
         <button
           onClick={handleAddItem}
-          className="mt-3 px-4 py-2 bg-[#278f8c] text-white text-sm rounded-lg hover:bg-[#1a6764] transition-colors shadow-md flex items-center gap-2"
+          className="mt-2 px-3 py-1.5 bg-[#278f8c] text-white text-xs rounded-lg hover:bg-[#1a6764] transition-colors shadow-md flex items-center gap-1.5"
         >
-          <span className="text-lg font-bold">+</span>
+          <span className="text-base font-bold">+</span>
           Add Item
         </button>
       )}
@@ -221,19 +221,19 @@ export const EditableKeyValue: React.FC<EditableKeyValueProps> = ({
 
   return (
     <div className={className}>
-      <div className="space-y-2">
+      <div className="space-y-1">
         {data.map((item, idx) => (
-          <div key={idx} className="flex justify-between items-center py-2 border-b border-emerald-100 last:border-0 group/row relative pr-2">
+          <div key={idx} className="flex justify-between items-center py-1 border-b border-emerald-100 last:border-0 group/row relative pr-2">
             <EditableText
               value={item.label}
               onChange={(value) => handleChange(idx, "label", value)}
-              className="text-[13px] font-medium"
+              className="text-xs font-medium"
               placeholder="Label..."
             />
             <EditableText
               value={item.value}
               onChange={(value) => handleChange(idx, "value", value)}
-              className="text-sm font-bold text-emerald-700"
+              className="text-xs font-bold text-emerald-700"
               placeholder="Value..."
             />
             {isEditMode && (
@@ -251,9 +251,9 @@ export const EditableKeyValue: React.FC<EditableKeyValueProps> = ({
       {isEditMode && (
         <button
           onClick={handleAddRow}
-          className="mt-3 px-4 py-2 bg-[#278f8c] text-white text-sm rounded-lg hover:bg-[#1a6764] transition-colors shadow-md flex items-center gap-2"
+          className="mt-2 px-3 py-1.5 bg-[#278f8c] text-white text-xs rounded-lg hover:bg-[#1a6764] transition-colors shadow-md flex items-center gap-1.5"
         >
-          <span className="text-lg font-bold">+</span>
+          <span className="text-base font-bold">+</span>
           Add Row
         </button>
       )}

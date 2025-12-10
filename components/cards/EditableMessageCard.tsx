@@ -327,24 +327,6 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
       content: scrollStoppersContent,
     },
     {
-      id: "templates",
-      title: "Three Step Outreach",
-      subtitle: "Complete message sequence for effective outreach",
-      Icon: AlignLeft,
-      tone: "info" as const,
-      content: messageTemplatesContent,
-    },
-    {
-      id: "score-impact",
-      title: "Score Impact Fixes",
-      subtitle: "Actions you can take to improve your messaging score",
-      Icon: Target,
-      tone: "success" as const,
-      content: (
-        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="message" />
-      ),
-    },
-    {
       id: "brutal-truth",
       title: "Brutal Truth",
       subtitle: "The harsh reality about your messaging",
@@ -372,6 +354,24 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
           className="text-sm font-medium text-orange-900"
           multiline
         />
+      ),
+    },
+    {
+      id: "templates",
+      title: "Three Step Outreach",
+      subtitle: "Complete message sequence for effective outreach",
+      Icon: AlignLeft,
+      tone: "info" as const,
+      content: messageTemplatesContent,
+    },
+    {
+      id: "score-impact",
+      title: "Fix Me Now",
+      subtitle: "Actions you can take to improve your messaging score",
+      Icon: Target,
+      tone: "success" as const,
+      content: (
+        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="message" />
       ),
     },
   ];
@@ -419,7 +419,11 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}
@@ -429,7 +433,8 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
                 section.title,
                 () => setOpenModal(section.id),
                 section.tone,
-                section.id
+                section.id,
+                false
               )}
             </Card>
           );
@@ -448,7 +453,7 @@ export const EditableMessageCard: React.FC<MessageCardProps> = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
-            allowEdit={true}
+            allowEdit={false}
           >
             {section.content}
           </SectionModal>

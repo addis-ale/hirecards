@@ -397,14 +397,6 @@ export const EditableTalentMapCard = ({
       ),
     },
     {
-      id: "score-impact",
-      title: "Score Impact Fixes",
-      subtitle: "Actions to improve your hiring score",
-      Icon: Target,
-      tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="talent-map" />,
-    },
-    {
       id: "hidden-bottleneck",
       title: "Hidden Bottleneck",
       subtitle: "The hidden factor affecting your hiring",
@@ -417,6 +409,14 @@ export const EditableTalentMapCard = ({
           multiline
         />
       ),
+    },
+    {
+      id: "score-impact",
+      title: "Fix Me Now",
+      subtitle: "Actions to improve your hiring score",
+      Icon: Target,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="talent-map" />,
     },
   ];
 
@@ -466,7 +466,11 @@ export const EditableTalentMapCard = ({
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}

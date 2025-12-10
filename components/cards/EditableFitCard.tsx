@@ -267,6 +267,41 @@ export const EditableFitCard = ({
       ),
     },
     {
+      id: "decision-making",
+      title: "Decision-Making Model",
+      subtitle: "How they say yes or no",
+      Icon: CheckCircle,
+      tone: "info" as const,
+      content: (
+        <div className="space-y-4">
+          <div>
+            <p className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-2">
+              <CheckCircle className="w-4 h-4" />
+              They say YES when:
+            </p>
+            <EditableList
+              items={decisionMakingYes}
+              onChange={setDecisionMakingYes}
+              itemClassName="text-[13px] leading-snug text-emerald-800"
+              markerColor="text-emerald-600"
+            />
+          </div>
+          <div>
+            <p className="text-xs font-bold text-red-700 mb-2 flex items-center gap-2">
+              <XCircle className="w-4 h-4" />
+              They say NO when:
+            </p>
+            <EditableList
+              items={decisionMakingNo}
+              onChange={setDecisionMakingNo}
+              itemClassName="text-[13px] leading-snug text-red-800"
+              markerColor="text-red-600"
+            />
+          </div>
+        </div>
+      ),
+    },
+    {
       id: "brutal-truth",
       title: "Brutal Truth",
       subtitle: "The hard truth about this persona",
@@ -322,41 +357,6 @@ export const EditableFitCard = ({
       ),
     },
     {
-      id: "decision-making",
-      title: "Decision-Making Model",
-      subtitle: "How they say yes or no",
-      Icon: CheckCircle,
-      tone: "info" as const,
-      content: (
-        <div className="space-y-4">
-          <div>
-            <p className="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-2">
-              <CheckCircle className="w-4 h-4" />
-              They say YES when:
-            </p>
-            <EditableList
-              items={decisionMakingYes}
-              onChange={setDecisionMakingYes}
-              itemClassName="text-[13px] leading-snug text-emerald-800"
-              markerColor="text-emerald-600"
-            />
-          </div>
-          <div>
-            <p className="text-xs font-bold text-red-700 mb-2 flex items-center gap-2">
-              <XCircle className="w-4 h-4" />
-              They say NO when:
-            </p>
-            <EditableList
-              items={decisionMakingNo}
-              onChange={setDecisionMakingNo}
-              itemClassName="text-[13px] leading-snug text-red-800"
-              markerColor="text-red-600"
-            />
-          </div>
-        </div>
-      ),
-    },
-    {
       id: "candidate-flip",
       title: "Candidate Flip Test",
       subtitle: "What candidates evaluate you on",
@@ -379,7 +379,7 @@ export const EditableFitCard = ({
     },
     {
       id: "score-impact",
-      title: "Score Impact Fixes",
+      title: "Fix Me Now",
       subtitle: "Actions to improve your hiring score",
       Icon: Target,
       tone: "success" as const,
@@ -433,7 +433,11 @@ export const EditableFitCard = ({
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}

@@ -247,14 +247,6 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
       ),
     },
     {
-      id: "score-impact",
-      title: "Score Impact Fixes",
-      subtitle: "Actions to improve your hiring score",
-      Icon: TrendingUp,
-      tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" cardId="pay" />,
-    },
-    {
       id: "hidden-bottleneck",
       title: "Hidden Bottleneck",
       subtitle: "The hidden factor affecting compensation",
@@ -283,6 +275,14 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
           placeholder="What timeline issue should we be aware of?"
         />
       ),
+    },
+    {
+      id: "score-impact",
+      title: "Fix Me Now",
+      subtitle: "Actions to improve your hiring score",
+      Icon: TrendingUp,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.8" cardId="pay" />,
     },
   ];
 
@@ -321,7 +321,11 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}
@@ -331,7 +335,8 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
                 section.title,
                 () => setOpenModal(section.id),
                 section.tone,
-                section.id
+                section.id,
+                false
               )}
             </Card>
           );
@@ -350,7 +355,7 @@ export const EditablePayCard: React.FC<PayCardProps> = ({ data, onNavigateToCard
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
-            allowEdit={true}
+            allowEdit={false}
           >
             {section.content}
           </SectionModal>

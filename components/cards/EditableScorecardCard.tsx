@@ -352,21 +352,6 @@ export const EditableScorecardCard: React.FC<ScorecardCardProps> = ({
       content: evaluationMappingContent,
     },
     {
-      id: "donts",
-      title: "Don't Do This",
-      subtitle: "Common scorecard mistakes to avoid",
-      Icon: XCircle,
-      tone: "danger" as const,
-      content: (
-        <EditableList
-          items={donts}
-          onChange={setDonts}
-          itemClassName="text-sm"
-          markerColor="text-red-600"
-        />
-      ),
-    },
-    {
       id: "fixes",
       title: "Fixes",
       subtitle: "Actionable improvements for your scorecard",
@@ -382,13 +367,18 @@ export const EditableScorecardCard: React.FC<ScorecardCardProps> = ({
       ),
     },
     {
-      id: "score-impact",
-      title: "Score Impact Fixes",
-      subtitle: "Actions you can take to improve your scorecard score",
-      Icon: Target,
-      tone: "success" as const,
+      id: "donts",
+      title: "Don't Do This",
+      subtitle: "Common scorecard mistakes to avoid",
+      Icon: XCircle,
+      tone: "danger" as const,
       content: (
-        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="scorecard" />
+        <EditableList
+          items={donts}
+          onChange={setDonts}
+          itemClassName="text-sm"
+          markerColor="text-red-600"
+        />
       ),
     },
     {
@@ -404,6 +394,16 @@ export const EditableScorecardCard: React.FC<ScorecardCardProps> = ({
           className="text-sm font-medium text-red-900"
           multiline
         />
+      ),
+    },
+    {
+      id: "score-impact",
+      title: "Fix Me Now",
+      subtitle: "Actions you can take to improve your scorecard score",
+      Icon: Target,
+      tone: "success" as const,
+      content: (
+        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.6" cardId="scorecard" />
       ),
     },
   ];
@@ -451,7 +451,11 @@ export const EditableScorecardCard: React.FC<ScorecardCardProps> = ({
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}

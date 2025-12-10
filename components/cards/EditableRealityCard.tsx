@@ -407,14 +407,6 @@ export const EditableRealityCard = ({
       ),
     },
     {
-      id: "score-impact",
-      title: "Score Impact Fixes",
-      subtitle: "Actions to improve your hiring score",
-      Icon: Target,
-      tone: "success" as const,
-      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" cardId="reality" />,
-    },
-    {
       id: "timeline-failure",
       title: "Timeline to Failure",
       subtitle: "When things go wrong if not addressed",
@@ -457,6 +449,14 @@ export const EditableRealityCard = ({
           </div>
         </div>
       ),
+    },
+    {
+      id: "score-impact",
+      title: "Fix Me Now",
+      subtitle: "Actions to improve your hiring score",
+      Icon: Target,
+      tone: "success" as const,
+      content: <ScoreImpactTable rows={scoreImpactRows} totalUplift="+1.0" cardId="reality" />,
     },
   ];
 
@@ -566,7 +566,11 @@ export const EditableRealityCard = ({
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}
@@ -576,7 +580,8 @@ export const EditableRealityCard = ({
                 section.title,
                 () => setOpenModal(section.id),
                 section.tone,
-                section.id
+                section.id,
+                false
               )}
             </Card>
           );
@@ -595,7 +600,7 @@ export const EditableRealityCard = ({
             subtitle={section.subtitle}
             Icon={Icon}
             tone={section.tone}
-            allowEdit={true}
+            allowEdit={false}
           >
             {section.content}
           </SectionModal>
