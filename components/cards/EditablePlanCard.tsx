@@ -339,16 +339,6 @@ export const EditablePlanCard: React.FC<PlanCardProps> = ({
       ),
     },
     {
-      id: "score-impact",
-      title: "Score Impact Fixes",
-      subtitle: "Actions you can take to improve your plan score",
-      Icon: Target,
-      tone: "success" as const,
-      content: (
-        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" cardId="plan" />
-      ),
-    },
-    {
       id: "brutal-truth",
       title: "Brutal Truth",
       subtitle: "The harsh reality about hiring plans",
@@ -361,6 +351,16 @@ export const EditablePlanCard: React.FC<PlanCardProps> = ({
           className="text-sm font-medium text-red-900"
           multiline
         />
+      ),
+    },
+    {
+      id: "score-impact",
+      title: "Fix Me Now",
+      subtitle: "Actions you can take to improve your plan score",
+      Icon: Target,
+      tone: "success" as const,
+      content: (
+        <ScoreImpactTable rows={scoreImpactRows} totalUplift="+0.9" cardId="plan" />
       ),
     },
   ];
@@ -408,7 +408,11 @@ export const EditablePlanCard: React.FC<PlanCardProps> = ({
           return (
             <Card
               key={section.id}
-              className={`w-full hover:shadow-md transition-shadow ${isSmall ? '' : 'cursor-pointer'}`}
+              className={`w-full border-2 border-gray-200 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 ${isSmall ? '' : 'cursor-pointer'} border-t-4`}
+              style={{
+                borderTopColor: colors.accent,
+                backgroundColor: colors.bg,
+              }}
               onClick={isSmall ? undefined : () => setOpenModal(section.id)}
             >
               {/* Show content with title and edit button */}

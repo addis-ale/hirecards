@@ -111,123 +111,12 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({
   const [realityCardDataForPanel, setRealityCardDataForPanel] =
     useState<any>(null);
 
-  // Load analyzed card data from sessionStorage (from AI analysis)
+  // Skip loading enriched data - use static cards only
   React.useEffect(() => {
     console.log("🚀 ============================================");
-    console.log("🚀 HIRECARD TABS: LOADING ANALYZED CARD DATA");
+    console.log("🚀 HIRECARD TABS: USING STATIC CARDS");
     console.log("🚀 ============================================");
-
-    // First, try to load analyzed card data (from AI transformation)
-    const analyzedCardDataStr = sessionStorage.getItem("analyzedCardData");
-
-    if (analyzedCardDataStr) {
-      try {
-        const analyzedData = JSON.parse(analyzedCardDataStr);
-        console.log("✅ Loading AI-analyzed card data");
-        console.log("   Cards available:", Object.keys(analyzedData));
-
-        // Set data for each card
-        if (analyzedData.marketCard) {
-          console.log("   ✅ MarketCard data loaded");
-          setMarketCardData(analyzedData.marketCard);
-        }
-        if (analyzedData.payCard) {
-          console.log("   ✅ PayCard data loaded");
-          setPayCardData(analyzedData.payCard);
-        }
-        if (analyzedData.roleCard) {
-          console.log("   ✅ RoleCard data loaded");
-          setRoleCardData(analyzedData.roleCard);
-        }
-        if (analyzedData.skillCard) {
-          console.log("   ✅ SkillCard data loaded");
-          setSkillCardData(analyzedData.skillCard);
-        }
-        if (analyzedData.talentMapCard) {
-          console.log("   ✅ TalentMapCard data loaded");
-          setTalentMapCardData(analyzedData.talentMapCard);
-        }
-        if (analyzedData.realityCard) {
-          console.log("   ✅ RealityCard data loaded");
-          setRealityCardData(analyzedData.realityCard);
-          setRealityCardDataForPanel(analyzedData.realityCard);
-        }
-        if (analyzedData.funnelCard) {
-          console.log("   ✅ FunnelCard data loaded");
-          setFunnelCardData(analyzedData.funnelCard);
-        }
-        if (analyzedData.fitCard) {
-          console.log("   ✅ FitCard data loaded");
-          setFitCardData(analyzedData.fitCard);
-        }
-        if (analyzedData.messageCard) {
-          console.log("   ✅ MessageCard data loaded");
-          setMessageCardData(analyzedData.messageCard);
-        }
-        if (analyzedData.outreachCard) {
-          console.log("   ✅ OutreachCard data loaded");
-          setOutreachCardData(analyzedData.outreachCard);
-        }
-        if (analyzedData.interviewCard) {
-          console.log("   ✅ InterviewCard data loaded");
-          setInterviewCardData(analyzedData.interviewCard);
-        }
-        if (analyzedData.scorecardCard) {
-          console.log("   ✅ ScorecardCard data loaded");
-          setScorecardCardData(analyzedData.scorecardCard);
-        }
-        if (analyzedData.planCard) {
-          console.log("   ✅ PlanCard data loaded");
-          setPlanCardData(analyzedData.planCard);
-        }
-      } catch (e) {
-        console.error("❌ Failed to parse analyzed card data:", e);
-      }
-    } else {
-      console.log(
-        "⚠️ No analyzed card data found, trying legacy enriched data"
-      );
-
-      // Fallback to legacy enriched data
-      const enrichedPayCardStr = sessionStorage.getItem("enrichedPayCard");
-      const enrichedMarketCardStr =
-        sessionStorage.getItem("enrichedMarketCard");
-      const enrichedRoleCardStr = sessionStorage.getItem("enrichedRoleCard");
-
-      if (enrichedPayCardStr) {
-        try {
-          const data = JSON.parse(enrichedPayCardStr);
-          console.log("✅ Loading legacy PayCard data");
-          setPayCardData(data);
-        } catch (e) {
-          console.error("❌ Failed to parse PayCard data:", e);
-        }
-      }
-
-      if (enrichedMarketCardStr) {
-        try {
-          const data = JSON.parse(enrichedMarketCardStr);
-          console.log("✅ Loading legacy MarketCard data");
-          setMarketCardData(data);
-        } catch (e) {
-          console.error("❌ Failed to parse MarketCard data:", e);
-        }
-      }
-
-      if (enrichedRoleCardStr) {
-        try {
-          const data = JSON.parse(enrichedRoleCardStr);
-          console.log("✅ Loading legacy RoleCard data");
-          setRoleCardData(data);
-        } catch (e) {
-          console.error("❌ Failed to parse RoleCard data:", e);
-        }
-      }
-    }
-
-    console.log("🚀 ============================================");
-    console.log("🚀 DATA LOADING COMPLETE");
-    console.log("🚀 ============================================");
+    console.log("✅ All cards will use their default static data");
   }, []);
 
   const tabs = [
