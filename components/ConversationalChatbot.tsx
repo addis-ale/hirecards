@@ -321,122 +321,16 @@ export default function ConversationalChatbot() {
         console.warn("⚠️ Profile search failed:", profileSearchData.error);
       }
 
-      // STEP 3: Enrich cards with Apify data (slow - 1-2 minutes)
-      // Call all enrichment APIs in parallel
-      console.log("📊 Step 3: Enriching cards with market data...");
-      console.log("   This will take 1-2 minutes (Apify scraping)");
-
-      const [payResponse, marketResponse, roleResponse] = await Promise.all([
-        fetch("/api/enrich-salary", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ scrapedJobData: formData }),
-        }),
-        fetch("/api/enrich-market", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ scrapedJobData: formData }),
-        }),
-        fetch("/api/enrich-role", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ scrapedJobData: formData }),
-        }),
-      ]);
-
-      console.log("📊 Enrichment responses received");
-      console.log("   PayCard:", payResponse.status);
-      console.log("   MarketCard:", marketResponse.status);
-      console.log("   RoleCard:", roleResponse.status);
-
-      const [payData, marketData, roleData] = await Promise.all([
-        payResponse.json(),
-        marketResponse.json(),
-        roleResponse.json(),
-      ]);
-
-      // Store enriched data in sessionStorage
-      if (payData.success && payData.payCardData) {
-        console.log("✅ PayCard enriched");
-        sessionStorage.setItem(
-          "enrichedPayCard",
-          JSON.stringify(payData.payCardData)
-        );
-        // Store full response for debugging
-        sessionStorage.setItem(
-          "apifyPayCardFullResponse",
-          JSON.stringify(payData)
-        );
-
-        // Store RAW jobs array if available in metadata
-        if (payData.rawJobs) {
-          console.log(
-            "💾 Storing raw jobs data for PayCard:",
-            payData.rawJobs.length,
-            "jobs"
-          );
-          sessionStorage.setItem(
-            "apifyRawJobsData_PayCard",
-            JSON.stringify(payData.rawJobs)
-          );
-        }
-      }
-      if (marketData.success && marketData.marketCardData) {
-        console.log("✅ MarketCard enriched");
-        sessionStorage.setItem(
-          "enrichedMarketCard",
-          JSON.stringify(marketData.marketCardData)
-        );
-        // Store full response for debugging
-        sessionStorage.setItem(
-          "apifyMarketCardFullResponse",
-          JSON.stringify(marketData)
-        );
-
-        // Store RAW jobs and profiles arrays if available
-        if (marketData.rawJobs) {
-          console.log(
-            "💾 Storing raw jobs data for MarketCard:",
-            marketData.rawJobs.length,
-            "jobs"
-          );
-          sessionStorage.setItem(
-            "apifyRawJobsData_MarketCard",
-            JSON.stringify(marketData.rawJobs)
-          );
-        }
-        if (marketData.rawProfiles) {
-          console.log(
-            "💾 Storing raw profiles data for MarketCard:",
-            marketData.rawProfiles.length,
-            "profiles"
-          );
-          sessionStorage.setItem(
-            "apifyRawProfilesData",
-            JSON.stringify(marketData.rawProfiles)
-          );
-        }
-      }
-      if (roleData.success && roleData.roleCardData) {
-        console.log("✅ RoleCard enriched");
-        sessionStorage.setItem(
-          "enrichedRoleCard",
-          JSON.stringify(roleData.roleCardData)
-        );
-        // Store full response for debugging
-        sessionStorage.setItem(
-          "apifyRoleCardFullResponse",
-          JSON.stringify(roleData)
-        );
-      }
-
-      // STEP 4: Analyze scraped data and transform to card structures
-      // DISABLED: Skip transformation, use static cards instead
-      console.log("⏭️ Step 4: Skipping AI transformation - using static cards");
+      // STEP 3: Skip enrichment - use static cards
+      console.log("⏭️ Step 3: Skipping enrichment - using static cards");
       
-      // Clear any existing analyzed card data to ensure static cards are used
+      // Clear any existing enriched/analyzed card data to ensure static cards are used
       sessionStorage.removeItem("analyzedCardData");
       sessionStorage.removeItem("analyzedCardMetadata");
+      sessionStorage.removeItem("enrichedPayCard");
+      sessionStorage.removeItem("enrichedMarketCard");
+      sessionStorage.removeItem("enrichedRoleCard");
+      sessionStorage.removeItem("enrichedSkillCard");
       
       console.log("🚀 ============================================");
       console.log("🚀 SCRAPING COMPLETE - NAVIGATING TO RESULTS");
