@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { CheckCircle2, Target, Info, TrendingUp, LineChart } from "lucide-react";
 import { ScoreImpactRow } from "./ScoreImpactTable";
 import { useAcceptedFixes } from "@/contexts/AcceptedFixesContext";
 import { allCards } from "@/lib/cardCategories";
+import { calculateRealityScore } from "@/components/RealityScoreCalculator";
 
 interface FixMeNowBoxesProps {
   rows: ScoreImpactRow[];
@@ -25,7 +26,56 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
   currentCardId,
   feasibilityScore,
 }) => {
-  const { acceptFix, rejectFix, isFixAccepted } = useAcceptedFixes();
+  const { acceptFix, rejectFix, isFixAccepted, getTotalImpact } = useAcceptedFixes();
+  const [realityCardData, setRealityCardData] = useState<any>(null);
+
+  // Load reality card data to calculate score
+  useEffect(() => {
+    if (cardId === "reality") {
+      try {
+        const saved = sessionStorage.getItem("editableRealityCard");
+        if (saved) {
+          const data = JSON.parse(saved);
+          setRealityCardData(data);
+        }
+      } catch (e) {
+        console.error("Failed to load reality card data:", e);
+      }
+    }
+  }, [cardId]);
+
+  // Calculate the score the same way as RealityCardBanner and EditableRealityCard
+  const calculatedScore = useMemo(() => {
+    if (cardId !== "reality" || !realityCardData) {
+      // For non-reality cards, just parse the string if provided
+      if (feasibilityScore) {
+        const match = feasibilityScore.match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);
+        return match ? parseFloat(match[1]) : 5.5;
+      }
+      return 5.5;
+    }
+
+    const baseScore = calculateRealityScore({
+      feasibilityScore: realityCardData.feasibilityScore || "5.5/10",
+      helpsCase: realityCardData.helpsCase || [],
+      hurtsCase: realityCardData.hurtsCase || [],
+      keyInsights: realityCardData.keyInsights || [],
+      realityCheck1: realityCardData.realityCheck1 || "",
+      realityCheck2: realityCardData.realityCheck2 || "",
+      hiddenBottleneck: realityCardData.hiddenBottleneck || "",
+      timelineToFailure: realityCardData.timelineToFailure || "",
+      bottomLine1: realityCardData.bottomLine1 || "",
+      bottomLine2: realityCardData.bottomLine2 || "",
+    });
+    // Add accepted improvements boost from all cards (capped at 9.9)
+    const totalAcceptedImpact = getTotalImpact();
+    return Math.min(9.9, baseScore + totalAcceptedImpact);
+  }, [cardId, realityCardData, feasibilityScore, getTotalImpact]);
+
+  // Parse max score and format display score
+  const scoreMatch = (realityCardData?.feasibilityScore || feasibilityScore || "5.5/10").match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);
+  const maxScore = scoreMatch ? parseFloat(scoreMatch[2]) : 10;
+  const displayScore = `${calculatedScore.toFixed(1)}/${maxScore.toFixed(1)}`;
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -90,7 +140,7 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
       {cardId === "reality" && otherCards.length > 0 && onNavigateToCard && (
         <div className="mb-4">
           {/* Feasibility Score Banner */}
-          {feasibilityScore && (
+          {(feasibilityScore || cardId === "reality") && (
             <div className="mb-4 bg-gradient-to-r from-[#278f8c] to-[#1a6764] text-white rounded-xl p-6 py-8 shadow-lg min-h-[100px]">
               <div className="flex items-center justify-between h-full">
                 <div className="flex items-center gap-4">
@@ -99,7 +149,7 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white/90 uppercase tracking-wide">Feasibility Score</p>
-                    <p className="text-3xl font-bold text-white mt-1">{feasibilityScore}</p>
+                    <p className="text-3xl font-bold text-white mt-1">{displayScore}</p>
                   </div>
                 </div>
                 <div className="text-right">
