@@ -22,6 +22,7 @@ import {
 import { CardPreview } from "@/components/cards/CardPreview";
 import DebugDataViewer from "@/components/DebugDataViewer";
 import { ShareCardsModal } from "@/components/ShareCardsModal";
+import { RealityCardBanner } from "@/components/RealityCardBanner";
 
 export default function ResultsPage() {
   const router = useRouter();
@@ -36,9 +37,10 @@ export default function ResultsPage() {
   const [showShareModal, setShowShareModal] = useState(false);
   const cardsGridRef = useRef<HTMLDivElement>(null);
 
+  // Show only Reality Card initially - users navigate through it
   const filteredCards = selectedCategory
     ? getCardsByCategory(selectedCategory)
-    : allCards;
+    : allCards.filter(card => card.id === "reality");
 
   const handleCategoryClick = (categoryId: string | null) => {
     setSelectedCategory(categoryId);
@@ -334,14 +336,13 @@ export default function ResultsPage() {
                   : "Not bad. Let's break down what you're dealing with."}
               </p>
               <p className="text-base text-gray-500 max-w-2xl mx-auto mb-4">
-                13 cards. Zero fluff. Just market data, sourcing tactics,
-                interview frameworks, and a plan to fill this role.
+                Start with the Reality Card to understand your feasibility. Navigate to other cards through the Reality Card to see your complete hiring strategy.
               </p>
             </div>
           </div>
 
-          {/* Category Cards - Clickable */}
-          <div className="max-w-7xl mx-auto mb-8">
+          {/* Category Cards - Clickable - Hidden initially, show only Reality Card */}
+          <div className="max-w-7xl mx-auto mb-8 hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
               {/* Foundation */}
               <motion.button
@@ -732,8 +733,8 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          {/* Section Divider */}
-          <div className="max-w-7xl mx-auto mb-8">
+          {/* Section Divider - Hidden initially */}
+          <div className="max-w-7xl mx-auto mb-8 hidden">
             <div className="flex items-center gap-4">
               <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
               <div className="flex items-center gap-2 px-4">
@@ -779,8 +780,13 @@ export default function ResultsPage() {
             </div>
           </div>
 
-          {/* Cards Grid */}
-          <div ref={cardsGridRef} className="max-w-7xl mx-auto">
+          {/* Feasibility Score Banner for Reality Card */}
+          {filteredCards.some(card => card.id === "reality") && (
+            <RealityCardBanner />
+          )}
+
+          {/* Cards Grid - Hidden, users navigate through Reality Card */}
+          <div ref={cardsGridRef} className="max-w-7xl mx-auto hidden">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
               {filteredCards.map((card, index) => (
                 <motion.div
@@ -796,82 +802,6 @@ export default function ResultsPage() {
                   />
                 </motion.div>
               ))}
-            </div>
-
-            {/* Summary Stats */}
-            <div className="bg-white rounded-xl border border-gray-200 p-6">
-              <h3
-                className="text-lg font-bold mb-4"
-                style={{ color: "#102a63" }}
-              >
-                Score Impact Summary
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <motion.button
-                  onClick={() => handleCategoryClick("foundation")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
-                    selectedCategory === "foundation"
-                      ? "bg-purple-50 border-2 border-purple-300"
-                      : "hover:bg-gray-50 border-2 border-transparent"
-                  }`}
-                >
-                  <div className="text-2xl font-bold text-purple-600">+3.8</div>
-                  <div className="text-sm text-gray-600 mt-1">Foundation</div>
-                </motion.button>
-                <motion.button
-                  onClick={() => handleCategoryClick("market")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
-                    selectedCategory === "market"
-                      ? "bg-blue-50 border-2 border-blue-300"
-                      : "hover:bg-gray-50 border-2 border-transparent"
-                  }`}
-                >
-                  <div className="text-2xl font-bold text-blue-600">+2.3</div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    Market Intelligence
-                  </div>
-                </motion.button>
-                <motion.button
-                  onClick={() => handleCategoryClick("outreach")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
-                    selectedCategory === "outreach"
-                      ? "bg-emerald-50 border-2 border-emerald-300"
-                      : "hover:bg-gray-50 border-2 border-transparent"
-                  }`}
-                >
-                  <div className="text-2xl font-bold text-emerald-600">
-                    +2.1
-                  </div>
-                  <div className="text-sm text-gray-600 mt-1">
-                    Outreach & Engagement
-                  </div>
-                </motion.button>
-                <motion.button
-                  onClick={() => handleCategoryClick("selection")}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`text-center p-3 rounded-lg transition-all cursor-pointer ${
-                    selectedCategory === "selection"
-                      ? "bg-amber-50 border-2 border-amber-300"
-                      : "hover:bg-gray-50 border-2 border-transparent"
-                  }`}
-                >
-                  <div className="text-2xl font-bold text-amber-600">+1.5</div>
-                  <div className="text-sm text-gray-600 mt-1">Selection</div>
-                </motion.button>
-              </div>
-              <div className="mt-4 pt-4 border-t border-gray-200 text-center">
-                <div className="text-3xl font-bold text-emerald-600">+9.0</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  Total Potential Uplift
-                </div>
-              </div>
             </div>
           </div>
         </div>

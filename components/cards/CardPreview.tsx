@@ -117,27 +117,45 @@ export const CardPreview: React.FC<CardPreviewProps> = ({
         </p>
 
         {/* CTA */}
-        <div className="flex items-center gap-2 pt-2">
-          <span className={`
-            text-xs font-semibold
-            ${isCurrent ? "text-white/90" : 
-              card.color === "purple" ? "text-purple-600" :
-              card.color === "blue" ? "text-blue-600" :
-              card.color === "emerald" ? "text-emerald-600" :
-              card.color === "amber" ? "text-amber-600" :
-              "text-indigo-600"}
-          `}>
-            View Details
-          </span>
-          <ArrowRight className={`
-            w-4 h-4 transition-transform group-hover:translate-x-1
-            ${isCurrent ? "text-white/90" : 
-              card.color === "purple" ? "text-purple-600" :
-              card.color === "blue" ? "text-blue-600" :
-              card.color === "emerald" ? "text-emerald-600" :
-              card.color === "amber" ? "text-amber-600" :
-              "text-indigo-600"}
-          `} />
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center gap-2">
+            <span className={`
+              text-xs font-semibold
+              ${isCurrent ? "text-white/90" : 
+                card.color === "purple" ? "text-purple-600" :
+                card.color === "blue" ? "text-blue-600" :
+                card.color === "emerald" ? "text-emerald-600" :
+                card.color === "amber" ? "text-amber-600" :
+                "text-indigo-600"}
+            `}>
+              View Details
+            </span>
+            <ArrowRight className={`
+              w-4 h-4 transition-transform group-hover:translate-x-1
+              ${isCurrent ? "text-white/90" : 
+                card.color === "purple" ? "text-purple-600" :
+                card.color === "blue" ? "text-blue-600" :
+                card.color === "emerald" ? "text-emerald-600" :
+                card.color === "amber" ? "text-amber-600" :
+                "text-indigo-600"}
+            `} />
+          </div>
+          {card.id === "reality" && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleClick();
+              }}
+              className={`
+                text-xs font-medium px-3 py-1 rounded-lg transition-all
+                ${isCurrent 
+                  ? "bg-white/20 text-white hover:bg-white/30" 
+                  : "bg-emerald-100 text-emerald-700 hover:bg-emerald-200"}
+              `}
+            >
+              See more
+            </button>
+          )}
         </div>
       </div>
     </motion.div>

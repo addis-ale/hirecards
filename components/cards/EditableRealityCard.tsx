@@ -592,6 +592,9 @@ export const EditableRealityCard = ({
                     rows={scoreImpactRows}
                     totalUplift="+1.0"
                     cardId="reality"
+                    onNavigateToCard={onNavigateToCard}
+                    currentCardId={currentCardId || "reality"}
+                    feasibilityScore={feasibilityScore}
                   />
                 </div>
               ) : (

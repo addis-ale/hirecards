@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   LayoutDashboard,
@@ -76,6 +77,8 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({
 }) => {
   // Track score changes globally for all cards
   useScoreChangeNotification();
+  const router = useRouter();
+  const pathname = usePathname();
   
   const [activeTab, setActiveTab] = useState(initialCardId || "reality");
 
@@ -168,6 +171,10 @@ export const HireCardTabs: React.FC<HireCardTabsProps> = ({
 
   const handleNavigateToCard = (cardId: string) => {
     setActiveTab(cardId);
+    // If we're on the card detail page, update the URL
+    if (pathname?.startsWith("/cards/")) {
+      router.push(`/cards/${cardId}`);
+    }
   };
 
   const renderCardContent = () => {
