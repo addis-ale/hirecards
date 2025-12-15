@@ -2,20 +2,28 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
-import { CheckCircle2, Target, Info } from "lucide-react";
+import { motion } from "framer-motion";
+import { CheckCircle2, Target, Info, TrendingUp, LineChart } from "lucide-react";
 import { ScoreImpactRow } from "./ScoreImpactTable";
 import { useAcceptedFixes } from "@/contexts/AcceptedFixesContext";
+import { allCards } from "@/lib/cardCategories";
 
 interface FixMeNowBoxesProps {
   rows: ScoreImpactRow[];
   totalUplift?: string;
   cardId: string; // Unique identifier for the card (e.g., "reality", "role", "skill")
+  onNavigateToCard?: (cardId: string) => void;
+  currentCardId?: string;
+  feasibilityScore?: string;
 }
 
 export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
   rows,
   totalUplift,
   cardId,
+  onNavigateToCard,
+  currentCardId,
+  feasibilityScore,
 }) => {
   const { acceptFix, rejectFix, isFixAccepted } = useAcceptedFixes();
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
@@ -55,6 +63,9 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
     );
   }
 
+  // Get other cards (excluding current card)
+  const otherCards = allCards.filter(card => card.id !== (currentCardId || cardId));
+
   return (
     <div>
       {/* Description explaining what Fix Me Now is */}
@@ -62,11 +73,105 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
         <div className="flex items-start gap-2">
           <Info className="w-4 h-4 text-emerald-600 flex-shrink-0 mt-0.5" />
           <p className="text-xs text-emerald-800 leading-relaxed">
-            <span className="font-semibold">Fix Me Now:</span> Click on any fix below to accept it and boost your hiring score. Each fix shows its potential impact and can be toggled on or off.
+            {cardId === "reality" ? (
+              <>
+                <span className="font-semibold">This is the reason your feasibility is small.</span> Check these and fix them to increase your feasibility.
+              </>
+            ) : (
+              <>
+                <span className="font-semibold">Fix Me Now:</span> Click on any fix below to accept it and boost your hiring score. Each fix shows its potential impact and can be toggled on or off.
+              </>
+            )}
           </p>
         </div>
       </div>
 
+      {/* Navigation boxes for other cards - only show for reality card */}
+      {cardId === "reality" && otherCards.length > 0 && onNavigateToCard && (
+        <div className="mb-4">
+          {/* Feasibility Score Banner */}
+          {feasibilityScore && (
+            <div className="mb-4 bg-gradient-to-r from-[#278f8c] to-[#1a6764] text-white rounded-xl p-6 py-8 shadow-lg min-h-[100px]">
+              <div className="flex items-center justify-between h-full">
+                <div className="flex items-center gap-4">
+                  <div className="w-14 h-14 bg-white/20 rounded-lg flex items-center justify-center">
+                    <TrendingUp className="w-7 h-7 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-white/90 uppercase tracking-wide">Feasibility Score</p>
+                    <p className="text-3xl font-bold text-white mt-1">{feasibilityScore}</p>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm text-white/90 font-medium">Check cards below</p>
+                  <p className="text-sm text-white/90 font-medium">to improve score</p>
+                </div>
+              </div>
+            </div>
+          )}
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp className="w-4 h-4 text-emerald-600" />
+            <p className="text-sm font-semibold text-gray-800">Navigate to other cards to increase feasibility and check the Fix Me section for each:</p>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            {otherCards.map((card, index) => {
+              const Icon = card.icon;
+              return (
+                <motion.div
+                  key={card.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                  className="relative"
+                >
+                  <motion.button
+                    onClick={() => onNavigateToCard(card.id)}
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.95 }}
+                    className={`
+                      relative w-full flex flex-col items-center justify-center gap-2 p-5 rounded-xl transition-all
+                      bg-white border-2 border-gray-200 hover:border-gray-300 shadow-md hover:shadow-xl
+                      group overflow-hidden
+                    `}
+                    title={card.label}
+                  >
+                    {/* Gradient background overlay on hover */}
+                    <div className={`absolute inset-0 ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                    
+                    {/* Card icon with gradient background */}
+                    <div className={`relative z-10 w-14 h-14 ${card.gradient} rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                      <Icon className="w-7 h-7 text-white" />
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white animate-pulse"></div>
+                    </div>
+                    
+                    {/* Card label */}
+                    <span className="relative z-10 text-sm font-bold text-center leading-tight text-gray-800 group-hover:text-white transition-colors">
+                      {card.shortLabel} Card
+                    </span>
+                    
+                    {/* Boost representation with graph icon */}
+                    <div className="relative z-10 flex items-center gap-1.5 mt-1">
+                      <LineChart className="w-4 h-4 text-emerald-600 group-hover:text-white/90 transition-colors" />
+                      <span className="text-xs font-bold text-emerald-600 group-hover:text-white transition-colors">
+                        {card.impact}
+                      </span>
+                      <span className="text-[10px] text-gray-500 group-hover:text-white/80 transition-colors">
+                        boost
+                      </span>
+                    </div>
+                    
+                    {/* Shine effect on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                  </motion.button>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Hide fixes list for reality card, show for other cards */}
+      {cardId !== "reality" && (
       <div className="relative overflow-visible">
         <div className="flex gap-3 overflow-y-visible pb-8">
           {rows.map((row, index) => {
@@ -135,6 +240,7 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
           })}
         </div>
       </div>
+      )}
       
       {/* Tooltip rendered via portal to escape overflow containers */}
       {hoveredIndex !== null && tooltipPosition && rows[hoveredIndex]?.tooltip && typeof window !== 'undefined' && createPortal(
@@ -176,7 +282,8 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
         document.body
       )}
       
-      {totalUplift && (
+      {/* Hide total uplift for reality card */}
+      {totalUplift && cardId !== "reality" && (
         <div className="mt-3 pt-3 border-t border-emerald-200 flex items-center justify-center">
           <div className="flex items-center gap-2">
             <span className="text-xs font-medium text-emerald-700">Total uplift potential:</span>
