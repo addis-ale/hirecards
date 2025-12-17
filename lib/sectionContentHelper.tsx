@@ -166,8 +166,9 @@ export function renderContentPreview(
   // Show preview with "See more" indicator, title and edit button
   const preview = getContentPreview(content, sectionId);
   
-  // Special styling for full-jd and score-impact sections
+  // Special styling for full-jd, templates, and score-impact sections
   const isFullJd = sectionId === 'full-jd';
+  const isTemplates = sectionId === 'templates';
   const isScoreImpact = sectionId === 'score-impact';
   
   // Get totalUplift for score-impact messaging
@@ -192,16 +193,50 @@ export function renderContentPreview(
         )}
       </div>
       {isFullJd && (
-        <p className="text-xs text-blue-600 mb-1.5 font-medium">
-          ✨ We&apos;ve generated your complete job description based on your role requirements
-        </p>
+        <div className="mb-3">
+          <p className="text-xs text-blue-600 mb-2 font-medium">
+            ✨ We&apos;ve generated your complete job description based on your role requirements
+          </p>
+          {/* Attention-grabbing banner for Full JD */}
+          <div className="bg-gradient-to-r from-[#278f8c] to-[#1a6764] text-white rounded-lg p-3 mb-3 shadow-lg border-2 border-white/20 animate-pulse">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">📄</span>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Complete Job Description Ready!</p>
+                  <p className="text-xs opacity-90">Click below to view and copy the full JD</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {isTemplates && (
+        <div className="mb-3">
+          {/* Attention-grabbing banner for Three Step Outreach */}
+          <div className="bg-gradient-to-r from-[#278f8c] to-[#1a6764] text-white rounded-lg p-3 mb-3 shadow-lg border-2 border-white/20 animate-pulse">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                  <span className="text-lg">✉️</span>
+                </div>
+                <div>
+                  <p className="text-sm font-bold">Ready-to-Use Outreach Templates!</p>
+                  <p className="text-xs opacity-90">Click below to view and copy the complete message sequence</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
       {isScoreImpact && (
         <p className="text-xs text-emerald-600 mb-1.5 font-medium">
           🎯 {fixCount} actionable fixes to boost your hiring score{totalUplift ? ` by up to ${totalUplift}` : ''}. Click to see details and accept fixes!
         </p>
       )}
-      <div className={`text-xs text-gray-700 ${isFullJd ? 'line-clamp-5' : isScoreImpact ? 'line-clamp-4' : 'line-clamp-3'} mb-2 ${isFullJd ? 'whitespace-pre-wrap font-mono bg-gray-50 p-2 rounded border border-gray-200' : ''}`}>
+      <div className={`text-xs text-gray-700 ${isFullJd ? 'line-clamp-5' : isTemplates ? 'line-clamp-5' : isScoreImpact ? 'line-clamp-4' : 'line-clamp-3'} mb-3 ${isFullJd ? 'whitespace-pre-wrap font-mono bg-gray-50 p-2 rounded border border-gray-200' : ''}`}>
         {preview}
       </div>
       <button
@@ -209,10 +244,14 @@ export function renderContentPreview(
           e.stopPropagation();
           if (onEdit) onEdit();
         }}
-        className="flex items-center gap-1.5 px-2.5 py-1 bg-[#278f8c] hover:bg-[#1a6764] text-white text-xs font-medium rounded-lg transition-colors shadow-sm hover:shadow-md"
+        className={`flex items-center justify-center gap-2 w-full font-semibold rounded-lg transition-all shadow-lg hover:shadow-xl ${
+          isFullJd || isTemplates
+            ? 'px-4 py-3 bg-gradient-to-r from-[#278f8c] to-[#1a6764] hover:from-[#1a6764] hover:to-[#278f8c] text-white text-sm animate-pulse border-2 border-white/30' 
+            : 'px-2.5 py-1 bg-[#278f8c] hover:bg-[#1a6764] text-white text-xs'
+        }`}
       >
-        <span>See more</span>
-        <ChevronRight className="w-3 h-3" />
+        <span>{isFullJd ? 'View Full Job Description' : isTemplates ? 'View Complete Outreach Sequence' : 'See more'}</span>
+        <ChevronRight className={`${isFullJd || isTemplates ? 'w-4 h-4' : 'w-3 h-3'}`} />
       </button>
     </div>
   );

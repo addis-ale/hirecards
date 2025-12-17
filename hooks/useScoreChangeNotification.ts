@@ -14,6 +14,8 @@ export function useScoreChangeNotification() {
   const previousTotalImpactRef = useRef<number>(0);
   const previousScoreRef = useRef<number | null>(null);
   const isInitialMount = useRef(true);
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const lastToastMessageRef = useRef<string | null>(null);
 
   useEffect(() => {
     // Get base score from sessionStorage or use default
@@ -63,18 +65,28 @@ export function useScoreChangeNotification() {
       
       // Only show toast if score actually changed
       if (Math.abs(newScore - previousScore) > 0.01) {
-        if (newScore > previousScore) {
-          showToast(
-            `Well done! Your score has improved from ${previousScore.toFixed(1)} to ${newScore.toFixed(1)}`,
-            "success"
-          );
-        } else if (newScore < previousScore) {
-          showToast(
-            `Your score decreased from ${previousScore.toFixed(1)} to ${newScore.toFixed(1)}`,
-            "info"
-          );
+        const toastMessage = newScore > previousScore
+          ? `Well done! Your score has improved from ${previousScore.toFixed(1)} to ${newScore.toFixed(1)}`
+          : `Your score decreased from ${previousScore.toFixed(1)} to ${newScore.toFixed(1)}`;
+        
+        // Prevent duplicate toasts by checking if the same message was just shown
+        if (lastToastMessageRef.current !== toastMessage) {
+          // Clear any pending toast timeout
+          if (toastTimeoutRef.current) {
+            clearTimeout(toastTimeoutRef.current);
+          }
+          
+          // Show toast
+          showToast(toastMessage, newScore > previousScore ? "success" : "info");
+          lastToastMessageRef.current = toastMessage;
+          
+          // Clear the last message ref after a delay to allow same message again if needed
+          toastTimeoutRef.current = setTimeout(() => {
+            lastToastMessageRef.current = null;
+          }, 1000);
+          
+          previousScoreRef.current = newScore;
         }
-        previousScoreRef.current = newScore;
       }
     }
 
@@ -87,6 +99,13 @@ export function useScoreChangeNotification() {
       previousScoreRef.current = initialScore;
       isInitialMount.current = false;
     }
+
+    // Cleanup timeout on unmount
+    return () => {
+      if (toastTimeoutRef.current) {
+        clearTimeout(toastTimeoutRef.current);
+      }
+    };
   }, [getTotalImpact, showToast]);
 }
 
