@@ -12,6 +12,7 @@ import {
   Sparkles,
   Loader2
 } from "lucide-react";
+import { useAcceptedFixes } from "@/contexts/AcceptedFixesContext";
 
 interface ChatMessage {
   id: string;
@@ -39,6 +40,11 @@ interface ImprovementChatbotProps {
     action?: string;
     estimatedScoreIncrease?: number;
     targetTab?: string;
+    cardId?: string;
+    cardName?: string;
+    talentPoolImpact?: string;
+    riskReduction?: string;
+    cardContent?: any;
   } | null;
   onAcceptChanges?: (signalId: string, targetTab?: string) => void;
   onNavigateToTab?: (tabId: string) => void;
@@ -55,6 +61,23 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const timeoutRefs = useRef<NodeJS.Timeout[]>([]);
+  const messageIdCounter = useRef<number>(0);
+  const { acceptFix, rejectFix, isFixAccepted } = useAcceptedFixes();
+
+  // Generate a unique fix ID from the fix text (same as FixMeNowBoxes)
+  const getFixId = (fix: string): string => {
+    return fix
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+  };
+
+  // Generate unique message ID
+  const generateMessageId = () => {
+    messageIdCounter.current += 1;
+    return `msg-${Date.now()}-${messageIdCounter.current}`;
+  };
 
   // Scroll to bottom when new messages are added
   useEffect(() => {
@@ -63,16 +86,29 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
 
   // Initialize conversation when signal changes
   useEffect(() => {
+    // Clear any existing timeouts
+    timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+    timeoutRefs.current = [];
+
     if (isOpen && signal) {
       setMessages([]);
       setIsTyping(true);
       
+      // Build context from card content
+      const cardContext = signal.cardContent || {};
+      const cardName = signal.cardName || "the card";
+      
+      // Generate unique IDs for this conversation
+      const welcomeId = generateMessageId();
+      const suggestionId = generateMessageId();
+      const actionId = generateMessageId();
+      
       // Simulate bot typing delay
-      setTimeout(() => {
+      const timeout1 = setTimeout(() => {
         const welcomeMessage: ChatMessage = {
-          id: "1",
+          id: welcomeId,
           role: "bot",
-          content: `Hi! I noticed you want to improve your feasibility score. Let me help you with "${signal.title}".`,
+          content: `Hi! I see you're working on improving your feasibility score. Let me help you with "${signal.title}" from the ${cardName} Card.`,
           timestamp: new Date(),
         };
         
@@ -80,51 +116,74 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
         setIsTyping(false);
         
         // Add suggestion message after a short delay
-        setTimeout(() => {
+        const timeout2 = setTimeout(() => {
           setIsTyping(true);
-          setTimeout(() => {
+          const timeout3 = setTimeout(() => {
+            // Build the message content with all details
+            // Use tooltip/description as the main content
+            let messageContent = `${signal.title}\n\n${signal.description || ""}`;
+            
+            // Add impact percentage if available (from talentPoolImpact)
+            if (signal.talentPoolImpact) {
+              messageContent += `\n\nImpact: ${signal.talentPoolImpact}`;
+            }
+            
+            // Add risk reduction if available
+            if (signal.riskReduction) {
+              messageContent += `\n\nRisk Reduction: ${signal.riskReduction}`;
+            }
+            
+            // Add score boost
+            messageContent += `\n\n+${signal.estimatedScoreIncrease?.toFixed(1) || 0} score boost`;
+            
             const suggestionMessage: ChatMessage = {
-              id: "2",
+              id: suggestionId,
               role: "bot",
-              content: `Here's what I recommend:\n\n**${signal.title}**\n\n${signal.description}\n\nThis could improve your score by **+${signal.estimatedScoreIncrease?.toFixed(1) || 0}** points.`,
+              content: messageContent,
               timestamp: new Date(),
               suggestion: {
                 title: signal.title,
-                description: signal.description,
+                description: signal.description || "",
                 estimatedScoreIncrease: signal.estimatedScoreIncrease || 0,
                 targetTab: signal.targetTab,
+                changes: cardContext, // Include card content for reference
               },
             };
             
             setMessages((prev) => [...prev, suggestionMessage]);
             setIsTyping(false);
-            
-            // Add action message
-            if (signal.action) {
-              setTimeout(() => {
-                setIsTyping(true);
-                setTimeout(() => {
-                  const actionMessage: ChatMessage = {
-                    id: "3",
-                    role: "bot",
-                    content: `Would you like me to take you to ${signal.action?.toLowerCase() || "the relevant section"} so you can make this change?`,
-                    timestamp: new Date(),
-                  };
-                  setMessages((prev) => [...prev, actionMessage]);
-                  setIsTyping(false);
-                }, 1000);
-              }, 1500);
-            }
           }, 1000);
+          timeoutRefs.current.push(timeout3);
         }, 2000);
+        timeoutRefs.current.push(timeout2);
       }, 500);
+      timeoutRefs.current.push(timeout1);
+    } else {
+      setMessages([]);
+      setIsTyping(false);
     }
+
+    // Cleanup function
+    return () => {
+      timeoutRefs.current.forEach(timeout => clearTimeout(timeout));
+      timeoutRefs.current = [];
+    };
   }, [isOpen, signal]);
 
   const handleAccept = () => {
-    if (signal) {
+    if (signal && signal.cardId) {
+      // Accept the fix using the same system as Fix Me Now
+      const fixId = getFixId(signal.title);
+      const impact = signal.estimatedScoreIncrease || 0;
+      
+      // Check if already accepted to avoid duplicate toasts
+      if (!isFixAccepted(signal.cardId, fixId)) {
+        // Accept the fix (this will trigger toast notification via useScoreChangeNotification)
+        acceptFix(signal.cardId, fixId, impact);
+      }
+      
       const acceptMessage: ChatMessage = {
-        id: `user-${Date.now()}`,
+        id: generateMessageId(),
         role: "user",
         content: "Yes, let's do it!",
         timestamp: new Date(),
@@ -135,7 +194,7 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
       
       setTimeout(() => {
         const botResponse: ChatMessage = {
-          id: `bot-${Date.now()}`,
+          id: generateMessageId(),
           role: "bot",
           content: "Perfect! I've noted this improvement. You can review the remaining suggestions in the panel.",
           timestamp: new Date(),
@@ -144,8 +203,11 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
         setMessages((prev) => [...prev, botResponse]);
         setIsTyping(false);
         
-        // Close chatbot and notify parent after a short delay
+        // Mark signal as accepted in the panel UI (for UI state only)
+        // Don't call onAcceptChanges with scoreIncrease to avoid duplicate toast
+        // The acceptFix above already handles the score change and toast
         setTimeout(() => {
+          // Only mark as accepted in panel, don't trigger score change again
           onAcceptChanges?.(signal.id, signal.targetTab);
           onClose();
         }, 1500);
@@ -156,7 +218,7 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
   const handleReject = () => {
     if (signal) {
       const rejectMessage: ChatMessage = {
-        id: `user-${Date.now()}`,
+        id: generateMessageId(),
         role: "user",
         content: "Not right now, thanks.",
         timestamp: new Date(),
@@ -167,14 +229,19 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
       
       setTimeout(() => {
         const botResponse: ChatMessage = {
-          id: `bot-${Date.now()}`,
+          id: generateMessageId(),
           role: "bot",
-          content: "No problem! You can always come back to this suggestion later. Is there anything else I can help you with?",
+          content: "No problem! Returning you to the Improvement Signals panel.",
           timestamp: new Date(),
         };
         
         setMessages((prev) => [...prev, botResponse]);
         setIsTyping(false);
+        
+        // Close chatbot - the Improvement Signals panel will remain open
+        setTimeout(() => {
+          onClose();
+        }, 1500);
       }, 800);
     }
   };
@@ -246,27 +313,17 @@ export const ImprovementChatbot: React.FC<ImprovementChatbotProps> = ({
                           : "bg-white text-gray-800 shadow-sm border border-gray-200"
                       }`}
                     >
-                      {message.suggestion ? (
-                        <div className="space-y-3">
-                          <div className="font-bold text-sm mb-2">{message.suggestion.title}</div>
-                          <div className="text-sm whitespace-pre-line">{message.content.split("\n\n")[1]}</div>
-                          <div className="flex items-center gap-2 pt-2 border-t border-gray-200">
-                            <Sparkles className="w-4 h-4 text-[#278f8c]" />
-                            <span className="text-xs font-semibold text-[#278f8c]">
-                              +{message.suggestion.estimatedScoreIncrease.toFixed(1)} score boost
-                            </span>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-sm whitespace-pre-line">{message.content}</div>
-                      )}
+                      <div className="text-sm whitespace-pre-line">{message.content}</div>
                     </div>
                     
                     {message.suggestion && (
                       <div className="mt-3 flex gap-2">
                         <button
                           onClick={handleAccept}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded-lg text-sm font-medium transition-colors"
+                          className="flex-1 flex items-center justify-center gap-2 px-4 py-2 text-white rounded-lg text-sm font-medium transition-colors"
+                          style={{ backgroundColor: "#278f8c" }}
+                          onMouseEnter={(e) => e.currentTarget.style.backgroundColor = "#1a6764"}
+                          onMouseLeave={(e) => e.currentTarget.style.backgroundColor = "#278f8c"}
                         >
                           <CheckCircle2 className="w-4 h-4" />
                           Accept

@@ -62,8 +62,91 @@ export default function ResultsPage() {
     ? cardCategories.find((cat) => cat.id === selectedCategory)
     : null;
 
+  // Initialize Reality Card data in sessionStorage if it doesn't exist
+  const initializeRealityCardData = () => {
+    const existing = sessionStorage.getItem("editableRealityCard");
+    if (!existing) {
+      // Initialize with default values (same as EditableRealityCard component)
+      const defaultRealityCardData = {
+        feasibilityScore: "5.5/10",
+        feasibilityTitle: "Possible — but only if alignment, speed, and comp tighten immediately.",
+        feasibilitySubtext: "Not possible if criteria remain rigid or process is slow/vague.",
+        realityCheck1: "This hire is feasible but challenging. You're not sourcing an entry-level analyst, you're competing for senior Analytics Engineers who are already employed, well-compensated, and selective about where they go next.",
+        realityCheck2: "Winning here requires competitive compensation, a tight fast hiring loop, consistent internal alignment, and clear ownership. Half-measures won't work in this market.",
+        keyInsights: [
+          "Market is tight: Senior Analytics Engineers are fully employed. Outbound sourcing is mandatory.",
+          "Speed wins: If your loop is slower than 10–14 days, every top-tier candidate evaporates.",
+          "Compensation reality: If you offer €80k, you won't hire a senior, you'll hire someone who thinks they're senior.",
+        ],
+        helpsCase: [
+          "Product-facing analytics (rare → instantly attractive)",
+          "Stack that seniors actually want (dbt, Snowflake, Looker)",
+          "Clear domain ownership (AEs hate \"own everything\" chaos)",
+          "Strong brand with real customer impact",
+        ],
+        hurtsCase: [
+          "Amsterdam-only requirement",
+          "4+ step interview loop",
+          "Compensation ceilings below €90k",
+          "PM / Data / Engineering pulling in different directions",
+        ],
+        hiddenBottleneck: "If your team doesn't agree on what good looks like in week one, a restart around week 5–7 is guaranteed. Most searches don't fail because \"the market is hard.\" They fail because internal alignment is harder.",
+        timelineToFailure: "If alignment isn't fixed by Day 7 → expect a stall/reset around week 5–7. You won't know it's happening until candidates quietly stop responding.",
+        bottomLine1: "If you: ✔ align fast ✔ move within 10–14 days ✔ pay proper senior rates ✔ run targeted outbound → You will hire.",
+        bottomLine2: "If not → You won't.",
+        whatsReallyGoingOn: "You're competing for senior Analytics Engineers who are: fully employed, well-paid, selective, not browsing job boards for fun. If your scope, messaging, and speed aren't sharp, you're effectively entering the race with untied shoelaces.",
+        redFlags: [
+          "JD reads like BI maintenance",
+          "Stakeholders give different definitions of success",
+          "No owner for modelling standards",
+          '"Comp is still being figured out"',
+        ],
+        donts: [
+          "Post-and-pray",
+          "Pretend data debt is tiny (they'll find it faster than you think)",
+          "Add every nice-to-have into the JD",
+          "Start sourcing before alignment is real, not imagined",
+        ],
+        scoreImpactRows: [
+          {
+            fix: "Align on 3 non-negotiable skills",
+            impact: "+0.2",
+            tooltip: "Why it matters: Removes noisy requirements. Reduces friction with HM.",
+            talentPoolImpact: "+18% available market",
+            riskReduction: "-10% restart risk",
+          },
+          {
+            fix: "Pre-approve comp guardrails",
+            impact: "+0.3",
+            tooltip: "Why it matters: Prevents late rejections; seniors won't move without clarity.",
+            talentPoolImpact: "+22% candidate engagement",
+            riskReduction: "-20% offer-fail risk",
+          },
+          {
+            fix: "Pre-block interview slots",
+            impact: "+0.2",
+            tooltip: "Why it matters: Time kills deals. Removes hidden bottlenecks.",
+            talentPoolImpact: "+12% conversion",
+            riskReduction: "-15% dropout risk",
+          },
+          {
+            fix: "Clarify modelling ownership",
+            impact: "+0.3",
+            tooltip: "Why it matters: Seniors reject vague jobs instantly.",
+            talentPoolImpact: "+15% persona match",
+            riskReduction: "-25% misalignment risk",
+          },
+        ],
+      };
+      sessionStorage.setItem("editableRealityCard", JSON.stringify(defaultRealityCardData));
+    }
+  };
+
   useEffect(() => {
     const checkSubscription = () => {
+      // Initialize Reality Card data first, before checking subscription
+      initializeRealityCardData();
+
       // Prefer real subscription if present
       const plan = sessionStorage.getItem("selectedPlan");
       const quickAnalysis = sessionStorage.getItem("incompleteData");

@@ -7,9 +7,84 @@ import { TrendingUp, AlertCircle, CheckCircle, XCircle, ArrowRight, Lightbulb } 
 import { calculateRealityScore } from "@/components/RealityScoreCalculator";
 import { useAcceptedFixes } from "@/contexts/AcceptedFixesContext";
 
+// Helper function to load feasibility data from sessionStorage
+const loadFeasibilityDataFromStorage = () => {
+  if (typeof window === "undefined") {
+    // Server-side: return default values
+    return {
+      feasibilityScore: "5.5/10",
+      feasibilityTitle: "Possible — but only if alignment, speed, and comp tighten immediately.",
+      feasibilitySubtext: "Not possible if criteria remain rigid or process is slow/vague.",
+      keyInsights: [],
+      helpsCase: [],
+      hurtsCase: [],
+      realityCheck1: "",
+      realityCheck2: "",
+      hiddenBottleneck: "",
+      timelineToFailure: "",
+      bottomLine1: "",
+      bottomLine2: "",
+    };
+  }
+
+  try {
+    const saved = sessionStorage.getItem("editableRealityCard");
+    if (saved) {
+      const data = JSON.parse(saved);
+      return {
+        feasibilityScore: data.feasibilityScore || "5.5/10",
+        feasibilityTitle: data.feasibilityTitle || "Possible — but only if alignment, speed, and comp tighten immediately.",
+        feasibilitySubtext: data.feasibilitySubtext || "Not possible if criteria remain rigid or process is slow/vague.",
+        keyInsights: data.keyInsights || [],
+        helpsCase: data.helpsCase || [],
+        hurtsCase: data.hurtsCase || [],
+        realityCheck1: data.realityCheck1 || "",
+        realityCheck2: data.realityCheck2 || "",
+        hiddenBottleneck: data.hiddenBottleneck || "",
+        timelineToFailure: data.timelineToFailure || "",
+        bottomLine1: data.bottomLine1 || "",
+        bottomLine2: data.bottomLine2 || "",
+      };
+    }
+  } catch (e) {
+    console.error("Failed to load feasibility data:", e);
+  }
+
+  // Default values (same as EditableRealityCard component)
+  return {
+    feasibilityScore: "5.5/10",
+    feasibilityTitle: "Possible — but only if alignment, speed, and comp tighten immediately.",
+    feasibilitySubtext: "Not possible if criteria remain rigid or process is slow/vague.",
+    realityCheck1: "This hire is feasible but challenging. You're not sourcing an entry-level analyst, you're competing for senior Analytics Engineers who are already employed, well-compensated, and selective about where they go next.",
+    realityCheck2: "Winning here requires competitive compensation, a tight fast hiring loop, consistent internal alignment, and clear ownership. Half-measures won't work in this market.",
+    keyInsights: [
+      "Market is tight: Senior Analytics Engineers are fully employed. Outbound sourcing is mandatory.",
+      "Speed wins: If your loop is slower than 10–14 days, every top-tier candidate evaporates.",
+      "Compensation reality: If you offer €80k, you won't hire a senior, you'll hire someone who thinks they're senior.",
+    ],
+    helpsCase: [
+      "Product-facing analytics (rare → instantly attractive)",
+      "Stack that seniors actually want (dbt, Snowflake, Looker)",
+      "Clear domain ownership (AEs hate \"own everything\" chaos)",
+      "Strong brand with real customer impact",
+    ],
+    hurtsCase: [
+      "Amsterdam-only requirement",
+      "4+ step interview loop",
+      "Compensation ceilings below €90k",
+      "PM / Data / Engineering pulling in different directions",
+    ],
+    hiddenBottleneck: "If your team doesn't agree on what good looks like in week one, a restart around week 5–7 is guaranteed. Most searches don't fail because \"the market is hard.\" They fail because internal alignment is harder.",
+    timelineToFailure: "If alignment isn't fixed by Day 7 → expect a stall/reset around week 5–7. You won't know it's happening until candidates quietly stop responding.",
+    bottomLine1: "If you: ✔ align fast ✔ move within 10–14 days ✔ pay proper senior rates ✔ run targeted outbound → You will hire.",
+    bottomLine2: "If not → You won't.",
+  };
+};
+
 export const RealityCardBanner: React.FC = () => {
   const router = useRouter();
   const { getTotalImpact } = useAcceptedFixes();
+  // Initialize state with data from sessionStorage immediately
   const [feasibilityData, setFeasibilityData] = useState<{
     feasibilityScore: string;
     feasibilityTitle: string;
@@ -23,66 +98,16 @@ export const RealityCardBanner: React.FC = () => {
     timelineToFailure?: string;
     bottomLine1?: string;
     bottomLine2?: string;
-  } | null>(null);
+  }>(loadFeasibilityDataFromStorage);
 
   useEffect(() => {
     // Load feasibility data from sessionStorage
     const loadFeasibilityData = () => {
-      try {
-        const saved = sessionStorage.getItem("editableRealityCard");
-        if (saved) {
-          const data = JSON.parse(saved);
-
-          setFeasibilityData({
-            feasibilityScore: data.feasibilityScore || "5.5/10",
-            feasibilityTitle: data.feasibilityTitle || "Possible — but only if alignment, speed, and comp tighten immediately.",
-            feasibilitySubtext: data.feasibilitySubtext || "Not possible if criteria remain rigid or process is slow/vague.",
-            keyInsights: data.keyInsights || [],
-            helpsCase: data.helpsCase || [],
-            hurtsCase: data.hurtsCase || [],
-            realityCheck1: data.realityCheck1 || "",
-            realityCheck2: data.realityCheck2 || "",
-            hiddenBottleneck: data.hiddenBottleneck || "",
-            timelineToFailure: data.timelineToFailure || "",
-            bottomLine1: data.bottomLine1 || "",
-            bottomLine2: data.bottomLine2 || "",
-          });
-        } else {
-          // Default values
-          setFeasibilityData({
-            feasibilityScore: "5.5/10",
-            feasibilityTitle: "Possible — but only if alignment, speed, and comp tighten immediately.",
-            feasibilitySubtext: "Not possible if criteria remain rigid or process is slow/vague.",
-            keyInsights: [],
-            helpsCase: [],
-            hurtsCase: [],
-            realityCheck1: "",
-            realityCheck2: "",
-            hiddenBottleneck: "",
-            timelineToFailure: "",
-            bottomLine1: "",
-            bottomLine2: "",
-          });
-        }
-      } catch (e) {
-        console.error("Failed to load feasibility data:", e);
-        setFeasibilityData({
-          feasibilityScore: "5.5/10",
-          feasibilityTitle: "Possible — but only if alignment, speed, and comp tighten immediately.",
-          feasibilitySubtext: "Not possible if criteria remain rigid or process is slow/vague.",
-          keyInsights: [],
-          helpsCase: [],
-          hurtsCase: [],
-          realityCheck1: "",
-          realityCheck2: "",
-          hiddenBottleneck: "",
-          timelineToFailure: "",
-          bottomLine1: "",
-          bottomLine2: "",
-        });
-      }
+      const data = loadFeasibilityDataFromStorage();
+      setFeasibilityData(data);
     };
 
+    // Load immediately on mount
     loadFeasibilityData();
 
     // Listen for storage changes
@@ -129,10 +154,6 @@ export const RealityCardBanner: React.FC = () => {
   const scoreMatch = feasibilityData?.feasibilityScore?.match(/(\d+\.?\d*)\s*\/\s*(\d+\.?\d*)/);
   const maxScore = scoreMatch ? parseFloat(scoreMatch[2]) : 10;
   const currentScore = calculatedScore;
-
-  if (!feasibilityData) {
-    return null;
-  }
 
   const handleCardClick = () => {
     router.push("/cards/reality");

@@ -8,6 +8,7 @@ import { ScoreImpactRow } from "./ScoreImpactTable";
 import { useAcceptedFixes } from "@/contexts/AcceptedFixesContext";
 import { allCards } from "@/lib/cardCategories";
 import { calculateRealityScore } from "@/components/RealityScoreCalculator";
+import { CardModal } from "./CardModal";
 
 interface FixMeNowBoxesProps {
   rows: ScoreImpactRow[];
@@ -79,6 +80,8 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [tooltipPosition, setTooltipPosition] = useState<{ top: number; left: number } | null>(null);
   const buttonRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [flippedCardId, setFlippedCardId] = useState<string | null>(null);
+  const [modalCardId, setModalCardId] = useState<string | null>(null);
 
   // Parse impact string to number (e.g., "+0.2" -> 0.2)
   const parseImpact = (impactStr: string): number => {
@@ -166,6 +169,8 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {otherCards.map((card, index) => {
               const Icon = card.icon;
+              const isFlipped = flippedCardId === card.id;
+              
               return (
                 <motion.div
                   key={card.id}
@@ -173,46 +178,108 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.05 }}
                   className="relative"
+                  style={{ perspective: "1000px", minHeight: "180px" }}
                 >
-                  <motion.button
-                    onClick={() => onNavigateToCard(card.id)}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`
-                      relative w-full flex flex-col items-center justify-center gap-2 p-5 rounded-xl transition-all
-                      bg-white border-2 border-gray-200 hover:border-gray-300 shadow-md hover:shadow-xl
-                      group overflow-hidden
-                    `}
-                    title={card.label}
+                  <motion.div
+                    animate={{
+                      rotateY: isFlipped ? 180 : 0,
+                    }}
+                    transition={{ duration: 0.6, ease: "easeInOut" }}
+                    style={{
+                      transformStyle: "preserve-3d",
+                      position: "relative",
+                      width: "100%",
+                      height: "100%",
+                    }}
                   >
-                    {/* Gradient background overlay on hover */}
-                    <div className={`absolute inset-0 ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-                    
-                    {/* Card icon with gradient background */}
-                    <div className={`relative z-10 w-14 h-14 ${card.gradient} rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
-                      <Icon className="w-7 h-7 text-white" />
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white animate-pulse"></div>
-                    </div>
-                    
-                    {/* Card label */}
-                    <span className="relative z-10 text-sm font-bold text-center leading-tight text-gray-800 group-hover:text-white transition-colors">
-                      {card.shortLabel} Card
-                    </span>
-                    
-                    {/* Boost representation with graph icon */}
-                    <div className="relative z-10 flex items-center gap-1.5 mt-1">
-                      <LineChart className="w-4 h-4 text-emerald-600 group-hover:text-white/90 transition-colors" />
-                      <span className="text-xs font-bold text-emerald-600 group-hover:text-white transition-colors">
-                        {card.impact}
+                    {/* Front of card */}
+                    <motion.button
+                      onClick={() => {
+                        if (!isFlipped) {
+                          setFlippedCardId(card.id);
+                          // After flip animation, open modal
+                          setTimeout(() => {
+                            setModalCardId(card.id);
+                            setFlippedCardId(null);
+                          }, 600);
+                        }
+                      }}
+                      whileHover={!isFlipped ? { scale: 1.05, y: -2 } : {}}
+                      whileTap={{ scale: 0.95 }}
+                      className={`
+                        relative w-full h-full flex flex-col items-center justify-center gap-2 p-5 rounded-xl transition-all
+                        bg-white border-2 border-gray-200 hover:border-gray-300 shadow-md hover:shadow-xl
+                        group overflow-hidden
+                      `}
+                      title={card.label}
+                      style={{
+                        backfaceVisibility: "hidden",
+                        WebkitBackfaceVisibility: "hidden",
+                        position: "absolute",
+                        inset: 0,
+                      }}
+                    >
+                      {/* Gradient background overlay on hover */}
+                      <div className={`absolute inset-0 ${card.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
+                      
+                      {/* Card icon with gradient background */}
+                      <div className={`relative z-10 w-14 h-14 ${card.gradient} rounded-lg flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform`}>
+                        <Icon className="w-7 h-7 text-white" />
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-yellow-400 rounded-full border-2 border-white animate-pulse"></div>
+                      </div>
+                      
+                      {/* Card label */}
+                      <span className="relative z-10 text-sm font-bold text-center leading-tight text-gray-800 group-hover:text-white transition-colors">
+                        {card.shortLabel} Card
                       </span>
-                      <span className="text-[10px] text-gray-500 group-hover:text-white/80 transition-colors">
-                        boost
-                      </span>
-                    </div>
-                    
-                    {/* Shine effect on hover */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                  </motion.button>
+                      
+                      {/* Boost representation with graph icon */}
+                      <div className="relative z-10 flex items-center gap-1.5 mt-1">
+                        <LineChart className="w-4 h-4 text-emerald-600 group-hover:text-white/90 transition-colors" />
+                        <span className="text-xs font-bold text-emerald-600 group-hover:text-white transition-colors">
+                          {card.impact}
+                        </span>
+                        <span className="text-[10px] text-gray-500 group-hover:text-white/80 transition-colors">
+                          boost
+                        </span>
+                      </div>
+                      
+                      {/* Shine effect on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    </motion.button>
+
+                    {/* Back of card (flipped) */}
+                    <motion.div
+                      className={`
+                        absolute inset-0 w-full h-full ${card.gradient} rounded-xl flex items-center justify-center
+                        border-2 border-white/20 shadow-2xl
+                      `}
+                      style={{
+                        backfaceVisibility: "hidden",
+                        WebkitBackfaceVisibility: "hidden",
+                        transform: "rotateY(180deg)",
+                      }}
+                    >
+                      <div className="text-center text-white">
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+                          className="w-16 h-16 mx-auto mb-3 bg-white/20 rounded-full flex items-center justify-center"
+                        >
+                          <Icon className="w-8 h-8 text-white" />
+                        </motion.div>
+                        <motion.p
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ delay: 0.3 }}
+                          className="text-sm font-bold"
+                        >
+                          Opening...
+                        </motion.p>
+                      </div>
+                    </motion.div>
+                  </motion.div>
                 </motion.div>
               );
             })}
@@ -342,6 +409,15 @@ export const FixMeNowBoxes: React.FC<FixMeNowBoxesProps> = ({
             </span>
           </div>
         </div>
+      )}
+
+      {/* Card Modal */}
+      {modalCardId && (
+        <CardModal
+          isOpen={!!modalCardId}
+          onClose={() => setModalCardId(null)}
+          cardId={modalCardId}
+        />
       )}
     </div>
   );

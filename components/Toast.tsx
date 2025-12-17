@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useCallback, useRef, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle, X } from "lucide-react";
 
@@ -18,8 +18,19 @@ const ToastContext = createContext<ToastContextType | undefined>(undefined);
 
 export function ToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<Toast[]>([]);
+  const lastToastRef = useRef<{ message: string; timestamp: number } | null>(null);
 
   const showToast = useCallback((message: string, type: "success" | "info" | "warning" | "error" = "success") => {
+    // Prevent duplicate toasts within 500ms
+    const now = Date.now();
+    if (lastToastRef.current && 
+        lastToastRef.current.message === message && 
+        now - lastToastRef.current.timestamp < 500) {
+      return; // Skip duplicate toast
+    }
+    
+    lastToastRef.current = { message, timestamp: now };
+    
     const id = Math.random().toString(36).substring(7);
     setToasts((prev) => [...prev, { id, message, type }]);
     

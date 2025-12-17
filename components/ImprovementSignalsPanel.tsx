@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   X, 
@@ -18,6 +18,8 @@ import {
   MessageSquare
 } from "lucide-react";
 import { ImprovementChatbot } from "./ImprovementChatbot";
+import { calculateRealityScore } from "@/components/RealityScoreCalculator";
+import { useAcceptedFixes } from "@/contexts/AcceptedFixesContext";
 
 interface ImprovementSignalsPanelProps {
   isOpen: boolean;
@@ -44,7 +46,47 @@ interface ImprovementSignal {
   action?: string;
   estimatedScoreIncrease?: number;
   targetTab?: string; // Tab ID to navigate to when clicked
+  // Additional data for chatbot
+  cardId?: string;
+  cardName?: string;
+  talentPoolImpact?: string;
+  riskReduction?: string;
+  cardContent?: any; // Full card content for chatbot context
 }
+
+// Card storage keys mapping (constant, defined outside component)
+const cardStorageKeys: Record<string, string> = {
+  reality: "editableRealityCard",
+  role: "editableRoleCard",
+  skill: "editableSkillCard",
+  market: "editableMarketCard",
+  talentmap: "editableTalentMapCard",
+  pay: "editablePayCard",
+  funnel: "editableFunnelCard",
+  fit: "editableFitCard",
+  message: "editableMessageCard",
+  outreach: "editableOutreachCard",
+  interview: "editableInterviewCard",
+  scorecard: "editableScorecardCard",
+  plan: "editablePlanCard",
+};
+
+// Card name mapping for display (constant, defined outside component)
+const cardNames: Record<string, string> = {
+  reality: "Reality",
+  role: "Role",
+  skill: "Skills",
+  market: "Market",
+  talentmap: "Talent Map",
+  pay: "Pay",
+  funnel: "Funnel",
+  fit: "Fit",
+  message: "Message",
+  outreach: "Outreach",
+  interview: "Interview",
+  scorecard: "Scorecard",
+  plan: "Plan",
+};
 
 export const ImprovementSignalsPanel: React.FC<ImprovementSignalsPanelProps> = ({
   isOpen,
@@ -58,91 +100,153 @@ export const ImprovementSignalsPanel: React.FC<ImprovementSignalsPanelProps> = (
   const [selectedSignal, setSelectedSignal] = useState<ImprovementSignal | null>(null);
   const [showChatbot, setShowChatbot] = useState(false);
   const [acceptedSignals, setAcceptedSignals] = useState<Set<string>>(new Set());
+  const [realityCardData, setRealityCardData] = useState<any>(null);
+  const { getTotalImpact } = useAcceptedFixes();
 
+  // Load Reality Card data and calculate score
   useEffect(() => {
-    // Generate improvement signals based on card data
+    const loadRealityCardData = () => {
+      try {
+        const saved = sessionStorage.getItem("editableRealityCard");
+        if (saved) {
+          const data = JSON.parse(saved);
+          setRealityCardData(data);
+        }
+      } catch (e) {
+        console.error("Failed to load reality card data:", e);
+      }
+    };
+
+    loadRealityCardData();
+
+    // Listen for storage changes
+    const handleStorageChange = () => {
+      loadRealityCardData();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    // Also poll for changes
+    const interval = setInterval(loadRealityCardData, 1000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, []);
+
+  // Calculate the Reality Card score the same way as RealityCardBanner
+  const calculatedRealityScore = useMemo(() => {
+    if (!realityCardData) return currentScore; // Fallback to prop if no data
+    
+    const baseScore = calculateRealityScore({
+      feasibilityScore: realityCardData.feasibilityScore || "5.5/10",
+      helpsCase: realityCardData.helpsCase || [],
+      hurtsCase: realityCardData.hurtsCase || [],
+      keyInsights: realityCardData.keyInsights || [],
+      realityCheck1: realityCardData.realityCheck1 || "",
+      realityCheck2: realityCardData.realityCheck2 || "",
+      hiddenBottleneck: realityCardData.hiddenBottleneck || "",
+      timelineToFailure: realityCardData.timelineToFailure || "",
+      bottomLine1: realityCardData.bottomLine1 || "",
+      bottomLine2: realityCardData.bottomLine2 || "",
+    });
+    // Add accepted improvements boost from all cards (capped at 9.9)
+    const totalAcceptedImpact = getTotalImpact();
+    return Math.min(9.9, baseScore + totalAcceptedImpact);
+  }, [realityCardData, getTotalImpact, currentScore]);
+
+  // Function to load and generate signals from all cards
+  const loadSignalsFromCards = useCallback(() => {
     const generatedSignals: ImprovementSignal[] = [];
 
-    // Safety check: ensure cardData exists
-    if (!cardData) {
-      setSignals([]);
-      return;
-    }
+    // Load Fix Me Now data from all cards
+    Object.entries(cardStorageKeys).forEach(([cardId, storageKey]) => {
+      try {
+        const saved = sessionStorage.getItem(storageKey);
+        if (saved) {
+          const cardData = JSON.parse(saved);
+          const scoreImpactRows = cardData.scoreImpactRows || [];
 
-    // Analyze hurtsCase for improvement opportunities
-    const hurtsCase = cardData.hurtsCase || [];
-    hurtsCase.forEach((hurt, index) => {
-      if (hurt.toLowerCase().includes("salary") || hurt.toLowerCase().includes("comp")) {
-        generatedSignals.push({
-          id: `comp-${index}`,
-          type: "improvement",
-          title: "Increase Compensation Range",
-          description: "Your current compensation is below market. Increasing by 10-15% could improve your score significantly.",
-          impact: "high",
-          category: "compensation",
-          action: "Update salary range in Pay Card",
-          estimatedScoreIncrease: 1.5,
-          targetTab: "pay",
-        });
-      }
-      if (hurt.toLowerCase().includes("slow") || hurt.toLowerCase().includes("timeline")) {
-        generatedSignals.push({
-          id: `timeline-${index}`,
-          type: "improvement",
-          title: "Accelerate Hiring Timeline",
-          description: "A faster hiring process (10-14 days) significantly improves your chances of landing top candidates.",
-          impact: "high",
-          category: "timeline",
-          action: "Set aggressive timeline in Role Card",
-          estimatedScoreIncrease: 1.2,
-          targetTab: "role",
-        });
-      }
-      if (hurt.toLowerCase().includes("location") || hurt.toLowerCase().includes("remote")) {
-        generatedSignals.push({
-          id: `location-${index}`,
-          type: "improvement",
-          title: "Consider Remote or Hybrid",
-          description: "Expanding location requirements can dramatically increase your talent pool and improve feasibility.",
-          impact: "medium",
-          category: "location",
-          action: "Update work model in Role Card",
-          estimatedScoreIncrease: 0.8,
-          targetTab: "role",
-        });
+          // Convert each Fix Me Now suggestion to an improvement signal
+          scoreImpactRows.forEach((row: any, index: number) => {
+            // Parse impact string (e.g., "+0.2" -> 0.2)
+            const impactMatch = row.impact?.match(/[+-]?(\d+\.?\d*)/);
+            const impactValue = impactMatch ? parseFloat(impactMatch[1]) : 0;
+
+            // Determine impact level
+            let impactLevel: "high" | "medium" | "low" = "medium";
+            if (impactValue >= 0.3) impactLevel = "high";
+            else if (impactValue < 0.2) impactLevel = "low";
+
+            // Determine category based on fix text
+            let category: "compensation" | "timeline" | "location" | "skills" | "process" | "other" = "other";
+            const fixLower = row.fix?.toLowerCase() || "";
+            if (fixLower.includes("comp") || fixLower.includes("salary") || fixLower.includes("pay")) {
+              category = "compensation";
+            } else if (fixLower.includes("timeline") || fixLower.includes("speed") || fixLower.includes("fast")) {
+              category = "timeline";
+            } else if (fixLower.includes("location") || fixLower.includes("remote")) {
+              category = "location";
+            } else if (fixLower.includes("skill") || fixLower.includes("ability")) {
+              category = "skills";
+            } else if (fixLower.includes("process") || fixLower.includes("interview") || fixLower.includes("loop")) {
+              category = "process";
+            }
+
+            generatedSignals.push({
+              id: `${cardId}-${index}-${row.fix?.toLowerCase().replace(/[^a-z0-9]+/g, "-") || index}`,
+              type: "improvement",
+              title: row.fix || "Improve this area",
+              description: row.tooltip || row.fix || "This improvement can help boost your feasibility score.",
+              impact: impactLevel,
+              category: category,
+              action: `Check Fix Me Now in ${cardNames[cardId]} Card`,
+              estimatedScoreIncrease: impactValue,
+              targetTab: cardId,
+              // Store additional data for chatbot
+              cardId: cardId,
+              cardName: cardNames[cardId],
+              talentPoolImpact: row.talentPoolImpact,
+              riskReduction: row.riskReduction,
+              cardContent: cardData, // Store full card content for chatbot
+            });
+          });
+        }
+      } catch (e) {
+        console.error(`Failed to load ${cardId} card data:`, e);
       }
     });
 
-    // Analyze helpsCase for reinforcement
-    const helpsCase = (cardData && cardData.helpsCase) || [];
-    if (helpsCase.length > 0) {
-      generatedSignals.push({
-        id: "strengths",
-        type: "success",
-        title: "Leverage Your Strengths",
-        description: `You have ${helpsCase.length} strong advantages. Make sure these are highlighted in your job postings and outreach.`,
-        impact: "medium",
-        category: "other",
-        action: "Emphasize in Message Card",
-        estimatedScoreIncrease: 0.5,
-        targetTab: "message",
-      });
-    }
-
-    // Add general improvement suggestions
-    if (currentScore < 7) {
-      generatedSignals.push({
-        id: "general-1",
-        type: "info",
-        title: "Focus on High-Impact Changes",
-        description: "Prioritize compensation and timeline improvements for maximum score impact.",
-        impact: "high",
-        category: "other",
-      });
-    }
+    // Sort by impact (high impact first, then by score increase)
+    generatedSignals.sort((a, b) => {
+      const impactOrder = { high: 3, medium: 2, low: 1 };
+      const impactDiff = (impactOrder[b.impact] || 0) - (impactOrder[a.impact] || 0);
+      if (impactDiff !== 0) return impactDiff;
+      return (b.estimatedScoreIncrease || 0) - (a.estimatedScoreIncrease || 0);
+    });
 
     setSignals(generatedSignals);
-  }, [cardData, currentScore]);
+  }, []); // Empty deps: cardStorageKeys and cardNames are constants defined outside component
+
+  useEffect(() => {
+    // Load signals on mount and when cardData/currentScore changes
+    loadSignalsFromCards();
+
+    // Listen for storage changes to update signals when cards are edited
+    const handleStorageChange = () => {
+      loadSignalsFromCards();
+    };
+
+    window.addEventListener("storage", handleStorageChange);
+    
+    // Also poll for changes (since storage event only fires in other tabs)
+    const interval = setInterval(loadSignalsFromCards, 2000);
+
+    return () => {
+      window.removeEventListener("storage", handleStorageChange);
+      clearInterval(interval);
+    };
+  }, [cardData, currentScore, loadSignalsFromCards]);
 
   const getIcon = (type: string, category: string) => {
     if (type === "success") return <CheckCircle2 className="w-5 h-5" />;
@@ -177,9 +281,10 @@ export const ImprovementSignalsPanel: React.FC<ImprovementSignalsPanelProps> = (
   return (
     <AnimatePresence>
       {isOpen && (
-        <>
+        <React.Fragment key="improvement-panel">
           {/* Backdrop */}
           <motion.div
+            key="backdrop"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -189,6 +294,7 @@ export const ImprovementSignalsPanel: React.FC<ImprovementSignalsPanelProps> = (
           
           {/* Panel */}
           <motion.div
+            key="panel"
             initial={{ x: "100%" }}
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
@@ -220,21 +326,19 @@ export const ImprovementSignalsPanel: React.FC<ImprovementSignalsPanelProps> = (
                 <div className="flex-1 bg-white/10 rounded-lg p-3">
                   <div className="text-xs opacity-90 mb-1">Current Score</div>
                   <motion.div 
-                    key={currentScore}
+                    key={calculatedRealityScore}
                     initial={{ scale: 1 }}
                     animate={{ scale: [1, 1.2, 1] }}
                     transition={{ duration: 0.5 }}
                     className="text-2xl font-bold"
                   >
-                    {currentScore.toFixed(1)}/10
+                    {calculatedRealityScore.toFixed(1)}/10
                   </motion.div>
                 </div>
                 <div className="flex-1 bg-white/10 rounded-lg p-3">
                   <div className="text-xs opacity-90 mb-1">Potential</div>
                   <div className="text-2xl font-bold">
-                    {(currentScore + signals
-                      .filter(s => !acceptedSignals.has(s.id))
-                      .reduce((sum, s) => sum + (s.estimatedScoreIncrease || 0), 0)).toFixed(1)}/10
+                    9.9/10
                   </div>
                 </div>
               </div>
@@ -329,32 +433,32 @@ export const ImprovementSignalsPanel: React.FC<ImprovementSignalsPanelProps> = (
               </div>
             </div>
           </motion.div>
-        </>
+        </React.Fragment>
       )}
 
       {/* Improvement Chatbot */}
-      <ImprovementChatbot
-        isOpen={showChatbot}
-        onClose={() => {
-          setShowChatbot(false);
-          setSelectedSignal(null);
-        }}
-        signal={selectedSignal}
-        onAcceptChanges={(signalId, targetTab) => {
-          // Find the signal to get its score increase
-          const signal = signals.find(s => s.id === signalId);
-          const scoreIncrease = signal?.estimatedScoreIncrease || 0;
-          
-          // Mark signal as accepted
-          setAcceptedSignals(prev => new Set([...prev, signalId]));
-          // Notify parent with score increase
-          onApplySuggestion?.(signalId, targetTab, scoreIncrease);
-          // Close chatbot but keep panel open
-          setShowChatbot(false);
-          setSelectedSignal(null);
-        }}
-        onNavigateToTab={onNavigateToTab}
-      />
+      {showChatbot && (
+        <ImprovementChatbot
+          key="improvement-chatbot"
+          isOpen={showChatbot}
+          onClose={() => {
+            setShowChatbot(false);
+            setSelectedSignal(null);
+          }}
+          signal={selectedSignal}
+          onAcceptChanges={(signalId, targetTab) => {
+            // Mark signal as accepted in UI (for panel state only)
+            // Note: The actual fix acceptance and toast notification is handled by acceptFix in the chatbot
+            setAcceptedSignals(prev => new Set([...prev, signalId]));
+            // Don't call onApplySuggestion here to avoid duplicate toast
+            // The chatbot's acceptFix already handles the score change and triggers the toast
+            // Close chatbot but keep panel open
+            setShowChatbot(false);
+            setSelectedSignal(null);
+          }}
+          onNavigateToTab={onNavigateToTab}
+        />
+      )}
     </AnimatePresence>
   );
 };
